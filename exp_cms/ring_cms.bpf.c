@@ -34,36 +34,12 @@ static inline int hash(char str[15]) {
 }
  
 char key[15];
-int counter = 0;
 struct event *e;
 
-//static long loop_callback(__u32 index, struct xdp_md* ctx) {
-//    	__u32 row_index = 0;
-//    	__u32 row_index_old = 0;
-//	__u32* val;
-//	__u32 new_val = 0;
-//	// update key
-//	key[13] = index;
-//
-//	struct event *e;
-//
-//	e = bpf_ringbuf_reserve(&rb, sizeof(struct event), 0);
-//	if (!e)
-// 		return 0;
-//
-//	row_index = hash(key);
-//	row_index = (uint)row_index % (uint)CMS_SIZE;
-//	e->row_index = (__u16)index;
-//	e->hash = row_index;
-//	bpf_ringbuf_submit(e,BPF_RB_FORCE_WAKEUP);
-//	return 0;
-//}
 
 SEC("xdp")
 int ring_cms(struct xdp_md *ctx) {
-    counter++;
-    //bpf_printk("Counter %d", counter);
-    //bpf_printk("Counter %d", counter);
+    
     void* data = (void*)(long)(ctx->data);
     void* data_end = (void*)(long)(ctx->data_end);
     struct ethhdr* eth_hdr = data;

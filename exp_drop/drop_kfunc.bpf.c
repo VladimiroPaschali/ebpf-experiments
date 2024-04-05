@@ -1,34 +1,20 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
-
-struct {
-    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-    __uint(max_entries, 1);
-    __type(key, __u32);
-    __type(value, __u32);
-}pkt_counter SEC(".maps") ;
+#include <mykperf_module.h>
 
 
-__u64 bpf_mykperf_read_rdpmc(__u8 counter) __ksym;
+
+
+BPF_MYKPERF_INIT_TRACE();
 
 SEC("xdp") int drop_kfunc(struct xdp_md *ctx)
 {
-    volatile __u64 x = bpf_mykperf_read_rdpmc(0);
-
-    __u32 key = 0;
-    __u32 *counter;
+    BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
 
     
-    return XDP_DROP;
+    BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
 
-    volatile __u64 y = bpf_mykperf_read_rdpmc(0);
-
-
-    counter = bpf_map_lookup_elem(&pkt_counter, &key);
-    if (counter) {
-        (*counter)++;
-
-    }
+    return XDP_DROP;    
 }
 
 char _license[] SEC("license") = "GPL";

@@ -11,13 +11,10 @@
 #include <sys/types.h>
 #include "cms.h"
 
+#include <mykperf_module.h>
 
 __u64 bpf_mykperf_read_rdpmc(__u8 counter__k) __ksym;
-
-struct {
-	__uint(type, BPF_MAP_TYPE_RINGBUF);
-	__uint(max_entries, 1024);
-} ringbuf SEC(".maps");
+BPF_MYKPERF_INIT_TRACE();
 
 struct {
     __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
@@ -48,14 +45,13 @@ static inline int hash(char str[15]) {
 }
  
 char key[15];
-int counter = 0;
 
 SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx) {
-	__u64 reg_count = bpf_mykperf_read_rdpmc(1);
-    counter++;
-    //bpf_printk("Counter %d", counter);
-    //bpf_printk("Counter %d", counter);
+
+	__u64 start = bpf_mykperf_read_rdpmc(0);
+    BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
+
     void* data = (void*)(long)(ctx->data);
     void* data_end = (void*)(long)(ctx->data_end);
     struct ethhdr* eth_hdr = data;
@@ -137,18 +133,9 @@ int cms_kfunc(struct xdp_md *ctx) {
 
     
 end:
-    reg_count = bpf_mykperf_read_rdpmc(1) - reg_count;
-    __u64* e = bpf_ringbuf_reserve(&ringbuf, sizeof(reg_count), 0);
-    if (e) {
-	*e = reg_count;
-	bpf_ringbuf_submit(e, BPF_RB_NO_WAKEUP);
-    }
-    //bpf_printk("Time: %llu", reg_count);
-    // __u32 key = 0;
-    // __u32 *val1 = bpf_map_lookup_elem(&pkt_counter, &key);
-    // if (val1) {
-	// (*val1)++;
-    // }
+	BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
+    __u64 end = bpf_mykperf_read_rdpmc(0);
+
     return XDP_PASS;
 }
 

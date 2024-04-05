@@ -11,9 +11,9 @@
 #include <sys/types.h>
 #include "cms.h"
 
-#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+#include <mykperf_module.h>
 
-__u64 bpf_mykperf_read_rdpmc(__u8 counter__k) __ksym;
+BPF_MYKPERF_INIT_TRACE();
 
 struct {
     __uint(type, BPF_MAP_TYPE_RINGBUF);
@@ -35,37 +35,13 @@ static inline int hash(char str[15]) {
 }
  
 char key[15];
-int counter = 0;
 struct event *e;
-
-//static long loop_callback(__u32 index, struct xdp_md* ctx) {
-//    	__u32 row_index = 0;
-//    	__u32 row_index_old = 0;
-//	__u32* val;
-//	__u32 new_val = 0;
-//	// update key
-//	key[13] = index;
-//
-//	struct event *e;
-//
-//	e = bpf_ringbuf_reserve(&rb, sizeof(struct event), 0);
-//	if (!e)
-// 		return 0;
-//
-//	row_index = hash(key);
-//	row_index = (uint)row_index % (uint)CMS_SIZE;
-//	e->row_index = (__u16)index;
-//	e->hash = row_index;
-//	bpf_ringbuf_submit(e,BPF_RB_FORCE_WAKEUP);
-//	return 0;
-//}
 
 SEC("xdp")
 int ring_cms_kfunc(struct xdp_md *ctx) {
-    __u64 reg_count = bpf_mykperf_read_rdpmc(1) ;
-    counter++;
-    //bpf_printk("Counter %d", counter);
-    //bpf_printk("Counter %d", counter);
+
+	BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
+
     void* data = (void*)(long)(ctx->data);
     void* data_end = (void*)(long)(ctx->data_end);
     struct ethhdr* eth_hdr = data;
@@ -142,12 +118,10 @@ int ring_cms_kfunc(struct xdp_md *ctx) {
 
 	    bpf_ringbuf_submit(e,BPF_RB_NO_WAKEUP);
     }
-	//volatile __u64 x = bpf_mykperf_read_rdpmc(0);
 
     
 end:
-    reg_count = bpf_mykperf_read_rdpmc(1) -reg_count; 
-    bpf_printk("Counter %d", reg_count);
+    BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
     return XDP_PASS;
 }
 
