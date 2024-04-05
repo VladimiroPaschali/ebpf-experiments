@@ -135,25 +135,6 @@ def kfunc():
 
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
-# def instructions():
-
-#     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
-#     out=out.decode("utf-8")
-#     out=out.split(":")[0]
-#     prog_id = int(out)
-#     #preexec_fn=os.setsid a quanto pare è fondamentale 
-#     process = subprocess.Popen(f'sudo {PERF_PATH}perf stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-#     time.sleep(TIME)
-#     os.killpg(os.getpgid(process.pid), signal.SIGINT)
-#     #reads PIPE stdout and stderr
-#     output, ris = process.communicate()
-#     ris = ris.splitlines()
-#     riga = ris[3].decode("utf-8").split(" ")
-#     instructions=riga[5]
-#     # print(instructions)
-#     stampa = f"instructions: {instructions}"
-#     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
-
 def parser():
 
     global EXPERIMENT_NAME
@@ -197,7 +178,7 @@ def main():
             my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
 
 
-            command = f"./{EXPERIMENT_NAME}  {INTERFACE}"
+            command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
             experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
 
             out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -224,7 +205,7 @@ def main():
             EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
             print(f"Start {EXPERIMENT_NAME}")
 
-            command = f"./{EXPERIMENT_NAME}  {INTERFACE}"
+            command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
             experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
 
             kfunc()
@@ -237,8 +218,13 @@ def main():
     
     finally:
         print("Terminating experiment")
-        experiment.terminate()
-        experimentkfunc.terminate()
-
+        try:
+            experiment.terminate()
+        except NameError:
+            pass
+        try:
+            experimentkfunc.terminate()
+        except NameError:
+            pass
 
 main()

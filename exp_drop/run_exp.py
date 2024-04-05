@@ -203,7 +203,7 @@ def main():
             my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
 
 
-            command = f"./{EXPERIMENT_NAME}  {INTERFACE}"
+            command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
             experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
 
             out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -233,7 +233,7 @@ def main():
         print("Start kfunc")
         EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
         subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
-        command = f"./{EXPERIMENT_NAME} {INTERFACE}"
+        command = f"./{EXPERIMENT_NAME}.o {INTERFACE}"
         experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
 
         kfunc()
@@ -249,8 +249,14 @@ def main():
     
     finally:
         print("Terminating experiment")
-        experiment.terminate()
-        experimentkfunc.terminate()
+        try:
+            experiment.terminate()
+        except NameError:
+            pass
+        try:
+            experimentkfunc.terminate()
+        except NameError:
+            pass
 
 
 

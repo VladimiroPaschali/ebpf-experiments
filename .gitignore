@@ -1,0 +1,5 @@
+.vscode
+*.o
+#exclude skel
+*_skel.h
+*.skel.h
