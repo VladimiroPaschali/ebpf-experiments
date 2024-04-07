@@ -3,3 +3,4 @@
 #exclude skel
 *_skel.h
 *.skel.h
+mappe/

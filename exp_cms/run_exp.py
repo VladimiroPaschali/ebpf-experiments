@@ -41,7 +41,7 @@ def baseline():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
 
-    bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True)
+    bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
     time.sleep(1.0)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -58,7 +58,9 @@ def bpftool():
     #newvalue_runcnt
     newvalue_runcnt = int(out.split(" ")[1])
 
-    bpftool.terminate()
+    # bpftool.terminate()
+    os.killpg(os.getpgid(bpftool.pid), signal.SIGINT)
+
 
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)

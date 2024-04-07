@@ -88,8 +88,6 @@ int main( int argc, char **argv) {
 		fprintf(stderr, "Failed to create ring buffer\n");
 		goto cleanup;
 	}
-	printf("ao\n");
-
 	// int errore = ring_buffer__consume(rb);
 	// if (errore<0) {
 	// 	err = -1;
