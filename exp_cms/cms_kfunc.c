@@ -58,10 +58,14 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Failed to attach BPF program\n");
 		return 1;
 	}
+	printf("BPF program attached\n");
+
 
 
 	signal(SIGINT, sig_handler);
 	signal(SIGTERM, sig_handler);
+
+	while(1);
 
 	return 0;
 }

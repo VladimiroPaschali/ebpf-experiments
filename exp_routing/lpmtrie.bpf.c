@@ -50,15 +50,19 @@ int lpmtrie(struct xdp_md *ctx) {
 
                 if(value){
                     // bpf_printk("Matched with rule %u\n",value[0]);
-                    return XDP_DROP;
+                    // return XDP_DROP;
+                    goto end;
                 }else{
                     // bpf_printk("Not Matched\n");
-                    return XDP_DROP;
+                    // return XDP_DROP;
+                    goto end;
                 }
             }
         }
     }
-    return XDP_PASS;
+    // return XDP_PASS;
+end:
+    return XDP_DROP;
 };
 
 

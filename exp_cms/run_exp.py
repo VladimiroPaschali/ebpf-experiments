@@ -70,7 +70,6 @@ def bpftool():
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
-
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
     out=out.decode("utf-8")
     out=out.split(":")[0]
@@ -215,7 +214,7 @@ def main():
 
             command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
             experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
-
+            
             kfunc()
 
             print(f"Start {EXPERIMENT_NAME} perf")

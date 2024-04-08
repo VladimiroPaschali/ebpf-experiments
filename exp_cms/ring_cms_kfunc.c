@@ -103,9 +103,25 @@ int main( int argc, char **argv) {
 		fprintf(stderr, "Failed to attach BPF program\n");
 		goto cleanup;
 	}
+	printf("BPF program attached\n");
 
-	while (1) {
-		err = ring_buffer__consume(rb);
+
+	// while (1) {
+	// 	err = ring_buffer__consume(rb);
+	// }
+	while (!exiting) {
+		err = ring_buffer__poll(rb, 100 /* timeout, ms */);
+		/* Ctrl-C will cause -EINTR */
+		if (err == -EINTR) {
+			err = 0;
+			break;
+		}
+		if (err < 0) {
+			printf("Error polling ring buffer: %d\n", err);
+			break;
+		}
+		// printf("polling\n");
+
 	}
 
 

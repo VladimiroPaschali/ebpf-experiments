@@ -2,9 +2,6 @@
 #include <bpf/bpf_helpers.h>
 #include <mykperf_module.h>
 
-
-
-
 BPF_MYKPERF_INIT_TRACE();
 
 SEC("xdp") int drop_kfunc(struct xdp_md *ctx)

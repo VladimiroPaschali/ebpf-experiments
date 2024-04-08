@@ -10,6 +10,10 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#include <mykperf_module.h>
+
+BPF_MYKPERF_INIT_TRACE();
+
 struct ipv4_lpm_key {
         __u32 prefixlen;
         __u32 data;
@@ -27,6 +31,10 @@ struct {
 
 SEC("xdp")
 int lpmtrie_kfunc(struct xdp_md *ctx) {
+
+    BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
+
+
     void* data = (void*)(long)(ctx->data);
     void* data_end = (void*)(long)(ctx->data_end);
     struct ethhdr* eth_hdr = data;
@@ -50,15 +58,21 @@ int lpmtrie_kfunc(struct xdp_md *ctx) {
 
                 if(value){
                     // bpf_printk("Matched with rule %u\n",value[0]);
-                    return XDP_DROP;
+                    goto end;
+                    // return XDP_DROP;
                 }else{
+                    goto end;
                     // bpf_printk("Not Matched\n");
-                    return XDP_DROP;
+                    // return XDP_DROP;
                 }
             }
         }
     }
-    return XDP_PASS;
+    // return XDP_PASS;
+
+end:
+    BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
+    return XDP_DROP;
 };
 
 

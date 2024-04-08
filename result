@@ -1,1 +1,39 @@
 drop: 
+baseline: throughput = 3563675 PPS latency = 16 ns
+bpftool: throughput = 2243289 PPS latency = 327 ns
+perf: throughput = 2294908 PPS latency = 319 ns
+perf instructions per packet: 734
+drop_map: 
+baseline: throughput = 3563712 PPS latency = 21 ns
+bpftool: throughput = 2117033 PPS latency = 354 ns
+perf: throughput = 2269909 PPS latency = 324 ns
+perf instructions per packet: 760
+drop_kfunc: 
+kfunc: throughput = 3557093 PPS latency = 41 ns
+perf: throughput = 2231911 PPS latency = 334 ns
+perf instructions per packet: 854
+cms: 
+baseline: throughput = 229011 PPS latency = 73 ns
+bpftool: throughput = 212646 PPS latency = 403 ns
+perf: throughput = 213498 PPS latency = 390 ns
+perf instructions per packet: 1105
+kfunc: throughput = 226516 PPS latency = 105 ns
+perf: throughput = 211885 PPS latency = 412 ns
+perf instructions per packet: 1226
+ring_cms: 
+baseline: throughput = 157998 PPS latency = 2090 ns
+bpftool: throughput = 148154 PPS latency = 2491 ns
+perf: throughput = 148184 PPS latency = 2508 ns
+perf instructions per packet: 2456
+kfunc: throughput = 204226 PPS latency = 634 ns
+perf: throughput = 192385 PPS latency = 940 ns
+perf instructions per packet: 1421
+lpmtrie: 
+baseline: throughput = 2917022 PPS latency = 257 ns
+bpftool: throughput = 1571214 PPS latency = 524 ns
+perf: throughput = 1600276 PPS latency = 517 ns
+perf instructions per packet: 2149
+lpmtrie_kfunc: 
+kfunc: throughput = 2793654 PPS latency = 272 ns
+perf: throughput = 1574862 PPS latency = 528 ns
+perf instructions per packet: 2268

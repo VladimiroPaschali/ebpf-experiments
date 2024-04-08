@@ -13,7 +13,6 @@
 
 #include <mykperf_module.h>
 
-__u64 bpf_mykperf_read_rdpmc(__u8 counter__k) __ksym;
 BPF_MYKPERF_INIT_TRACE();
 
 struct {
@@ -49,7 +48,6 @@ char key[15];
 SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx) {
 
-	__u64 start = bpf_mykperf_read_rdpmc(0);
     BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
 
     void* data = (void*)(long)(ctx->data);
@@ -134,8 +132,6 @@ int cms_kfunc(struct xdp_md *ctx) {
     
 end:
 	BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
-    __u64 end = bpf_mykperf_read_rdpmc(0);
-
     return XDP_PASS;
 }
 
