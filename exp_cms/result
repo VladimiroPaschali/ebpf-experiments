@@ -1,16 +1,9 @@
 cms: 
-baseline: throughput = 228083 PPS latency = 74 ns
-bpftool: throughput = 211325 PPS latency = 398 ns
-perf: throughput = 199790 PPS latency = 694 ns
-perf instructions per packet: 1899
-kfunc: throughput = 227408 PPS latency = 97 ns
-perf: throughput = 211699 PPS latency = 411 ns
-perf instructions per packet: 1183
+baseline: throughput = 254475 PPS latency = 79 ns
+bpftool: throughput = 237068 PPS latency = 401 ns
+perf: throughput = 238281 PPS latency = 384 ns
+perf instructions per packet: 1208
+kfunc: throughput = 254941 PPS latency = 100 ns
+perf: throughput = 237831 PPS latency = 416 ns
+perf instructions per packet: 1301
 ring_cms: 
-baseline: throughput = 160839 PPS latency = 1978 ns
-bpftool: throughput = 148342 PPS latency = 2492 ns
-perf: throughput = 142793 PPS latency = 2762 ns
-perf instructions per packet: 3199
-kfunc: throughput = 203589 PPS latency = 376 ns
-perf: throughput = 189678 PPS latency = 992 ns
-perf instructions per packet: 1302

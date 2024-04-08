@@ -7,7 +7,7 @@ import os
 import sys
 
 #ridefiniti nel main in base ai parametri
-EXPERIMENT_NAME = "lpmtrie"
+EXPERIMENT_NAME = "routing"
 INTERFACE = "enp129s0f0np0"
 TIME =10
 PERF_PATH="/home/guest/linux/tools/perf/"
@@ -152,13 +152,15 @@ def parser():
     
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
-    parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:drop)",  metavar="drop",required = False, default = "lpmtrie")
+    parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:routing)",  metavar="routing",required = False, default = "routing")
     parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "enp129s0f0np0")
     parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "/home/guest/linux/tools/perf/")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/home/guest/libbpf/src/")
     args = parser.parse_args()
 
     EXPERIMENT_NAME = args.experiment
+    if EXPERIMENT_NAME == "routing":
+        EXPERIMENT_NAME = "lpmtrie"
     INTERFACE = args.interface
     TIME = args.time
     PERF_PATH=args.perf
@@ -169,7 +171,20 @@ def main():
     try:
         parser()
         if(os.path.exists("result")):
+            print("Deleting previous results")
             subprocess.check_output('rm result', shell=True)
+        
+        if not (os.path.exists("mappe/")):
+            print("Extracting mappe.zip")
+            subprocess.check_output('unzip mappe.zip', shell=True)
+
+        if not (os.path.exists("lpmtrie.o")):
+            print("Compiling BPF programs")
+            subprocess.check_output('make', shell=True)
+            subprocess.check_output('chmod go+w *.o', shell=True)
+            subprocess.check_output('chmod go+w *.h', shell=True)
+
+
         
         
         print(f"Starting {EXPERIMENT_NAME}")

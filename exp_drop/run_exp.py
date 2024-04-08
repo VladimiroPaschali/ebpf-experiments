@@ -187,11 +187,16 @@ def parser():
     LIBBPF_PATH=args.libbpf
 
 def main():
-
     try:
         parser()
         if(os.path.exists("result")):
             subprocess.check_output('rm result', shell=True)
+        
+        if not (os.path.exists("drop.o")):
+            print("Compiling BPF programs")
+            subprocess.check_output('make', shell=True)
+            subprocess.check_output('chmod go+w *.o', shell=True)
+            subprocess.check_output('chmod go+w *.h', shell=True)
         
         global EXPERIMENT_NAME
         oldEXPERIMENT_NAME = EXPERIMENT_NAME
@@ -232,8 +237,8 @@ def main():
 
             experiment.terminate()
         EXPERIMENT_NAME = oldEXPERIMENT_NAME
-        print("timer")
-        time.sleep(15.0)
+        # print("timer")
+        # time.sleep(15.0)
         print("Start kfunc")
         EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
         subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)

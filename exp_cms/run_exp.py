@@ -169,6 +169,12 @@ def main():
         if(os.path.exists("result")):
             subprocess.check_output('rm result', shell=True)
 
+        if not (os.path.exists("cms.o")):
+            print("Compiling BPF programs")
+            subprocess.check_output('make', shell=True)
+            subprocess.check_output('chmod go+w *.o', shell=True)
+            subprocess.check_output('chmod go+w *.h', shell=True)
+
         global EXPERIMENT_NAME
         for EXPERIMENT_NAME in [EXPERIMENT_NAME, "ring_"+EXPERIMENT_NAME]:
             print(f"Starting {EXPERIMENT_NAME}")
