@@ -8,5 +8,5 @@ clean:
  		-g \
  		-O2 -c $< -o $@ -I /usr/local/include/mykperf
 	bpftool gen skeleton $@ > $(patsubst %.bpf.o,%.skel.h,$@) 
-	clang -lbpf $(patsubst %.bpf.o,%.c,$@) -o  $(patsubst %.bpf.o,%.o,$@)
+	clang $(patsubst %.bpf.o,%.c,$@) -o  $(patsubst %.bpf.o,%.o,$@) -lbpf
 

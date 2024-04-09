@@ -1,14 +1,14 @@
 drop: 
-baseline: throughput = 3563675 PPS latency = 16 ns
-bpftool: throughput = 2243289 PPS latency = 327 ns
-perf: throughput = 2294908 PPS latency = 319 ns
-perf instructions per packet: 734
+baseline: throughput = 15098867 PPS latency = 11 ns
+bpftool: throughput = 3487344 PPS latency = 204 ns
+perf: throughput = 3593060 PPS latency = 197 ns
+perf instructions per packet: 707
 drop_map: 
-baseline: throughput = 3563712 PPS latency = 21 ns
-bpftool: throughput = 2117033 PPS latency = 354 ns
-perf: throughput = 2269909 PPS latency = 324 ns
-perf instructions per packet: 760
+baseline: throughput = 14534464 PPS latency = 13 ns
+bpftool: throughput = 3468079 PPS latency = 204 ns
+perf: throughput = 3561130 PPS latency = 197 ns
+perf instructions per packet: 725
 drop_kfunc: 
-kfunc: throughput = 3557093 PPS latency = 41 ns
-perf: throughput = 2231911 PPS latency = 334 ns
-perf instructions per packet: 854
+kfunc: throughput = 12719798 PPS latency = 23 ns
+perf: throughput = 3441034 PPS latency = 207 ns
+perf instructions per packet: 821
