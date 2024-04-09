@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 	drop = drop_bpf__open_and_load();
 	err = drop_bpf__attach(drop);
 	if (err) {
-		fprintf(stderr, "Failed to attach BPF program\n");
+		fprintf(stderr, "Failed to load BPF program\n");
 		return 1;
 	}
 
