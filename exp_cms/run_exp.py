@@ -10,7 +10,7 @@ import sys
 EXPERIMENT_NAME = "cms"
 INTERFACE = "enp129s0f0np0"
 TIME =10
-PERF_PATH="/home/guest/linux/tools/perf/"
+PERF_PATH="/home/guest/linux/tools/perf/perf"
 LIBBPF_PATH="/home/guest/libbpf/src/"
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
@@ -75,7 +75,7 @@ def perf():
     out=out.split(":")[0]
     prog_id = int(out)
 
-    perf = subprocess.Popen(f'sudo {PERF_PATH}perf stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
 
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)

@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 EXPERIMENT="all"
 INTERFACE="enp129s0f0np0"
 TIME="10"
-PERF="/home/guest/linux/tools/perf/"
+PERF="/home/guest/linux/tools/perf/perf"
 LIBBPF="/home/guest/libbpf/src/"
 
 terminate_experiments() {
