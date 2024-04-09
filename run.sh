@@ -10,6 +10,7 @@ show_help() {
     echo "  -t, --time 10                             Specify time value"
     echo "  -p, --perf /home/guest/linux/tools/perf/  Specify perf path"
     echo "  -l, --libbpf /home/guest/libbpf/src/      Specify libbpf path"
+    echo "  cloudlab icmp2024 sudo ./run.sh -i ens2f0np0 -l /lib64 -p perf
 }
 #colors
 RED='\033[0;31m'
