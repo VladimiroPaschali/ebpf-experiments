@@ -42,6 +42,7 @@ def baseline():
 def bpftool():
 
     bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
+    # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} llc_misses > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
     time.sleep(1.0)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -76,8 +77,10 @@ def perf():
     out=out.split(":")[0]
     prog_id = int(out)
 
-    # perf = subprocess.Popen(f'sudo {PERF_PATH}/perf stat -e instructions -b {prog_id} > /dev/null 2> /dev/null',shell=True)
-    perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e cache-misses -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e r0964 -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
     out=out.decode()
@@ -103,14 +106,15 @@ def perf():
     instructions=riga[0]
 
     instructions=int(instructions.replace(",",""))
+    # print(instructions)
 
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"perf: throughput = {throughput} PPS latency = {latency} ns"
 
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
-
-    stampa = f"perf instructions per packet: {instructions//(newvalue_runcnt-oldvalue_runcnt)}"
+    print(instructions, newvalue_runcnt, oldvalue_runcnt, newvalue_runcnt-oldvalue_runcnt , instructions/(newvalue_runcnt-oldvalue_runcnt))
+    stampa = f"perf cache-misses per packet: {instructions/(newvalue_runcnt-oldvalue_runcnt)}"
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
 
@@ -176,7 +180,7 @@ def parser():
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
     parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:drop)",  metavar="drop",required = False, default = "drop")
     parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "enp129s0f0np0")
-    parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "/home/guest/linux/tools/perf/")
+    parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "/home/guest/linux/tools/perf/perf")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/home/guest/libbpf/src/")
     args = parser.parse_args()
 
@@ -247,8 +251,8 @@ def main():
 
         kfunc()
         
-        print(f"Start {EXPERIMENT_NAME} perf")
-        perf()
+        # print(f"Start {EXPERIMENT_NAME} perf")
+        # perf()
         experimentkfunc.terminate()
 
 

@@ -4,3 +4,11 @@
 *_skel.h
 *.skel.h
 mappe/
+
+# exclude kmodule build files
+*.mod
+*.mod.c
+*.ko
+*.order
+*.symvers
+*.cmd
