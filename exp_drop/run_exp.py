@@ -137,8 +137,16 @@ def perf():
 def kfunc():
 
     time.sleep(1.0)
+
+    if not (os.path.exists(LOADER_STATS)):
+            print("Compiling Kfunc loader")
+            subprocess.check_output('make', cwd="../loader",shell=True)
+            subprocess.check_output('chmod go+w *.o', shell=True)
+            subprocess.check_output('chmod go+w *.h', shell=True)
     
-    loader_stats_output = subprocess.Popen(f'sudo {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e instructions -a -c',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
+
+    loader_stats_output = subprocess.Popen(f'sudo {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e instructions -a -c',env=my_env,stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -161,6 +169,7 @@ def kfunc():
     #retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
+    print(output)
 
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
     
