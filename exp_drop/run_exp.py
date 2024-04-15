@@ -5,13 +5,16 @@ import signal
 import time
 import os
 import sys
+import re
 
 #ridefiniti nel main in base ai parametri
 EXPERIMENT_NAME = "drop"
+EXPRIMENT_FUNC_NAME = "drop_kfunc" # FRANCESCO
 INTERFACE = "enp129s0f0np0"
 TIME =10
 PERF_PATH="/home/guest/linux/tools/perf/perf"
 LIBBPF_PATH="/home/guest/libbpf/src/"
+LOADER_STATS="../loader/loader-stats.o" # FRANCESCO
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def baseline():
@@ -134,6 +137,9 @@ def perf():
 def kfunc():
 
     time.sleep(1.0)
+    
+    loader_stats_output = subprocess.Popen(f'sudo {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e instructions -a -c',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
     out=out.decode()
@@ -148,14 +154,24 @@ def kfunc():
     newvalue_time = int(out.split(" ")[0])
     #newvalue_runcnt
     newvalue_runcnt = int(out.split(" ")[1])
+    
+    # close loader_stats FRACNESCO
+    os.killpg(os.getpgid(loader_stats_output.pid), signal.SIGINT)
 
+    #retrieve data FRANCESCO
+    output, errors = loader_stats_output.communicate()
+    output = output.decode("utf-8")
 
+    value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
+    
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"kfunc: throughput = {throughput} PPS latency = {latency} ns"
-
+    
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
+    stampa = f"kfunc cache-misses: {value}" #FRACNESCO
+    subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True) # FRANCESCO
 # def instructions():
 
 #     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
@@ -260,7 +276,6 @@ def main():
         subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
         command = f"./{EXPERIMENT_NAME}.o {INTERFACE}"
         experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
-
         kfunc()
         
         # print(f"Start {EXPERIMENT_NAME} perf")

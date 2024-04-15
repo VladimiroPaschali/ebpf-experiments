@@ -6,7 +6,7 @@ clean:
 	clang \
  		-target bpf \
  		-g \
- 		-O2 -c $< -o $@ -I /usr/local/include/mykperf
+ 		-O2 -I /usr/local/include/mykperf -c $< -o $@ 
 	bpftool gen skeleton $@ > $(patsubst %.bpf.o,%.skel.h,$@) 
 	clang $(patsubst %.bpf.o,%.c,$@) -o  $(patsubst %.bpf.o,%.o,$@) -lbpf
 

@@ -8,6 +8,12 @@
 #define RAND_FN bpf_get_prandom_u32()
 #define MAX_ENTRIES_PERCPU_ARRAY 16
 
+#ifdef INTEL_CPU
+	#define get_counter(counter) 1<<30 + counter 
+#else
+	#define get_counter(counter) counter 
+#endif
+	
 struct record
 {
     __u64 value;
@@ -40,7 +46,7 @@ static __always_inline long 0
     return sz >= wakeup_data_size ? BPF_RB_FORCE_WAKEUP : BPF_RB_NO_WAKEUP;
 }
  */
-#ifdef TRACE
+
 
 #define BPF_MYKPERF_INIT_TRACE()                                                                                       \
     __u64 bpf_mykperf_read_rdpmc(__u8 counter) __ksym;                                                                 \
@@ -128,18 +134,5 @@ static __always_inline long 0
     }
 
 // ----------------------------- --- -----------------------------
-
-#else
-#define BPF_MYKPERF_INIT_TRACE()
-#define BPF_MYKPERF_START_TRACE(sec_name, counter)
-#define BPF_MYKPERF_END_TRACE(sec_name, counter)
-#define BPF_MYKPERF_END_TRACE_VERBOSE(sec_name, counter)
-#define BPF_MYKPERF_START_TRACE_SAMPLED(sec_name, counter, sample_rate)
-#define BPF_MYKPERF_DISCARD_TRACE(sec_name, counter)
-#define BPF_MYKPERF_END_TRACE_SAMPLED(sec_name, counter)
-#define BPF_MYKPERF_START_TRACE_ARRAY(sec_name, counter)
-#define BPF_MYKPERF_END_TRACE_ARRAY(sec_name, counter, id)
-#define BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(sec_name, counter, sample_rate)
-#endif
 
 #endif // MYKEPERF_MODULE_H
