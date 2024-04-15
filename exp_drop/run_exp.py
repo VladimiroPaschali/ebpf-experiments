@@ -41,8 +41,8 @@ def baseline():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
 
-    bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
-    # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} llc_misses > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
+    # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
+    bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} llc_misses',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
     time.sleep(1.0)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -61,12 +61,23 @@ def bpftool():
 
     # bpftool.terminate()
     os.killpg(os.getpgid(bpftool.pid), signal.SIGINT)
+    #reads PIPE stdout and stderr
+    output, ris = bpftool.communicate()
+    out = output.splitlines()
+    riga = out[2].decode("utf-8").split(" ")
+    # #rimuove stringhe vuote "" dalla lista
+    riga = list(filter(bool, riga))
+    miss=int(riga[0])
+    # print(miss)
 
 
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"bpftool: throughput = {throughput} PPS latency = {latency} ns"
 
+    subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
+
+    stampa = f"bpftool llc_misses per packet: {miss/(newvalue_runcnt-oldvalue_runcnt)}"
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
@@ -78,12 +89,13 @@ def perf():
     prog_id = int(out)
 
     # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e cache-misses -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-    perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e r0964 -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e LLC-load-misses -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e r0964 -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
 
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
     out=out.decode()
+    # print(out)
     oldvalue_time = int(out.split(" ")[0])
     #oldvalue_runcnt
     oldvalue_runcnt = int(out.split(" ")[1])
@@ -113,7 +125,7 @@ def perf():
     stampa = f"perf: throughput = {throughput} PPS latency = {latency} ns"
 
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
-    print(instructions, newvalue_runcnt, oldvalue_runcnt, newvalue_runcnt-oldvalue_runcnt , instructions/(newvalue_runcnt-oldvalue_runcnt))
+    # print(instructions, newvalue_runcnt, oldvalue_runcnt, newvalue_runcnt-oldvalue_runcnt , instructions/(newvalue_runcnt-oldvalue_runcnt))
     stampa = f"perf cache-misses per packet: {instructions/(newvalue_runcnt-oldvalue_runcnt)}"
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 

@@ -135,7 +135,7 @@ end:
     //     bpf_printk("pacchetto");
 
     // }
-    return XDP_PASS;
+    return XDP_DROP;
 }
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
