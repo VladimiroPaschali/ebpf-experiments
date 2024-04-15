@@ -25,7 +25,7 @@
 
 // profiler
 #include "profiler/profiler.skel.h"
-#include "mykperf_module.h"
+#include <mykperf_module.h>
 
 // plot
 #include "gnuplot/gplot.h"

@@ -1,6 +1,6 @@
 TARGET := loader-stats
 PROFILER := ./profiler/profiler
-KHEADER:= ../../tracing-tools/xdp-introspection/kperf_
+KHEADER:= /usr/local/include/mykperf
 
 .PHONY: all build clean
 .SILENT: all build clean
