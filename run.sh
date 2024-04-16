@@ -82,6 +82,10 @@ case $EXPERIMENT in
         cd ../exp_routing || exit 1
         python run_exp.py --experiment routing --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF"
         cat result >> ../result
+        echo -e "${GREEN}Starting Tunnel experiments${NC}"
+        cd ../exp_routing || exit 1
+        python run_exp.py --experiment tunnel --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF"
+        cat result >> ../result
         echo -e "${GREEN}Data saved in the result file${NC}"
         ;;
     drop)
@@ -103,6 +107,13 @@ case $EXPERIMENT in
         echo -e "${GREEN}Starting Routing experiments${NC}"
         cd exp_routing || exit 1
         python run_exp.py --experiment routing --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF"
+        cat result > ../result
+        echo -e "${GREEN}Data saved in the result file${NC}"
+        ;;
+    tunnel)
+        echo -e "${GREEN}Starting Tunnel experiments${NC}"
+        cd exp_routing || exit 1
+        python run_exp.py --experiment tunnel --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF"
         cat result > ../result
         echo -e "${GREEN}Data saved in the result file${NC}"
         ;;
