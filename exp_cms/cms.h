@@ -1,4 +1,4 @@
-#define CMS_SIZE 32
+#define CMS_SIZE 32000
 #define CMS_ROWS 4
 
 #include <linux/types.h>
