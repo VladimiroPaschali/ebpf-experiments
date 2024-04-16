@@ -24,6 +24,18 @@ void bump_memlock_rlimit(void) {
 		fprintf(stderr, "Failed to increase RLIMIT_MEMLOCK limit!\n");
 		exit(1);
 	}
+	if (setrlimit(RLIMIT_STACK, &rlim_new)) {
+		fprintf(stderr, "Failed to increase RLIMIT_STACK limit!\n");
+		exit(1);
+	}
+	if (setrlimit(RLIMIT_DATA, &rlim_new)) {
+		fprintf(stderr, "Failed to increase RLIMIT_DATA limit!\n");
+		exit(1);
+	}
+	if (setrlimit(RLIMIT_AS, &rlim_new)) {
+		fprintf(stderr, "Failed to increase RLIMIT_AS limit!\n");
+		exit(1);
+	}
 }
 int main(int argc, char **argv) {
 

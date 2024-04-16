@@ -1,11 +1,11 @@
-#define CMS_SIZE 32000
+#define CMS_SIZE 8192
 #define CMS_ROWS 4
 
 #include <linux/types.h>
 
 #pragma pack(1)
 struct cms {
-	__u32 count[CMS_ROWS][CMS_SIZE];
+	__u8 count[CMS_ROWS][CMS_SIZE];
 };
 
 struct event {
