@@ -8,12 +8,7 @@
 #define RAND_FN bpf_get_prandom_u32()
 #define MAX_ENTRIES_PERCPU_ARRAY 16
 
-#ifdef INTEL_CPU
-	#define get_counter(counter) 1<<30 + counter 
-#else
-	#define get_counter(counter) counter 
-#endif
-	
+#define get_counter(counter) (0<<30) + counter 
 struct record
 {
     __u64 value;
@@ -98,12 +93,12 @@ static __always_inline long 0
         bpf_ringbuf_submit(sec_name, 0);                                                                               \
     }
 
-#define BPF_MYKPERF_START_TRACE_ARRAY(sec_name, counter) __u64 value_##sec_name = bpf_mykperf_read_rdpmc(counter);
+#define BPF_MYKPERF_START_TRACE_ARRAY(sec_name, counter) __u64 value_##sec_name = bpf_mykperf_read_rdpmc(get_counter(counter));
 
 #define BPF_MYKPERF_END_TRACE_ARRAY(sec_name, counter, id)                                                             \
     if (value_##sec_name)                                                                                              \
     {                                                                                                                  \
-        value_##sec_name = bpf_mykperf_read_rdpmc(counter) - value_##sec_name;                                         \
+        value_##sec_name = bpf_mykperf_read_rdpmc(get_counter(counter)) - value_##sec_name;                                         \
         __u32 key = id;                                                                                                \
         struct record_array *sec_name = {0};                                                                           \
         sec_name = bpf_map_lookup_elem(&percpu_output, &key);                                                          \
