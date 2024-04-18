@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include "cms.h"
 
-#include <mykperf_module.h>
+#include "xdpmychardev.h"
 
 BPF_MYKPERF_INIT_TRACE();
 

@@ -25,7 +25,9 @@
 
 // profiler
 #include "profiler/profiler.skel.h"
-#include <mykperf_module.h>
+
+#include "xdpmychardev.h"
+#include "user_mychardev.h"
 
 // --- PRETTY PRINT -----
 #define ERR "\033[1;31mERR\033[0m"
@@ -43,91 +45,26 @@ struct profile_metric
 {
     const char *name;
 
-    struct perf_event_attr attr;
-    bool selected;
-
-    /* calculate ratios like instructions per cycle */
-    const int ratio_metric; /* 0 for N/A, 1 for index 0 (cycles) */
-    const char *ratio_desc;
-    const float ratio_mul;
+    const __u64 code;
+    __u8 enabled;
 } metrics[] = {
-    {
-        // cycles
-        .name = "cycles",
-        .attr =
-            {
-                .type = PERF_TYPE_HARDWARE,
-                .config = PERF_COUNT_HW_CPU_CYCLES,
-                .exclude_user = 1,
-            },
-    },
-    {
-        // instructions
-        .name = "instructions",
-        .attr =
-            {
-                .type = PERF_TYPE_HARDWARE,
-                .config = PERF_COUNT_HW_INSTRUCTIONS,
-                .exclude_user = 1,
-            },
-        .ratio_metric = 1,
-        .ratio_desc = "insns per cycle",
-        .ratio_mul = 1.0,
-    },
-    {
-        // branch misses
-        .name = "branch-misses",
-        .attr =
-            {
-                .type = PERF_TYPE_HARDWARE,
-                .config = PERF_COUNT_HW_BRANCH_MISSES,
-                .exclude_user = 1,
-            },
-        .ratio_metric = 1,
-        .ratio_desc = "branch-misses per cycle",
-        .ratio_mul = 1.0,
-    },
-    {
-        // cache misses
-        .name = "cache-misses",
-        .attr =
-            {
-                .type = PERF_TYPE_HARDWARE,
-                .config = PERF_COUNT_HW_CACHE_MISSES,
-                .exclude_user = 1,
-            },
-        .ratio_metric = 1,
-        .ratio_desc = "cache-misses per cycle",
-        .ratio_mul = 1.0,
-    },
-    {
-        // L1-dcache-load-misses
-        .name = "L1-dcache-load-misses",
-        .attr =
-            {
-                .type = PERF_TYPE_HW_CACHE,
-                .config = (PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) |
-                           (PERF_COUNT_HW_CACHE_RESULT_MISS << 16)),
-                .exclude_user = 1,
-            },
-        .ratio_metric = 1,
-        .ratio_desc = "L1-dcache-load-misses per cycle",
-        .ratio_mul = 1.0,
-    },
-    {
-        // LLC-load-misses
-        .name = "LLC-load-misses",
-        .attr =
-            {
-                .type = PERF_TYPE_HW_CACHE,
-                .config = (PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) |
-                           (PERF_COUNT_HW_CACHE_RESULT_MISS << 16)),
-                .exclude_user = 1,
-            },
-        .ratio_metric = 1,
-        .ratio_desc = "LLC-load-misses per cycle",
-        .ratio_mul = 1.0,
-    },
+    {"instructions", 0x00c0},
+    {"cycles", 0x003c},
+    {"cache_misses", 0x2e41},
+    {"llc-misses", 0x0041},
+    // questi dopo vanno settati
+    {"branch_misses", 0x30c},
+    {"bus_cycles", 0x30b},
+    {"stalled_cycles_frontend", 0x30d},
+    {"stalled_cycles_backend", 0x30e},
+    {"ref_cpu_cycles", 0x30f},
+    {"cpu_clock", 0x309},
+    {"task_clock", 0x30a},
+    {"page_faults", 0x30b},
+    {"context_switches", 0x30c},
+    {"cpu_migrations", 0x30d},
+    {"page_faults_min", 0x30e},
+    {"page_faults_maj", 0x30f},
 };
 
 #define MAX_PROG_FULL_NAME 15
@@ -177,6 +114,44 @@ void supported_metrics()
     }
 }
 
+static void start_perf()
+{
+    int err;
+    __u64 out_reg = 0;
+    for (int i = 0; i < selected_metrics_cnt; i++)
+    {
+        err = enable_event(selected_metrics[i].code, &out_reg);
+        if (err)
+        {
+            fprintf(stderr, "[%s]: during enabling event %s: %s\n", ERR, selected_metrics[i].name, strerror(errno));
+        }
+        if (!out_reg)
+        {
+            fprintf(stderr, "[%s]: out_reg is empty\n", ERR);
+        }
+        fprintf(stdout, "[%s]:   %s: %llx\n", DEBUG, selected_metrics[i].name, out_reg);
+        selected_metrics[i].enabled = 1;
+    }
+}
+
+static void end_perf()
+{
+    int err;
+    for (int i = 0; i < selected_metrics_cnt; i++)
+    {
+        if (selected_metrics[i].enabled)
+        {
+            err = disable_event(selected_metrics[i].code);
+            if (err)
+            {
+                fprintf(stderr, "[%s]: during disabling event %s: %s\n", ERR, selected_metrics[i].name,
+                        strerror(errno));
+            }
+            selected_metrics[i].enabled = 0;
+        }
+    }
+    return;
+}
 // from bpftool
 static int prog_fd_by_nametag(char nametag[15])
 {
@@ -256,10 +231,11 @@ static int handle_event(struct record_array *data)
 
     // FORMAT OUTPUT
     char *fmt = "%s     %s: %llu  %.2f/pkt - %u run_cnt\n";
-
-    fprintf(stdout, fmt, ts, sample.name, sample.value, (float)sample.value / sample.run_cnt, sample.run_cnt);
-    fflush(stdout);
-
+    if (!accumulate)
+    {
+        fprintf(stdout, fmt, ts, sample.name, sample.value, (float)sample.value / sample.run_cnt, sample.run_cnt);
+        fflush(stdout);
+    }
     return 0;
 }
 
@@ -293,7 +269,7 @@ void print_accumulated_stats()
 
         if (sample.name[0] != 0)
         {
-            fprintf(stdout, "    %s: %'llu  - %'u run_count\n\n", sample.name, sample.value, sample.run_cnt);
+            fprintf(stdout, "    %s: %llu  - %u run_count\n\n", sample.name, sample.value, sample.run_cnt);
         }
     }
     return;
@@ -310,13 +286,13 @@ static void init_exit(int sig)
         handle_event(data);
     }
 
-    free(data);
-
     // set locale to print numbers with dot as thousands separator
-    setlocale(LC_NUMERIC, "");
 
     // print accumulated stats
     print_accumulated_stats();
+    free(data);
+
+    end_perf();
 
     fprintf(stdout, "[%s]: Done \n", INFO);
     exit(0);
@@ -369,7 +345,6 @@ int main(int arg, char **argv)
                 {
                     if (strcmp(token, metrics[i].name) == 0)
                     {
-                        metrics[i].selected = true;
                         memcpy(&selected_metrics[selected_metrics_cnt], &metrics[i], sizeof(struct profile_metric));
                         selected_metrics_cnt++;
                     }
@@ -404,6 +379,8 @@ int main(int arg, char **argv)
             return 1;
         }
     }
+
+    start_perf();
 
     // set trap for ctrl+c
     signal(SIGINT, init_exit);

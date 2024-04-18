@@ -1,14 +1,10 @@
 cms: 
-baseline: throughput = 1187405 PPS latency = 43 ns
-bpftool: throughput = 938886 PPS latency = 258 ns
-bpftool llc_misses per packet: 0.0001361187330264307
-perf: throughput = 979937 PPS latency = 246 ns
-perf cache-misses per packet: 5.173801461338692e-05
-kfunc: throughput = 1170744 PPS latency = 59 ns
-ring_cms: 
-baseline: throughput = 626513 PPS latency = 813 ns
-bpftool: throughput = 540382 PPS latency = 1075 ns
-bpftool llc_misses per packet: 7.66123853728821e-05
-perf: throughput = 564878 PPS latency = 1054 ns
-perf cache-misses per packet: 0.00015472367484660406
-kfunc: throughput = 1191107 PPS latency = 42 ns
+baseline: throughput = 6169550 PPS latency = 62 ns
+bpftool: throughput = 1764009 PPS latency = 440 ns
+bpftool instructions per packet: 1239.758000724486
+perf: throughput = 1805932 PPS latency = 426 ns
+perf instructions per packet: 1097.1649750657873
+kfunc: throughput = 805895 PPS latency = 697 ns
+kfunc instructions per packet: 2288975832351.9517
+perf: throughput = 612446 PPS latency = 1067 ns
+perf instructions per packet: 3847.511929374368

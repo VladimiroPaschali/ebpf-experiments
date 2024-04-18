@@ -1,4 +1,4 @@
-all: cms.bpf.o cms_kfunc.bpf.o ring_cms.bpf.o ring_cms_kfunc.bpf.o
+all: cms.bpf.o cms_kfunc.bpf.o #ring_cms.bpf.o ring_cms_kfunc.bpf.o
 clean: 
 	-rm *.o
 	-rm *.skel.h
@@ -6,7 +6,7 @@ clean:
 	clang \
  		-target bpf \
  		-g \
- 		-O2 -c $< -o $@ -I /usr/local/include/mykperf
+ 		-O2 -c $< -o $@ -I ../char_dev
 	bpftool gen skeleton $@ > $(patsubst %.bpf.o,%.skel.h,$@) 
 	clang -lbpf $(patsubst %.bpf.o,%.c,$@) -o  $(patsubst %.bpf.o,%.o,$@)
 

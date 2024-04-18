@@ -1,8 +1,11 @@
 lpmtrie: 
-baseline: throughput = 5970538 PPS latency = 113 ns
-bpftool: throughput = 2500973 PPS latency = 315 ns
-bpftool llc_misses per packet: 2.003219625762588e-05
-perf: throughput = 2580950 PPS latency = 303 ns
-perf cache-misses per packet: 0.0002631588837646351
+baseline: throughput = 3538122 PPS latency = 206 ns
+bpftool: throughput = 1501431 PPS latency = 591 ns
+bpftool instructions per packet: 2796.9366013711806
+perf: throughput = 1523489 PPS latency = 581 ns
+perf instructions per packet: 2158.5292125445358
 lpmtrie_kfunc: 
-kfunc: throughput = 5308806 PPS latency = 137 ns
+kfunc: throughput = 1141352 PPS latency = 852 ns
+kfunc instructions per packet: 1489.9113183830414
+perf: throughput = 786857 PPS latency = 1252 ns
+perf instructions per packet: 5219.331433088491

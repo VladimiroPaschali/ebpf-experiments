@@ -30,7 +30,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "tunnel_common.h"
-#include <mykperf_module.h>
+#include "xdpmychardev.h"
 
 BPF_MYKPERF_INIT_TRACE();
 // struct {
@@ -90,7 +90,7 @@ static __always_inline void set_ethhdr(struct ethhdr *new_eth,
 
 static __always_inline int handle_ipv4(struct xdp_md *xdp)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
+    BPF_MYKPERF_START_TRACE_ARRAY(main);
 
 	void *data_end = (void *)(long)xdp->data_end;
 	void *data = (void *)(long)xdp->data;
@@ -166,7 +166,7 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 	iph->check = ~((csum & 0xffff) + (csum >> 16));
 
 	// count_tx(vip.protocol);
-    BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
+    BPF_MYKPERF_END_TRACE_ARRAY(main, 0);
 
 
 	return XDP_TX;
@@ -236,7 +236,7 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 // }
 
 SEC("xdp")
-int tunnel(struct xdp_md *xdp)
+int tunnel_kfunc(struct xdp_md *xdp)
 {
 	void *data_end = (void *)(long)xdp->data_end;
 	void *data = (void *)(long)xdp->data;

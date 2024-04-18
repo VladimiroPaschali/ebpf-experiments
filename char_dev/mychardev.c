@@ -12,19 +12,19 @@
 
 #define MAX_DEV 1
 
-
 #define CAP_EVENT 0x530000
 #define FIRST_MSR_EV_SELECT_REG 0x186
 #define MAX_MSR_PROG_REG 7
 #define FIRST_MSR_PROG_REG 0xC1
 
-struct enabled_events_list{
-     struct list_head list;
-     __u64 reg;
-     __u64 event;   
+struct enabled_events_list
+{
+    struct list_head list;
+    __u64 reg;
+    __u64 event;
 };
 
-__bpf_kfunc __u64 bpf_mykperf_rdmsr(__u64 counter__k);
+__bpf_kfunc __u64 bpf_mykperf_rdmsr(__u64 counter);
 
 static int mychardev_open(struct inode *inode, struct file *file);
 static int mychardev_release(struct inode *inode, struct file *file);
@@ -34,7 +34,6 @@ static ssize_t mychardev_write(struct file *file, const char __user *buf, size_t
 static __u64 enable_event(__u64 event);
 static int disable_event(__u64 event);
 static void __add_event(__u64 reg, __u64 event);
-
 
 struct enabled_events_list *node;
 
@@ -55,11 +54,12 @@ static struct class *mychardev_class = NULL;
 static struct mychar_device_data mychardev_data[1];
 
 static int curr_cpu;
- 
+
 /*Declare and init the head node of the linked list*/
 LIST_HEAD(head);
 
-static void __add_event(__u64 reg, __u64 event){
+static void __add_event(__u64 reg, __u64 event)
+{
     struct enabled_events_list *node = kmalloc(sizeof(struct enabled_events_list), GFP_KERNEL);
     node->reg = reg;
     node->event = event;
@@ -74,13 +74,14 @@ static int mychardev_uevent(struct device *dev, struct kobj_uevent_env *env)
     return 0;
 }
 
-__bpf_kfunc __u64 bpf_mykperf_rdmsr(__u64 counter__k)
+#define MY_RDMSR(reg, l, h) asm volatile("rdmsr" : "=a"(l), "=d"(h) : "c"(reg))
+
+__bpf_kfunc __u64 bpf_mykperf_rdmsr(__u64 counter)
 {
-    __u64 ret = 0;
-    if(rdmsrl_safe_on_cpu(curr_cpu, counter__k, &ret)<0){
-        return 0;
-    }
-    return ret;
+    __u32 l, h;
+    MY_RDMSR(counter, l, h);
+
+    return l | (h << 32);
 }
 
 BTF_SET8_START(bpf_task_set)
@@ -95,6 +96,7 @@ static const struct btf_kfunc_id_set bpf_task_kfunc_set = {
 static int __init mychardev_init(void)
 {
     register_btf_kfunc_id_set(BPF_PROG_TYPE_XDP, &bpf_task_kfunc_set);
+    register_btf_kfunc_id_set(BPF_PROG_TYPE_TRACING, &bpf_task_kfunc_set);
 
     int err, i;
     dev_t dev;
@@ -124,11 +126,11 @@ static void __exit mychardev_exit(void)
 
     // free all the nodes in the list
     struct enabled_events_list *temp, *next;
-    list_for_each_entry_safe(temp, next, &head, list) {
+    list_for_each_entry_safe(temp, next, &head, list)
+    {
         list_del(&temp->list);
         kfree(temp);
     }
-
 
     int i;
 
@@ -157,50 +159,57 @@ static int mychardev_release(struct inode *inode, struct file *file)
 
 static long mychardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-    int err =0;
+    int err = 0;
     __u64 r;
     __u64 event;
-    switch (cmd){
-        case ENABLE_EVENT:
-            if(copy_from_user(&event, (__u64*)arg, sizeof(event))){
-                printk("Error copying data from user\n");
-                return -EFAULT;
-            }
+    switch (cmd)
+    {
+    case ENABLE_EVENT:
+        if (copy_from_user(&event, (__u64 *)arg, sizeof(event)))
+        {
+            printk("Error copying data from user\n");
+            return -EFAULT;
+        }
 
-            r = enable_event(event);
-            if (r==0){
-                printk("Error enabling event\n");
-                return -1;
-            }
+        r = enable_event(event);
+        if (r == 0)
+        {
+            printk("Error enabling event\n");
+            return -1;
+        }
 
-            err = copy_to_user((uint32_t *)arg, &r, sizeof(r));
-            if (err){
-                printk("Error copying data to user\n");
-                return -EFAULT;
-            }
-            break;
-        
-        case DISABLE_EVENT:
+        err = copy_to_user((uint32_t *)arg, &r, sizeof(r));
+        if (err)
+        {
+            printk("Error copying data to user\n");
+            return -EFAULT;
+        }
+        break;
 
-            if(copy_from_user(&event, (__u64*)arg, sizeof(event))){
-                printk("Error copying data from user\n");
-                return -EFAULT;
-            }
+    case DISABLE_EVENT:
 
-            err = disable_event(event);
-            if (err){
-                printk("Error disabling event\n");
-                return -1;
-            }   
-            break;
-        
-        case SET_CPU:
-            if(copy_from_user(&curr_cpu, (int*)arg, sizeof(curr_cpu))){
-                printk("Error copying data from user\n");
-                return -EFAULT;
-            }
-            printk("MYCHARDEV: Setting CPU: %d\n", curr_cpu);
-            break;
+        if (copy_from_user(&event, (__u64 *)arg, sizeof(event)))
+        {
+            printk("Error copying data from user\n");
+            return -EFAULT;
+        }
+
+        err = disable_event(event);
+        if (err)
+        {
+            printk("Error disabling event\n");
+            return -1;
+        }
+        break;
+
+    case SET_CPU:
+        if (copy_from_user(&curr_cpu, (int *)arg, sizeof(curr_cpu)))
+        {
+            printk("Error copying data from user\n");
+            return -EFAULT;
+        }
+        printk("MYCHARDEV: Setting CPU: %d\n", curr_cpu);
+        break;
     }
     printk("MYCHARDEV: Device ioctl\n");
 
@@ -263,7 +272,7 @@ static __u64 enable_event(__u64 event)
     __u64 r;
     uint32_t l, h;
     int err;
-    for (r = FIRST_MSR_EV_SELECT_REG; r <( FIRST_MSR_EV_SELECT_REG + MAX_MSR_PROG_REG); r++)
+    for (r = FIRST_MSR_EV_SELECT_REG; r < (FIRST_MSR_EV_SELECT_REG + MAX_MSR_PROG_REG); r++)
     {
         err = rdmsr_safe_on_cpu(curr_cpu, r, &l, &h);
         if (err)
@@ -279,16 +288,17 @@ static __u64 enable_event(__u64 event)
         }
     }
 
-    event = CAP_EVENT | event ; // add CAP_EVENT to event
+    event = CAP_EVENT | event; // add CAP_EVENT to event
     l = event & 0xFFFFFFFF;
     h = event >> 32;
     err = wrmsr_on_cpu(curr_cpu, r, l, h);
-    if (err){
+    if (err)
+    {
         printk("Error writing MSR: %d\n", err);
         return 0;
     }
 
-    __add_event(r, event); 
+    __add_event(r, event);
 
     // wich register was used to store PMC value
     __u64 output_reg = FIRST_MSR_PROG_REG + (r - FIRST_MSR_EV_SELECT_REG);
@@ -302,10 +312,13 @@ static int disable_event(__u64 event)
     event = CAP_EVENT | event;
     int err;
     struct enabled_events_list *temp, *next;
-    list_for_each_entry(temp, &head, list) {
-        if (temp->event == event){
+    list_for_each_entry(temp, &head, list)
+    {
+        if (temp->event == event)
+        {
             err = wrmsr_on_cpu(curr_cpu, temp->reg, 0, 0);
-            if (err){
+            if (err)
+            {
                 printk("Error writing MSR: %d\n", err);
                 return -1;
             }

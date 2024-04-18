@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include "mychardev.h"
-#include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 #include <linux/bpf.h>
 #include <bpf/bpf.h>

@@ -2,7 +2,7 @@
 #include <net/if.h>
 #include <signal.h>
 #include <sys/resource.h>
-#include "tunnel.skel.h"
+#include "tunnel_kfunc.skel.h"
 #include "tunnel_common.h"
 
 #include <assert.h> 
@@ -13,12 +13,12 @@
 
 
 int if_index;
-struct tunnel_bpf* tunnel;
+struct tunnel_kfunc_bpf* tunnel_kfunc;
 
 
 void sig_handler(int sig) {
 	bpf_xdp_detach(if_index, 0, NULL);
-	tunnel_bpf__destroy(tunnel);
+	tunnel_kfunc_bpf__destroy(tunnel_kfunc);
 	exit(0);
 }
 
@@ -62,7 +62,7 @@ void updatemap(){
 
     __u8 key = 0;
     
-    assert(bpf_map__update_elem(tunnel->maps.vip2tnl, &key ,sizeof(__u8), &tnl,sizeof(struct iptnl_info), BPF_ANY)==0);
+    assert(bpf_map__update_elem(tunnel_kfunc->maps.vip2tnl, &key ,sizeof(__u8), &tnl,sizeof(struct iptnl_info), BPF_ANY)==0);
 
 }
 
@@ -76,14 +76,14 @@ int main(int argc, char **argv) {
 
 	bump_memlock_rlimit();
 
-	tunnel = tunnel_bpf__open_and_load();
-	err = tunnel_bpf__attach(tunnel);
+	tunnel_kfunc = tunnel_kfunc_bpf__open_and_load();
+	err = tunnel_kfunc_bpf__attach(tunnel_kfunc);
 	if (err) {
 		fprintf(stderr, "Failed to load BPF program\n");
 		return 1;
 	}
 
-	if (!tunnel) {
+	if (!tunnel_kfunc) {
 		fprintf(stderr, "Failed to open and load BPF object\n");
 		return 1;
 	}
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Failed to get ifindex of %s\n", argv[1]);
 		return 1;
 	}
-	err = bpf_xdp_attach(if_index, bpf_program__fd(tunnel->progs.tunnel), 0, NULL);
+	err = bpf_xdp_attach(if_index, bpf_program__fd(tunnel_kfunc->progs.tunnel_kfunc), 0, NULL);
 	if (err) {
 		fprintf(stderr, "Failed to attach BPF program\n");
 		return 1;

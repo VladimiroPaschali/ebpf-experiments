@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include "cms.h"
 
-#include <mykperf_module.h>
+#include "xdpmychardev.h"
 
 BPF_MYKPERF_INIT_TRACE();
 
@@ -48,7 +48,7 @@ char key[15];
 SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx) {
 
-    BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
+    BPF_MYKPERF_START_TRACE_ARRAY(main);
 
     void* data = (void*)(long)(ctx->data);
     void* data_end = (void*)(long)(ctx->data_end);
@@ -131,7 +131,7 @@ int cms_kfunc(struct xdp_md *ctx) {
 
     
 end:
-	BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
+	BPF_MYKPERF_END_TRACE_ARRAY(main, 0);
     return XDP_PASS;
 }
 

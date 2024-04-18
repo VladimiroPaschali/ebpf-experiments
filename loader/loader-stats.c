@@ -25,10 +25,8 @@
 
 // profiler
 #include "profiler/profiler.skel.h"
-#include <mykperf_module.h>
+#include <mychardev.h>
 
-// plot
-#include "gnuplot/gplot.h"
 
 // --- PRETTY PRINT -----
 #define ERR "\033[1;31mERR\033[0m"

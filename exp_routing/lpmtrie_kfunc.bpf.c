@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include <mykperf_module.h>
+#include "xdpmychardev.h"
 
 BPF_MYKPERF_INIT_TRACE();
 
@@ -32,7 +32,7 @@ struct {
 SEC("xdp")
 int lpmtrie_kfunc(struct xdp_md *ctx) {
 
-    BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
+    BPF_MYKPERF_START_TRACE_ARRAY(main);
 
 
     void* data = (void*)(long)(ctx->data);
@@ -71,7 +71,7 @@ int lpmtrie_kfunc(struct xdp_md *ctx) {
     // return XDP_PASS;
 
 end:
-    BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
+    BPF_MYKPERF_END_TRACE_ARRAY(main, 0);
     return XDP_DROP;
 };
 

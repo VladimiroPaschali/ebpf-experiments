@@ -1,0 +1,11 @@
+tunnel: 
+baseline: throughput = 4786401 PPS latency = 57 ns
+bpftool: throughput = 1701699 PPS latency = 448 ns
+bpftool instructions per packet: 1471.3059628445844
+perf: throughput = 1734043 PPS latency = 436 ns
+perf instructions per packet: 1117.6292371834686
+tunnel_kfunc: 
+kfunc: throughput = 2619285 PPS latency = 259 ns
+kfunc instructions per packet: 2347554653603.151
+perf: throughput = 1335723 PPS latency = 625 ns
+perf instructions per packet: 1325.1343681786318

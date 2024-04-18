@@ -14,7 +14,7 @@ INTERFACE = "enp129s0f0np0"
 TIME =10
 PERF_PATH="/home/guest/linux/tools/perf/perf"
 LIBBPF_PATH="/home/guest/libbpf/src/"
-LOADER_STATS="../loader/loader-stats.o" # FRANCESCO
+LOADER_STATS="../loader/light-stats.o"
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def baseline():
@@ -43,9 +43,10 @@ def baseline():
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
+    evento = "instructions"
 
-    # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
-    bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} llc_misses',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
+    # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} llc_misses > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
+    bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} {evento}',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
     time.sleep(1.0)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -66,8 +67,8 @@ def bpftool():
     os.killpg(os.getpgid(bpftool.pid), signal.SIGINT)
     #reads PIPE stdout and stderr
     output, ris = bpftool.communicate()
-    print(output)
-    print(ris)
+    # print(output)
+    # print(ris)
     out = output.splitlines()
     riga = out[2].decode("utf-8").split(" ")
     # #rimuove stringhe vuote "" dalla lista
@@ -82,19 +83,21 @@ def bpftool():
 
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
-    stampa = f"bpftool llc_misses per packet: {miss/(newvalue_runcnt-oldvalue_runcnt)}"
+    stampa = f"bpftool {evento} per packet: {miss/(newvalue_runcnt-oldvalue_runcnt)}"
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
+
+    evento="instructions"
 
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
     out=out.decode("utf-8")
     out=out.split(":")[0]
     prog_id = int(out)
 
-    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-    perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e LLC-load-misses -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e LLC-load-misses -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e {evento} -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
     # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e r0964 -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
 
     #oldvalue_time
@@ -131,12 +134,14 @@ def perf():
 
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
     # print(instructions, newvalue_runcnt, oldvalue_runcnt, newvalue_runcnt-oldvalue_runcnt , instructions/(newvalue_runcnt-oldvalue_runcnt))
-    stampa = f"perf cache-misses per packet: {instructions/(newvalue_runcnt-oldvalue_runcnt)}"
+    stampa = f"perf {evento} per packet: {instructions/(newvalue_runcnt-oldvalue_runcnt)}"
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def kfunc():
+
+    evento="instructions"
 
     time.sleep(1.0)
 
@@ -144,11 +149,9 @@ def kfunc():
             print("Compiling Kfunc loader")
             subprocess.check_output('make', cwd="../loader",shell=True)
             subprocess.check_output('chmod go+w *.o', shell=True)
-            subprocess.check_output('chmod go+w *.h', shell=True)
     
-    my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
 
-    loader_stats_output = subprocess.Popen(f'sudo {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e instructions -a -c',env=my_env,stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -171,17 +174,17 @@ def kfunc():
     #retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
-    print(output)
+    # print(output)
+    # print(errors)
 
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
     
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"kfunc: throughput = {throughput} PPS latency = {latency} ns"
-    
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True)
 
-    stampa = f"kfunc cache-misses: {value}" #FRACNESCO
+    stampa = f"kfunc {evento} per packet: {int(value)/(newvalue_runcnt-oldvalue_runcnt)}" #FRACNESCO
     subprocess.check_output(f'echo {stampa} | tee result -a >/dev/null', shell=True) # FRANCESCO
 # def instructions():
 
@@ -242,44 +245,41 @@ def main():
             subprocess.check_output('chmod go+w *.h', shell=True)
         
         global EXPERIMENT_NAME
-        oldEXPERIMENT_NAME = EXPERIMENT_NAME
-        for EXPERIMENT_NAME in [EXPERIMENT_NAME, EXPERIMENT_NAME+"_map"]:
-            print(f"Starting {EXPERIMENT_NAME}")
-            subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
-            subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
+        print(f"Starting {EXPERIMENT_NAME}")
+        subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
+        subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
 
-            # my_env = {'LD_LIBRARY_PATH': '/lib64'}
-            #nuovo path di lib64
-            my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
+        # my_env = {'LD_LIBRARY_PATH': '/lib64'}
+        #nuovo path di lib64
+        my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
 
 
-            command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
-            experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
+        command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
+        experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
 
+        out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
+        out=out.decode()
+        while out == "\n":
+            print("No Packet received")
+            time.sleep(1.0)
             out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
             out=out.decode()
-            while out == "\n":
-                print("No Packet received")
-                time.sleep(1.0)
-                out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
-                out=out.decode()
 
 
-            print(f"Start {EXPERIMENT_NAME} Baseline")
-            baseline()
+        print(f"Start {EXPERIMENT_NAME} Baseline")
+        baseline()
 
 
-            print(f"Start {EXPERIMENT_NAME} bpftool")
-            bpftool()
+        print(f"Start {EXPERIMENT_NAME} bpftool")
+        bpftool()
 
-            print(f"Start {EXPERIMENT_NAME} perf")
-            perf()
-            
-            # print(f"Start {EXPERIMENT_NAME} instructions")
-            # instructions()
+        print(f"Start {EXPERIMENT_NAME} perf")
+        perf()
+        
+        # print(f"Start {EXPERIMENT_NAME} instructions")
+        # instructions()
 
-            experiment.terminate()
-        EXPERIMENT_NAME = oldEXPERIMENT_NAME
+        experiment.terminate()
         # print("timer")
         # time.sleep(15.0)
         print("Start kfunc")
@@ -289,8 +289,8 @@ def main():
         experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
         kfunc()
         
-        # print(f"Start {EXPERIMENT_NAME} perf")
-        # perf()
+        print(f"Start {EXPERIMENT_NAME} perf")
+        perf()
         experimentkfunc.terminate()
 
 
