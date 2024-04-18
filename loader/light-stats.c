@@ -146,15 +146,7 @@ int n_cpus;
 int *perf_event_fds;
 struct record_array *data;
 int array_map_fd;
-
-// profiler
-static struct profiler *profile_obj;
-int enable_run_cnt;
-__u64 run_cnt;
-
-// output file
-FILE *output_file;
-char output_filename[256];
+__u32 timeout;
 
 struct profile_metric selected_metrics[MAX_METRICS];
 int selected_metrics_cnt;
@@ -171,7 +163,6 @@ void usage()
     printf("  -m <mode>                 XDP mode\n");
     printf("  -a                        Accumulate stats\n");
     printf("  -c                        Enable run count\n");
-    printf("  -o <filename>             Output file\n");
     printf("  -v                        Verbose\n");
     printf("  -s                        Supported metrics\n");
     printf("  -h                        Help\n");
@@ -183,81 +174,6 @@ void supported_metrics()
     for (int i = 0; i < ARRAY_SIZE(metrics); i++)
     {
         printf("  %s\n", metrics[i].name);
-    }
-}
-
-static int perf_event_open(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
-{
-    return syscall(__NR_perf_event_open, attr, pid, cpu, group_fd, flags);
-}
-
-static int start_perf(int n_cpus)
-{
-    for (int i = 0; i < selected_metrics_cnt; i++)
-    {
-        for (int cpu = 0; cpu < n_cpus; cpu++)
-        {
-            perf_fd = perf_event_open(&selected_metrics[i].attr, -1, cpu, -1, 0);
-            if (perf_fd < 0)
-            {
-                if (errno == ENODEV)
-                {
-                    if (verbose)
-                    {
-                        fprintf(stderr, "[%s]: cpu: %d may be offline\n", WARN, cpu);
-                    }
-                    continue;
-                }
-                else
-                {
-                    fprintf(stderr, "[%s]: perf_event_open failed - cpu: %d metric: %s\n", ERR, cpu,
-                            selected_metrics[i].name);
-                }
-            }
-
-            // enable perf event
-            if (ioctl(perf_fd, PERF_EVENT_IOC_ENABLE, 0))
-            {
-                fprintf(stderr, "[%s]: ioctl failed - cpu: %d metric: %s\n", ERR, cpu, selected_metrics[i].name);
-                return -1;
-            }
-            perf_event_fds[cpu + i] = perf_fd;
-        }
-    }
-    return 0;
-}
-
-static void print_accumulated_stats()
-{
-    struct record_array sample = {0};
-    int err;
-    // read percpu array
-    for (int key = 0; key < MAX_ENTRIES_PERCPU_ARRAY; key++)
-    {
-        err = bpf_map_lookup_elem(array_map_fd, &key, data);
-        if (err)
-        {
-            continue;
-        }
-        // accumulate for each cpu
-        for (int cpu = 0; cpu < n_cpus; cpu++)
-        {
-            if (data[cpu].name[0] != 0)
-            {
-                sample.value += data[cpu].value;
-                sample.run_cnt += data[cpu].run_cnt;
-                if (sample.name[0] == 0)
-                {
-                    strcpy(sample.name, data[cpu].name);
-                    sample.type_counter = data[cpu].type_counter;
-                }
-            }
-        }
-
-        if (sample.name[0] != 0)
-        {
-            fprintf(stdout, "    %s: %'llu  - %'u run_counts \n\n", sample.name, sample.value, sample.run_cnt);
-        }
     }
 }
 
@@ -339,22 +255,48 @@ static int handle_event(struct record_array *data)
     strftime(ts, sizeof(ts), "%H:%M:%S", tm);
 
     // FORMAT OUTPUT
-    char *fmt = "%s     %s: %llu    (%s)  %.2f/pkt - %u run_cnt\n";
+    char *fmt = "%s     %s: %llu  %.2f/pkt - %u run_cnt\n";
 
-    if (output_file != NULL)
-    {
-        fprintf(output_file, fmt, ts, selected_metrics[sample.type_counter].name, sample.value, sample.name,
-                (float)sample.value / sample.run_cnt, sample.run_cnt);
-    }
+    fprintf(stdout, fmt, ts, sample.name, sample.value, (float)sample.value / sample.run_cnt, sample.run_cnt);
+    fflush(stdout);
 
-    if (!output_file)
-    {
-
-        fprintf(stdout, fmt, ts, selected_metrics[sample.type_counter].name, sample.value, sample.name,
-                (float)sample.value / sample.run_cnt, sample.run_cnt);
-        fflush(stdout);
-    }
     return 0;
+}
+
+void print_accumulated_stats()
+{
+    struct record_array sample = {0};
+    int err;
+    // read percpu array
+    for (int key = 0; key < MAX_ENTRIES_PERCPU_ARRAY; key++)
+    {
+        sample.name[0] = 0;
+        err = bpf_map_lookup_elem(array_map_fd, &key, data);
+        if (err)
+        {
+            continue;
+        }
+        // accumulate for each cpu
+        for (int cpu = 0; cpu < n_cpus; cpu++)
+        {
+            if (data[cpu].name[0] != 0)
+            {
+                sample.value += data[cpu].value;
+                sample.run_cnt += data[cpu].run_cnt;
+                if (sample.name[0] == 0)
+                {
+                    strcpy(sample.name, data[cpu].name);
+                    sample.type_counter = data[cpu].type_counter;
+                }
+            }
+        }
+
+        if (sample.name[0] != 0)
+        {
+            fprintf(stdout, "    %s: %'llu  - %'u run_count\n\n", sample.name, sample.value, sample.run_cnt);
+        }
+    }
+    return;
 }
 
 static void init_exit(int sig)
@@ -370,58 +312,8 @@ static void init_exit(int sig)
 
     free(data);
 
-    for (int i = 0; i < (selected_metrics_cnt * n_cpus); i++)
-    {
-        if (perf_event_fds[i] > 0)
-            close(perf_event_fds[i]);
-    }
-    free(perf_event_fds);
-
-    // close output file
-    if (output_file)
-        fclose(output_file);
-
     // set locale to print numbers with dot as thousands separator
     setlocale(LC_NUMERIC, "");
-
-    if (enable_run_cnt)
-    {
-        // set locale to print numbers with dot as thousands separator
-        // setlocale(LC_NUMERIC, "");
-
-        // retrieve count fd
-        int counts_fd = bpf_map__fd(profile_obj->maps.counts);
-        if (counts_fd < 0)
-        {
-            fprintf(stderr, "[%s]: retrieving counts fd, runs was not counted\n", ERR);
-            run_cnt = 0;
-        }
-        else
-        {
-
-            // retrieve count value
-            __u64 counts[n_cpus];
-            __u32 key = 0;
-            int err = bpf_map_lookup_elem(counts_fd, &key, counts);
-            if (err)
-            {
-                fprintf(stderr, "[%s]: retrieving run count\n", ERR);
-            }
-
-            for (int i = 0; i < n_cpus; i++)
-            {
-                run_cnt += counts[i];
-                if (verbose && counts[i] > 0)
-                {
-                    fprintf(stdout, "\nCPU[%03d]: %'llu", i, counts[i]);
-                }
-            }
-        }
-        fprintf(stdout, "\nTotal run_cnt: %'llu     [N.CPUS: %d]\n", run_cnt, n_cpus);
-
-        profiler__detach(profile_obj);
-        profiler__destroy(profile_obj);
-    }
 
     // print accumulated stats
     print_accumulated_stats();
@@ -430,46 +322,7 @@ static void init_exit(int sig)
     exit(0);
 }
 
-int attach_profiler(struct bpf_program *prog)
-{
-    int err;
-    // this will be the profiler program
-    struct bpf_program *prof_prog;
-    if (!prog_name)
-    {
-        prog_name = (char *)bpf_program__name(prog);
-    }
-
-    bpf_object__for_each_program(prof_prog, profile_obj->obj)
-    {
-        err = bpf_program__set_attach_target(prof_prog, prog_fd, prog_name);
-        if (err)
-        {
-            fprintf(stderr, "[%s]: setting attach target during profiler init\n", ERR);
-            return 1;
-        }
-    }
-
-    // load profiler
-    err = profiler__load(profile_obj);
-    if (err)
-    {
-        fprintf(stderr, "[%s]: loading profiler\n", ERR);
-        return 1;
-    }
-
-    // attach profiler
-    err = profiler__attach(profile_obj);
-    if (err)
-    {
-        fprintf(stderr, "[%s]: attaching profiler\n", ERR);
-        return 1;
-    }
-
-    return 0;
-}
-
-static void poll_stats(unsigned int map_fd, __u32 timeout_ns)
+static void poll_stats(unsigned int map_fd)
 {
     int err;
 
@@ -485,13 +338,12 @@ static void poll_stats(unsigned int map_fd, __u32 timeout_ns)
             }
             handle_event(data);
         }
-        sleep(timeout_ns / 1000);
+        sleep(timeout);
     }
 }
 
 int main(int arg, char **argv)
 {
-    struct bpf_program *prog;
     int err, opt;
 
     // set shared var
@@ -501,9 +353,10 @@ int main(int arg, char **argv)
     info_len = sizeof(info);
     data = malloc(n_cpus * sizeof(struct record_array));
     array_map_fd = -1;
+    timeout = 3;
 
     // retrieve opt
-    while ((opt = getopt(arg, argv, "e:n:o:P:acvsh")) != -1)
+    while ((opt = getopt(arg, argv, "e:n:o:P:t:acvsh")) != -1)
     {
         switch (opt)
         {
@@ -530,14 +383,11 @@ int main(int arg, char **argv)
         case 'n':
             strcpy(func_name, optarg);
             break;
+        case 't':
+            timeout = atoi(optarg);
+            break;
         case 'a':
             accumulate = 1;
-            break;
-        case 'c':
-            enable_run_cnt = 1;
-            break;
-        case 'o':
-            memcpy(output_filename, optarg, strlen(optarg));
             break;
         case 'v':
             verbose = 1;
@@ -551,24 +401,6 @@ int main(int arg, char **argv)
         default:
             fprintf(stderr, "Invalid option: %c\n", opt);
             usage();
-            return 1;
-        }
-    }
-    // start perf before loading prog
-    err = start_perf(n_cpus); // perf fd will be freed during init_exit
-    if (err)
-    {
-        init_exit(0);
-        return 1;
-    }
-    // if enable_run_cnt is set, enable run count
-    // open profile object
-    if (enable_run_cnt)
-    {
-        profile_obj = profiler__open();
-        if (!profile_obj)
-        {
-            fprintf(stderr, "[%s]: opening profile object\n", ERR);
             return 1;
         }
     }
@@ -616,14 +448,6 @@ int main(int arg, char **argv)
 
     free(reset);
 
-    // start perf before loading prog
-    err = start_perf(n_cpus); // perf fd will be freed during init_exit
-    if (err)
-    {
-        init_exit(0);
-        return 1;
-    }
-
     // retrieve prog fd
     prog_fd = prog_fd_by_nametag(func_name);
     if (prog_fd < 0)
@@ -650,22 +474,10 @@ int main(int arg, char **argv)
     fprintf(stdout, "[%s]: Program name: %s\n", DEBUG, info.name);
 
     fprintf(stdout, "[%s]: Running... \nPress Ctrl+C to stop\n", INFO);
-    if (selected_metrics_cnt > 0 && array_map_fd > 0)
+    if (array_map_fd > 0)
     {
-        // TODO - Using file as output instead stdout may not work properly
-        // I either fixed the problem or I forgot what it was :)
-        if (output_filename[0] != '\0')
-        {
-            output_file = fopen(output_filename, "w");
-            if (output_file == NULL)
-            {
-                fprintf(stderr, "[%s]: during opening output file: %s\n", ERR, output_filename);
-                init_exit(0);
-                return 1;
-            }
-        }
         // start perf before polling
-        poll_stats(array_map_fd, 1000);
+        poll_stats(array_map_fd);
     }
     else
     {

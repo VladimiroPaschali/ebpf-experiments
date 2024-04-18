@@ -26,7 +26,7 @@ struct record_array
 } __attribute__((aligned(32)));
 
 #define BPF_MYKPERF_INIT_TRACE()                                                                                       \
-    __u64 bpf_mykperf_read_rdpmc(__u8 counter) __ksym;                                                                 \
+    __u64 bpf_mykperf_rdmsr(__u64 counter) __ksym;                                                                 \
                                                                                                                        \
     struct                                                                                                             \
     {                                                                                                                  \
@@ -38,12 +38,13 @@ struct record_array
     } percpu_output SEC(".maps");
 
 
-#define BPF_MYKPERF_START_TRACE_ARRAY(sec_name, counter) __u64 value_##sec_name = bpf_mykperf_read_rdpmc(get_counter(counter));
+#define BPF_MYKPERF_START_TRACE_ARRAY(sec_name, counter) \
+	__u64 value_##sec_name = bpf_mykperf_rdmsr(counter);\
 
 #define BPF_MYKPERF_END_TRACE_ARRAY(sec_name, counter, id)                                                             \
     if (value_##sec_name)                                                                                              \
     {                                                                                                                  \
-        value_##sec_name = bpf_mykperf_read_rdpmc(get_counter(counter)) - value_##sec_name;                                         \
+        value_##sec_name =  bpf_mykperf_rdmsr(counter)  - value_##sec_name;                                         \
         __u32 key = id;                                                                                                \
         struct record_array *sec_name = {0};                                                                           \
         sec_name = bpf_map_lookup_elem(&percpu_output, &key);                                                          \
