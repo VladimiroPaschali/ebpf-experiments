@@ -78,10 +78,25 @@ static int mychardev_uevent(struct device *dev, struct kobj_uevent_env *env)
 
 __bpf_kfunc __u64 bpf_mykperf_rdmsr(__u64 counter)
 {
-    __u32 l, h;
-    MY_RDMSR(counter, l, h);
+    //__u32 h, l;
+    __u64 ret = 0;
+    // MY_RDMSR(0x309, l, h);
+    asm volatile("mfence" ::: "memory");
 
-    return l | (h << 32);
+    rdpmcl(counter, ret);
+    // rdmsrl(0x309, ret);
+    //  fence
+
+    // asm volatile("mfence" ::: "memory");
+
+    /* int err = rdmsrl_safe_on_cpu(14, 0x309, &ret);
+    if (err)
+    {
+        printk("Error reading MSR: %d\n", err);
+        return 0;
+    }
+     */
+    return ret;
 }
 
 BTF_SET8_START(bpf_task_set)

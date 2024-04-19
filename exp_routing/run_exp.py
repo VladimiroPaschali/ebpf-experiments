@@ -44,7 +44,9 @@ def baseline():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
 
-    evento = "instructions"
+    # evento = "instructions"
+    evento = "llc_misses"
+
 
     # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
     bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} {evento}',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
@@ -89,7 +91,9 @@ def bpftool():
 #legge stats da bpftool prog e istructions da perf si possono calcolare PPS e Latency
 def perf():
 
-    evento = "instructions"
+    # evento = "instructions"
+    evento = "LLC-load-misses"
+
 
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
     out=out.decode("utf-8")
@@ -142,7 +146,9 @@ def perf():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def kfunc():
     
-    evento = "instructions"
+    # evento = "instructions"
+    evento = "llc-misses"
+
 
     time.sleep(1.0)
 
@@ -175,10 +181,10 @@ def kfunc():
     #retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
-    print(output)
-    print(errors)
+    # print(output)
+    # print(errors)
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
-    print(value)
+    # print(value)
 
 
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME

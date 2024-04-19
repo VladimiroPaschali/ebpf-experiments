@@ -2,6 +2,7 @@
 #define _XDPMYCHARDEV_H_
 
 #include <asm/types.h>
+#include <stdlib.h>
 
 #define memcpy(dest, src, n) __builtin_memcpy((dest), (src), (n))
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
@@ -13,7 +14,7 @@
 struct record_array
 {
     __u64 value;
-    __u32 run_cnt;
+    __u64 run_cnt;
     char name[15];
     __u64 type_counter;
 } __attribute__((aligned(32)));
@@ -33,12 +34,13 @@ struct record_array
 #define BPF_MYKPERF_START_TRACE_ARRAY(sec_name)                                                                        \
     __u64 value_##sec_name = 0;                                                                                        \
     if (reg_counter)                                                                                                   \
-        value_##sec_name = bpf_mykperf_rdmsr(reg_counter);
-
+    {                                                                                                                  \
+        value_##sec_name = bpf_mykperf_rdmsr(reg_counter);                                                             \
+    }
 #define BPF_MYKPERF_END_TRACE_ARRAY(sec_name, index)                                                                   \
     if (value_##sec_name)                                                                                              \
     {                                                                                                                  \
-        value_##sec_name = bpf_mykperf_rdmsr(reg_counter) - value_##sec_name;                                          \
+        value_##sec_name = (__u64)abs(bpf_mykperf_rdmsr(reg_counter) - value_##sec_name);                              \
         __u32 key = index;                                                                                             \
         struct record_array *sec_name = {0};                                                                           \
         sec_name = bpf_map_lookup_elem(&percpu_output, &key);                                                          \

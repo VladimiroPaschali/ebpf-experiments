@@ -44,10 +44,12 @@ def baseline():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
 
-    evento = "instructions"
+    evento = "llc_misses"
+    # evento = "instructions"
+
 
     bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} {evento}',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
-    # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} llc_misses',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
+    # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions ',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
     time.sleep(1.0)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -89,7 +91,9 @@ def bpftool():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
 
-    evento = "instructions"
+    evento = "LLC-load-misses"
+    # evento = "instructions"
+
 
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
     out=out.decode("utf-8")
@@ -97,7 +101,7 @@ def perf():
     prog_id = int(out)
 
     perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e {evento} -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e LLC-load-misses -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
 
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}" | cut -d" " -f12,14  ',shell=True)
@@ -142,7 +146,9 @@ def kfunc():
 
     time.sleep(1.0)
 
-    evento = "instructions"
+    evento = "llc-misses"
+    # evento = "instructions"
+
 
     if not (os.path.exists(LOADER_STATS)):
             print("Compiling Kfunc loader")

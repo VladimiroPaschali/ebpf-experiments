@@ -50,8 +50,8 @@ struct profile_metric
 } metrics[] = {
     {"instructions", 0x00c0},
     {"cycles", 0x003c},
-    {"cache_misses", 0x2e41},
-    {"llc-misses", 0x0041},
+    {"cache-misses", 0x2e41},
+    {"llc-misses", 0x01b7   },
     // questi dopo vanno settati
     {"branch_misses", 0x30c},
     {"bus_cycles", 0x30b},
@@ -230,7 +230,7 @@ static int handle_event(struct record_array *data)
     strftime(ts, sizeof(ts), "%H:%M:%S", tm);
 
     // FORMAT OUTPUT
-    char *fmt = "%s     %s: %llu  %.2f/pkt - %u run_cnt\n";
+    char *fmt = "%s     %s: %llu  %.2f/pkt - %llu run_cnt\n";
     if (!accumulate)
     {
         fprintf(stdout, fmt, ts, sample.name, sample.value, (float)sample.value / sample.run_cnt, sample.run_cnt);
@@ -250,6 +250,7 @@ void print_accumulated_stats()
         err = bpf_map_lookup_elem(array_map_fd, &key, data);
         if (err)
         {
+            fprintf(stderr, "[%s]: during last bpf_map_lookup_elem: %s\n", ERR, strerror(errno));
             continue;
         }
         // accumulate for each cpu
@@ -269,7 +270,7 @@ void print_accumulated_stats()
 
         if (sample.name[0] != 0)
         {
-            fprintf(stdout, "    %s: %llu  - %u run_count\n\n", sample.name, sample.value, sample.run_cnt);
+            fprintf(stdout, "    %s: %llu  - %llu run_count\n\n", sample.name, sample.value, sample.run_cnt);
         }
     }
     return;
@@ -281,7 +282,10 @@ static void init_exit(int sig)
     for (int key = 0; key < MAX_ENTRIES_PERCPU_ARRAY; key++)
     {
         if (bpf_map_lookup_elem(array_map_fd, &key, data))
+        {
+            fprintf(stderr, "[%s]: during last bpf_map_lookup_elem: %s\n", ERR, strerror(errno));
             continue;
+        }
 
         handle_event(data);
     }

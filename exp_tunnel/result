@@ -1,11 +1,11 @@
 tunnel: 
-baseline: throughput = 4786401 PPS latency = 57 ns
-bpftool: throughput = 1701699 PPS latency = 448 ns
-bpftool instructions per packet: 1471.3059628445844
-perf: throughput = 1734043 PPS latency = 436 ns
-perf instructions per packet: 1117.6292371834686
+baseline: throughput = 8145763 PPS latency = 34 ns
+bpftool: throughput = 2759782 PPS latency = 250 ns
+bpftool llc_misses per packet: 4.152500696793965e-05
+perf: throughput = 2852751 PPS latency = 239 ns
+perf LLC-load-misses per packet: 0.00017880981996469655
 tunnel_kfunc: 
-kfunc: throughput = 2619285 PPS latency = 259 ns
-kfunc instructions per packet: 2347554653603.151
-perf: throughput = 1335723 PPS latency = 625 ns
-perf instructions per packet: 1325.1343681786318
+kfunc: throughput = 5226249 PPS latency = 110 ns
+kfunc llc-misses per packet: 360.4159105428021
+perf: throughput = 2473002 PPS latency = 295 ns
+perf LLC-load-misses per packet: 7.205814728555908e-05
