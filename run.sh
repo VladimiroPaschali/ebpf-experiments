@@ -69,8 +69,8 @@ done
 
 echo -e "${GREEN}Disabling forward, MTU 1500, RSS 1${NC}"
 sudo sysctl -w net.ipv4.ip_forward=0
-sudo ip link set mtu 1500 ens2f0np0
-sudo ethtool --set-rxfh-indir ens2f0np0 equal 1
+sudo ip link set mtu 1500 $INTERFACE
+sudo ethtool --set-rxfh-indir $INTERFACE equal 1
 
 case $EXPERIMENT in
     all)
