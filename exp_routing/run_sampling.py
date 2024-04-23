@@ -19,8 +19,8 @@ LOADER_STATS="../loader/light-stats.o" # FRANCESCO
 def exp_sampling(sampling):
     time.sleep(1.0)
 
-    # evento = "llc-misses"
-    evento = "instructions"
+    evento = "llc-misses"
+    # evento = "instructions"
 
 
     if not (os.path.exists(LOADER_STATS)):
@@ -55,7 +55,7 @@ def exp_sampling(sampling):
     print(output)
     print(errors)
 
-    value, runcnt = re.findall(r".*main: (\d+.*\d).*- (\d+.*\d).*", output)[0]
+    value, runcnt = re.findall(r".*main: (\d*.*\d).*- (\d*.*\d).*", output)[0]
 
     print(value)
     # print(newvalue_runcnt-oldvalue_runcnt)

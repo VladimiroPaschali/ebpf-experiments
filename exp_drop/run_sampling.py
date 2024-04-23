@@ -55,7 +55,7 @@ def exp_sampling(sampling):
     # print(output)
     # print(errors)
 
-    value, runcnt = re.findall(r".*main: (\d+.*\d).*- (\d+.*\d).*", output)[0]
+    value, runcnt = re.findall(r".*main: (\d*.*\d).*- (\d*.*\d).*", output)[0]
     # print(value,runcnt)
     # print(newvalue_runcnt-oldvalue_runcnt)
     
