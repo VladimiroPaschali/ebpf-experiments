@@ -1,0 +1,4 @@
+cms_sr: sampling : 1 run: 0
+kfunc sample rate 1: throughput = 1608937 PPS latency = 96 ns
+kfunc sample rate 1 instructions per packet: 170.87299953372954
+cms_sr: sampling : 10 run: 0

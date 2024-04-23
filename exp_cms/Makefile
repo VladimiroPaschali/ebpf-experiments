@@ -1,4 +1,4 @@
-all: cms.bpf.o cms_kfunc.bpf.o #ring_cms.bpf.o ring_cms_kfunc.bpf.o
+all: cms.bpf.o cms_kfunc.bpf.o cms_sr.bpf.o #ring_cms.bpf.o ring_cms_kfunc.bpf.o
 clean: 
 	-rm *.o
 	-rm *.skel.h

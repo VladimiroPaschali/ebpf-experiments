@@ -8,8 +8,8 @@ import sys
 import re
 
 #ridefiniti nel main in base ai parametri
-EXPERIMENT_NAME = "drop_sr"
-EXPRIMENT_FUNC_NAME = "drop_sr" # FRANCESCO
+EXPERIMENT_NAME = "tunnel_sr"
+EXPRIMENT_FUNC_NAME = "tunnel_sr" # FRANCESCO
 INTERFACE = "ens2f0np0"
 TIME =10
 PERF_PATH="perf"
@@ -82,7 +82,7 @@ def parser():
     
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
-    parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:drop_sr)",  metavar="drop_sr",required = False, default = "drop_sr")
+    parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:tunnel_sr)",  metavar="tunnel_sr",required = False, default = "tunnel_sr")
     parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "ens2f0np0")
     parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "perf")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/lib64")
@@ -100,7 +100,7 @@ def main():
         if(os.path.exists("sampling_result")):
             subprocess.check_output('rm sampling_result', shell=True)
         
-        if not (os.path.exists("drop_sr.o")):
+        if not (os.path.exists("tunnel_sr.o")):
             print("Compiling BPF programs")
             subprocess.check_output('make', shell=True)
             subprocess.check_output('chmod go+w *.o', shell=True)

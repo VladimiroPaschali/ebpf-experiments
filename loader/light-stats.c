@@ -324,6 +324,7 @@ int get_run_count()
 {
     int fd = 0;
     int zero = 0;
+    fprintf(stdout, "[%s]: Getting run count\n", INFO);
     fd = find_data_map();
     if (fd < 0)
     {
@@ -369,8 +370,10 @@ static void init_exit(int sig)
     // print accumulated stats
     print_accumulated_stats();
     free(data);
-
-    end_perf();
+    if (selected_metrics_cnt)
+    {
+        end_perf();
+    }
 
     fprintf(stdout, "[%s]: Done \n", INFO);
     exit(0);
@@ -465,7 +468,10 @@ int main(int arg, char **argv)
         }
     }
 
-    start_perf();
+    if (selected_metrics_cnt > 0)
+    {
+        start_perf();
+    }
 
     // set trap for ctrl+c
     signal(SIGINT, init_exit);
@@ -510,13 +516,14 @@ int main(int arg, char **argv)
 
     free(reset);
 
-    prev_run_count = get_run_count();
+    if (enable_run_count)
+        prev_run_count = get_run_count();
+
     if (prev_run_count < 0)
     {
         fprintf(stderr, "[%s]: during getting run count\n", ERR);
         return 1;
     }
-
     // retrieve prog fd
     prog_fd = prog_fd_by_nametag(func_name);
     if (prog_fd < 0)
