@@ -1,4 +1,4 @@
-all: tunnel.bpf.o tunnel_kfunc.bpf.o
+all: tunnel.bpf.o tunnel_kfunc.bpf.o tunnel_sr.bpf.o
 clean: 
 	-rm *.o
 	-rm *.skel.h

@@ -1,4 +1,4 @@
-all: lpmtrie.bpf.o lpmtrie_kfunc.bpf.o
+all: lpmtrie.bpf.o lpmtrie_kfunc.bpf.o lpmtrie_sr.bpf.o
 clean: 
 	-rm *.o
 	-rm *.skel.h
