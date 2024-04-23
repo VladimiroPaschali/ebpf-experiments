@@ -10,10 +10,10 @@ import re
 #ridefiniti nel main in base ai parametri
 EXPERIMENT_NAME = "tunnel"
 EXPRIMENT_FUNC_NAME = "tunnel_kfunc" # FRANCESCO
-INTERFACE = "enp129s0f0np0"
+INTERFACE = "ens2f0np0"
 TIME =10
-PERF_PATH="/home/guest/linux/tools/perf/perf"
-LIBBPF_PATH="/home/guest/libbpf/src/"
+PERF_PATH="perf"
+LIBBPF_PATH="/lib64"
 LOADER_STATS="../loader/light-stats.o"
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
@@ -227,9 +227,9 @@ def parser():
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
     parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:tunnel)",  metavar="tunnel",required = False, default = "tunnel")
-    parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "enp129s0f0np0")
-    parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "/home/guest/linux/tools/perf/perf")
-    parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/home/guest/libbpf/src/")
+    parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "ens2f0np0")
+    parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "perf")
+    parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/lib64")
     args = parser.parse_args()
 
     EXPERIMENT_NAME = args.experiment

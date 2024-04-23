@@ -6,11 +6,12 @@ show_help() {
     echo "Options:"
     echo "  -h, --help                                Show this help message"
     echo "  -e, --experiment all,drop,cms,routing     Specify experiment name"
-    echo "  -i, --interface enp129s0f0np0             Specify interface name"
+    echo "  -i, --interface ens2f0np0                 Specify interface name"
     echo "  -t, --time 10                             Specify time value"
-    echo "  -p, --perf /home/guest/linux/tools/perf/  Specify perf path"
-    echo "  -l, --libbpf /home/guest/libbpf/src/      Specify libbpf path"
-    echo "  cloudlab icmp2024 sudo ./run.sh -i ens2f0np0 -l /lib64 -p perf"
+    echo "  -p, --perf perf                           Specify perf path"
+    echo "  -l, --libbpf /lib64                       Specify libbpf path"
+    echo "  cloudlab icmp2024 sudo ./run.sh"
+    echo "node119 sudo ./run.sh -i enp129s0f0np0 -p /home/guest/linux/tools/perf/perf -l /home/guest/libbpf/src/"
 }
 #colors
 RED='\033[0;31m'
@@ -19,10 +20,10 @@ NC='\033[0m' # No Color
 
 # Valori predefiniti
 EXPERIMENT="all"
-INTERFACE="enp129s0f0np0"
+INTERFACE="ens2f0np0"
 TIME="10"
-PERF="/home/guest/linux/tools/perf/perf"
-LIBBPF="/home/guest/libbpf/src/"
+PERF="perf"
+LIBBPF="/lib64"
 
 terminate_experiments() {
     echo -e "${RED}Terminating all experiments ${NC}"
