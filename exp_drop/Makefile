@@ -1,4 +1,4 @@
-all: drop.bpf.o drop_map.bpf.o drop_kfunc.bpf.o
+all: drop.bpf.o drop_map.bpf.o drop_kfunc.bpf.o drop_sr.bpf.o
 clean: 
 	-rm *.o
 	-rm *.skel.h

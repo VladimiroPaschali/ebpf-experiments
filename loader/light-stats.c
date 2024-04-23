@@ -44,14 +44,14 @@
 struct profile_metric
 {
     const char *name;
-
+    __u64 reg;
     const __u64 code;
     __u8 enabled;
 } metrics[] = {
-    {"instructions", 0x00c0},
-    {"cycles", 0x003c},
-    {"cache-misses", 0x2e41},
-    {"llc-misses", 0x01b7   },
+    {.name = "instructions", .code = 0x00c0},
+    {.name = "cycles", .code = 0x003c},
+    {.name = "cache-misses", .code = 0x2e41},
+    {.name = "llc-misses", .code = 0x01b7},
     // questi dopo vanno settati
     {"branch_misses", 0x30c},
     {"bus_cycles", 0x30b},
@@ -85,6 +85,11 @@ struct record_array *data;
 int array_map_fd;
 __u32 timeout;
 
+__u64 sample_rate;
+int enable_run_count;
+int prev_run_count;
+int run_cnt;
+
 struct profile_metric selected_metrics[MAX_METRICS];
 int selected_metrics_cnt;
 
@@ -100,6 +105,7 @@ void usage()
     printf("  -m <mode>                 XDP mode\n");
     printf("  -a                        Accumulate stats\n");
     printf("  -c                        Enable run count\n");
+
     printf("  -v                        Verbose\n");
     printf("  -s                        Supported metrics\n");
     printf("  -h                        Help\n");
@@ -125,13 +131,50 @@ static void start_perf()
         {
             fprintf(stderr, "[%s]: during enabling event %s: %s\n", ERR, selected_metrics[i].name, strerror(errno));
         }
-        if (!out_reg)
+        if (out_reg < 0)
         {
             fprintf(stderr, "[%s]: out_reg is empty\n", ERR);
         }
         fprintf(stdout, "[%s]:   %s: %llx\n", DEBUG, selected_metrics[i].name, out_reg);
         selected_metrics[i].enabled = 1;
+        selected_metrics[i].reg = out_reg;
     }
+}
+
+static int set_sample_rate()
+{
+    int err;
+
+    int fd = 0;
+    int zero = 0;
+    fprintf(stdout, "[%s]: Setting sample rate to %llu\n", INFO, sample_rate);
+    fd = find_data_map();
+    if (fd < 0)
+    {
+        fprintf(stderr, "[%s]: during finding data map\n", ERR);
+        return -1;
+    }
+
+    struct bss data = {0};
+
+    err = bpf_map_lookup_elem(fd, &zero, &data);
+    if (err)
+    {
+        fprintf(stderr, "[%s]: during updating sample rate\n", ERR);
+        return -1;
+    }
+
+    data.__sample_rate = sample_rate;
+
+    err = bpf_map_update_elem(fd, &zero, &data, 0);
+    if (err)
+    {
+        fprintf(stderr, "[%s]: during updating sample rate\n", ERR);
+        return -1;
+    }
+
+    close(fd);
+    return 0;
 }
 
 static void end_perf()
@@ -141,8 +184,9 @@ static void end_perf()
     {
         if (selected_metrics[i].enabled)
         {
-            err = disable_event(selected_metrics[i].code);
-            if (err)
+            fprintf(stdout, "[%s]: Disabling event %s\n", INFO, selected_metrics[i].name);
+            err = disable_event(selected_metrics[i].reg, selected_metrics[i].code);
+            if (err < 0)
             {
                 fprintf(stderr, "[%s]: during disabling event %s: %s\n", ERR, selected_metrics[i].name,
                         strerror(errno));
@@ -270,10 +314,37 @@ void print_accumulated_stats()
 
         if (sample.name[0] != 0)
         {
-            fprintf(stdout, "    %s: %llu  - %llu run_count\n\n", sample.name, sample.value, sample.run_cnt);
+            fprintf(stdout, "    %s: %llu  - %llu run_count (%lld%%)\n\n", sample.name, sample.value, sample.run_cnt,
+                    (double)(sample.run_cnt / run_cnt) * 100);
         }
     }
     return;
+}
+
+int get_run_count()
+{
+    int fd = 0;
+    int zero = 0;
+    fd = find_data_map();
+    if (fd < 0)
+    {
+        fprintf(stderr, "[%s]: during finding data map\n", ERR);
+        return -1;
+    }
+
+    struct bss data = {0};
+
+    int err = bpf_map_lookup_elem(fd, &zero, &data);
+    if (err)
+    {
+        fprintf(stderr, "[%s]: during updating sample rate\n", ERR);
+        return -1;
+    }
+
+    int run_count = data.run_cnt;
+
+    close(fd);
+    return run_count;
 }
 
 static void init_exit(int sig)
@@ -290,7 +361,11 @@ static void init_exit(int sig)
         handle_event(data);
     }
 
-    // set locale to print numbers with dot as thousands separator
+    if (enable_run_count)
+    {
+        run_cnt = get_run_count() - prev_run_count;
+        fprintf(stdout, "[%s]: Total run count: %d\n", INFO, run_cnt);
+    }
 
     // print accumulated stats
     print_accumulated_stats();
@@ -336,7 +411,7 @@ int main(int arg, char **argv)
     timeout = 3;
 
     // retrieve opt
-    while ((opt = getopt(arg, argv, "e:n:o:P:t:acvsh")) != -1)
+    while ((opt = getopt(arg, argv, "e:n:o:P:t:r:cavsh")) != -1)
     {
         switch (opt)
         {
@@ -351,6 +426,7 @@ int main(int arg, char **argv)
                     {
                         memcpy(&selected_metrics[selected_metrics_cnt], &metrics[i], sizeof(struct profile_metric));
                         selected_metrics_cnt++;
+                        break;
                     }
                 }
                 token = strtok(NULL, ",");
@@ -361,6 +437,12 @@ int main(int arg, char **argv)
             break;
         case 'n':
             strcpy(func_name, optarg);
+            break;
+        case 'c':
+            enable_run_count = 1;
+            break;
+        case 'r':
+            sample_rate = atoi(optarg);
             break;
         case 't':
             timeout = atoi(optarg);
@@ -429,6 +511,13 @@ int main(int arg, char **argv)
 
     free(reset);
 
+    prev_run_count = get_run_count();
+    if (prev_run_count < 0)
+    {
+        fprintf(stderr, "[%s]: during getting run count\n", ERR);
+        return 1;
+    }
+
     // retrieve prog fd
     prog_fd = prog_fd_by_nametag(func_name);
     if (prog_fd < 0)
@@ -457,6 +546,17 @@ int main(int arg, char **argv)
     fprintf(stdout, "[%s]: Running... \nPress Ctrl+C to stop\n", INFO);
     if (array_map_fd > 0)
     {
+        fprintf(stdout, "[%s]: Stats enableasdasdasdd\n", INFO);
+        if (sample_rate > 0)
+        {
+            fprintf(stdout, "[%s]: Stats enabledasdasdasd\n", INFO);
+            err = set_sample_rate();
+            if (err)
+            {
+                fprintf(stderr, "[%s]: during setting sample rate\n", ERR);
+                return 1;
+            }
+        }
         // start perf before polling
         poll_stats(array_map_fd);
     }

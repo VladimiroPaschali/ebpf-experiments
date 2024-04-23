@@ -24,6 +24,12 @@ struct enabled_events_list
     __u64 event;
 };
 
+struct data
+{
+    __u64 event;
+    __u64 reg;
+};
+
 __bpf_kfunc __u64 bpf_mykperf_rdmsr(__u64 counter);
 
 static int mychardev_open(struct inode *inode, struct file *file);
@@ -32,7 +38,7 @@ static long mychardev_ioctl(struct file *file, unsigned int cmd, unsigned long a
 static ssize_t mychardev_read(struct file *file, char __user *buf, size_t count, loff_t *offset);
 static ssize_t mychardev_write(struct file *file, const char __user *buf, size_t count, loff_t *offset);
 static __u64 enable_event(__u64 event);
-static int disable_event(__u64 event);
+static int disable_event(__u64 reg, __u64 event);
 static void __add_event(__u64 reg, __u64 event);
 
 struct enabled_events_list *node;
@@ -83,7 +89,7 @@ __bpf_kfunc __u64 bpf_mykperf_rdmsr(__u64 counter)
     // MY_RDMSR(0x309, l, h);
     asm volatile("mfence" ::: "memory");
 
-    rdpmcl(counter, ret);
+    rdpmcl(((0 << 30) + counter), ret);
     // rdmsrl(0x309, ret);
     //  fence
 
@@ -187,7 +193,7 @@ static long mychardev_ioctl(struct file *file, unsigned int cmd, unsigned long a
         }
 
         r = enable_event(event);
-        if (r == 0)
+        if (r < 0)
         {
             printk("Error enabling event\n");
             return -1;
@@ -202,14 +208,14 @@ static long mychardev_ioctl(struct file *file, unsigned int cmd, unsigned long a
         break;
 
     case DISABLE_EVENT:
-
-        if (copy_from_user(&event, (__u64 *)arg, sizeof(event)))
+        struct data msg = {0};
+        if (copy_from_user(&msg, (__u64 *)arg, sizeof(struct data)))
         {
             printk("Error copying data from user\n");
             return -EFAULT;
         }
 
-        err = disable_event(event);
+        err = disable_event(msg.reg, msg.event);
         if (err)
         {
             printk("Error disabling event\n");
@@ -293,7 +299,7 @@ static __u64 enable_event(__u64 event)
         if (err)
         {
             printk("Error reading MSR: %d\n", err);
-            return 0;
+            return -1;
         }
 
         // check if l and h are zero
@@ -310,26 +316,26 @@ static __u64 enable_event(__u64 event)
     if (err)
     {
         printk("Error writing MSR: %d\n", err);
-        return 0;
+        return -1;
     }
 
     __add_event(r, event);
 
     // wich register was used to store PMC value
-    __u64 output_reg = FIRST_MSR_PROG_REG + (r - FIRST_MSR_EV_SELECT_REG);
+    __u64 output_reg = r - FIRST_MSR_EV_SELECT_REG;
     printk("MYCHARDEV: Enabling event %xon register: %x\n", event, output_reg);
 
     return output_reg;
 }
 
-static int disable_event(__u64 event)
+static int disable_event(__u64 reg, __u64 event)
 {
     event = CAP_EVENT | event;
     int err;
     struct enabled_events_list *temp, *next;
     list_for_each_entry(temp, &head, list)
     {
-        if (temp->event == event)
+        if (temp->event == event && temp->reg == reg + FIRST_MSR_EV_SELECT_REG)
         {
             err = wrmsr_on_cpu(curr_cpu, temp->reg, 0, 0);
             if (err)

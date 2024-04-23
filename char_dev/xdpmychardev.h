@@ -22,6 +22,8 @@ struct record_array
 #define BPF_MYKPERF_INIT_TRACE()                                                                                       \
     __u64 bpf_mykperf_rdmsr(__u64 counter) __ksym;                                                                     \
     __u64 reg_counter = 0;                                                                                             \
+    __u64 __sample_rate = 0;                                                                                           \
+    __u64 run_cnt = 0;                                                                                                 \
     struct                                                                                                             \
     {                                                                                                                  \
         __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                                       \
@@ -31,12 +33,11 @@ struct record_array
         __uint(pinning, LIBBPF_PIN_BY_NAME);                                                                           \
     } percpu_output SEC(".maps");
 
-#define BPF_MYKPERF_START_TRACE_ARRAY(sec_name)                                                                        \
-    __u64 value_##sec_name = 0;                                                                                        \
-    if (reg_counter)                                                                                                   \
-    {                                                                                                                  \
-        value_##sec_name = bpf_mykperf_rdmsr(reg_counter);                                                             \
-    }
+#define COUNT_RUN __sync_fetch_and_add(&run_cnt, 1);
+
+// ------------------------- ARRAY MAP -------------------------------
+#define BPF_MYKPERF_START_TRACE_ARRAY(sec_name) __u64 value_##sec_name = bpf_mykperf_rdmsr(reg_counter);
+
 #define BPF_MYKPERF_END_TRACE_ARRAY(sec_name, index)                                                                   \
     if (value_##sec_name)                                                                                              \
     {                                                                                                                  \
@@ -56,12 +57,14 @@ struct record_array
         }                                                                                                              \
     }
 
-#define BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(sec_name, sample_rate)                                                   \
-    if (UNLIKELY(RAND_FN & sample_rate))                                                                               \
+#define BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(sec_name)                                                                \
+    __u64 value_##sec_name = 0;                                                                                        \
+    if (UNLIKELY(run_cnt % __sample_rate == 0))                                                                        \
     {                                                                                                                  \
-        BPF_MYKPERF_START_TRACE_ARRAY(sec_name, reg_counter)                                                           \
+        value_##sec_name = bpf_mykperf_rdmsr(reg_counter);                                                             \
     }
 
+// --------------------- RING BUFFER --------------------------------
 #define BPF_MYKPERF_START_TRACE(sec_name)                                                                              \
     struct record *sec_name = {0};                                                                                     \
     sec_name = bpf_ringbuf_reserve(&ring_output, sizeof(struct record), 0);                                            \
@@ -75,7 +78,7 @@ struct record_array
 #define BPF_MYKPERF_END_TRACE(sec_name)                                                                                \
     if (sec_name)                                                                                                      \
     {                                                                                                                  \
-        sec_name->value = bpf_mykperf_rdmsr(reg_counter) - sec_name->value;                                            \
+        sec_name->value = bpf_mykperf_rdmsr(reg_counter) - sec_name->value_##sec_name;                                 \
         bpf_ringbuf_submit(sec_name, 0);                                                                               \
     }
 

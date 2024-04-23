@@ -1,4 +1,6 @@
 obj-m += mychardev.o
+CPU := $(shell sudo ../../script_interrupts.sh ens2f0np0)
+
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 	gcc -g -Wall -O3 myioctl.c -o myioctl.o -lbpf
@@ -11,5 +13,8 @@ load:
 unload:
 	sudo rmmod mychardev
 reload:
+	@echo "Reloading the module"
 	sudo rmmod mychardev
 	sudo insmod mychardev.ko
+	@echo "Setting CPU affinity"
+	sudo ./myioctl.o $(CPU)
