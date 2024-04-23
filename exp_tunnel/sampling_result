@@ -1,0 +1,120 @@
+tunnel_sr: sampling : 1 run: 0
+kfunc sample rate 1: throughput = 4918622 PPS latency = 125 ns
+kfunc sample rate 1 llc-misses per packet: 2.602835581894072e-05
+tunnel_sr: sampling : 10 run: 0
+kfunc sample rate 10: throughput = 6250553 PPS latency = 79 ns
+kfunc sample rate 10 llc-misses per packet: 5.471000803924489e-06
+tunnel_sr: sampling : 100 run: 0
+kfunc sample rate 100: throughput = 6442384 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 4.549804434239402e-06
+tunnel_sr: sampling : 1000 run: 0
+kfunc sample rate 1000: throughput = 6551147 PPS latency = 73 ns
+kfunc sample rate 1000 llc-misses per packet: 1.4906684157176078e-05
+tunnel_sr: sampling : 1 run: 1
+kfunc sample rate 1: throughput = 4929965 PPS latency = 124 ns
+kfunc sample rate 1 llc-misses per packet: 8.423518996214629e-06
+tunnel_sr: sampling : 10 run: 1
+kfunc sample rate 10: throughput = 6247269 PPS latency = 79 ns
+kfunc sample rate 10 llc-misses per packet: 9.23047992081187e-06
+tunnel_sr: sampling : 100 run: 1
+kfunc sample rate 100: throughput = 6446681 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 3.0291647986817075e-06
+tunnel_sr: sampling : 1000 run: 1
+kfunc sample rate 1000: throughput = 6538179 PPS latency = 73 ns
+kfunc sample rate 1000 llc-misses per packet: 1.4944555698359088e-05
+tunnel_sr: sampling : 1 run: 2
+kfunc sample rate 1: throughput = 4914454 PPS latency = 124 ns
+kfunc sample rate 1 llc-misses per packet: 8.205167491309178e-06
+tunnel_sr: sampling : 10 run: 2
+kfunc sample rate 10: throughput = 6246917 PPS latency = 79 ns
+kfunc sample rate 10 llc-misses per packet: 4.377263181854493e-06
+tunnel_sr: sampling : 100 run: 2
+kfunc sample rate 100: throughput = 6487489 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 4.518317258164599e-06
+tunnel_sr: sampling : 1000 run: 2
+kfunc sample rate 1000: throughput = 6554366 PPS latency = 74 ns
+kfunc sample rate 1000 llc-misses per packet: 0.0
+tunnel_sr: sampling : 1 run: 3
+kfunc sample rate 1: throughput = 4918178 PPS latency = 124 ns
+kfunc sample rate 1 llc-misses per packet: 1.1935583911802033e-05
+tunnel_sr: sampling : 10 run: 3
+kfunc sample rate 10: throughput = 6303933 PPS latency = 79 ns
+kfunc sample rate 10 llc-misses per packet: 3.874974715789979e-06
+tunnel_sr: sampling : 100 run: 3
+kfunc sample rate 100: throughput = 6442395 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 1.0611913236997374e-05
+tunnel_sr: sampling : 1000 run: 3
+kfunc sample rate 1000: throughput = 6526916 PPS latency = 73 ns
+kfunc sample rate 1000 llc-misses per packet: 0.0
+tunnel_sr: sampling : 1 run: 4
+kfunc sample rate 1: throughput = 4962467 PPS latency = 123 ns
+kfunc sample rate 1 llc-misses per packet: 1.7030731531741827e-05
+tunnel_sr: sampling : 10 run: 4
+kfunc sample rate 10: throughput = 6287605 PPS latency = 80 ns
+kfunc sample rate 10 llc-misses per packet: 7.300458282385454e-06
+tunnel_sr: sampling : 100 run: 4
+kfunc sample rate 100: throughput = 6534282 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 0.0
+tunnel_sr: sampling : 1000 run: 4
+kfunc sample rate 1000: throughput = 6489732 PPS latency = 73 ns
+kfunc sample rate 1000 llc-misses per packet: 0.0
+tunnel_sr: sampling : 1 run: 5
+kfunc sample rate 1: throughput = 4983513 PPS latency = 123 ns
+kfunc sample rate 1 llc-misses per packet: 1.4463748583831447e-05
+tunnel_sr: sampling : 10 run: 5
+kfunc sample rate 10: throughput = 6236098 PPS latency = 80 ns
+kfunc sample rate 10 llc-misses per packet: 1.7845061660949465e-05
+tunnel_sr: sampling : 100 run: 5
+kfunc sample rate 100: throughput = 6563840 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 2.9763809291368345e-06
+tunnel_sr: sampling : 1000 run: 5
+kfunc sample rate 1000: throughput = 6482423 PPS latency = 74 ns
+kfunc sample rate 1000 llc-misses per packet: 1.5077498341475182e-05
+tunnel_sr: sampling : 1 run: 6
+kfunc sample rate 1: throughput = 4895644 PPS latency = 124 ns
+kfunc sample rate 1 llc-misses per packet: 1.067288446971624e-05
+tunnel_sr: sampling : 10 run: 6
+kfunc sample rate 10: throughput = 6277728 PPS latency = 79 ns
+kfunc sample rate 10 llc-misses per packet: 4.515117625820369e-06
+tunnel_sr: sampling : 100 run: 6
+kfunc sample rate 100: throughput = 6487847 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 1.3552298319213846e-05
+tunnel_sr: sampling : 1000 run: 6
+kfunc sample rate 1000: throughput = 6505454 PPS latency = 73 ns
+kfunc sample rate 1000 llc-misses per packet: 0.0
+tunnel_sr: sampling : 1 run: 7
+kfunc sample rate 1: throughput = 4917833 PPS latency = 124 ns
+kfunc sample rate 1 llc-misses per packet: 9.812624947093267e-06
+tunnel_sr: sampling : 10 run: 7
+kfunc sample rate 10: throughput = 6265741 PPS latency = 80 ns
+kfunc sample rate 10 llc-misses per packet: 7.171496357659361e-06
+tunnel_sr: sampling : 100 run: 7
+kfunc sample rate 100: throughput = 6567400 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 4.461457468925948e-06
+tunnel_sr: sampling : 1000 run: 7
+kfunc sample rate 1000: throughput = 6461777 PPS latency = 74 ns
+kfunc sample rate 1000 llc-misses per packet: 3.0232487831423648e-05
+tunnel_sr: sampling : 1 run: 8
+kfunc sample rate 1: throughput = 4930119 PPS latency = 123 ns
+kfunc sample rate 1 llc-misses per packet: 9.78851691247667e-06
+tunnel_sr: sampling : 10 run: 8
+kfunc sample rate 10: throughput = 6295555 PPS latency = 79 ns
+kfunc sample rate 10 llc-misses per packet: 4.187569618344905e-06
+tunnel_sr: sampling : 100 run: 8
+kfunc sample rate 100: throughput = 6518604 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 0.0
+tunnel_sr: sampling : 1000 run: 8
+kfunc sample rate 1000: throughput = 6523282 PPS latency = 73 ns
+kfunc sample rate 1000 llc-misses per packet: 2.9946844351276486e-05
+tunnel_sr: sampling : 1 run: 9
+kfunc sample rate 1: throughput = 4937028 PPS latency = 124 ns
+kfunc sample rate 1 llc-misses per packet: 1.1886995456873406e-05
+tunnel_sr: sampling : 10 run: 9
+kfunc sample rate 10: throughput = 6316563 PPS latency = 79 ns
+kfunc sample rate 10 llc-misses per packet: 5.412054500935126e-06
+tunnel_sr: sampling : 100 run: 9
+kfunc sample rate 100: throughput = 6454251 PPS latency = 74 ns
+kfunc sample rate 100 llc-misses per packet: 6.054798957969099e-06
+tunnel_sr: sampling : 1000 run: 9
+kfunc sample rate 1000: throughput = 6513667 PPS latency = 73 ns
+kfunc sample rate 1000 llc-misses per packet: 1.4991155218421132e-05
