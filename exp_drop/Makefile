@@ -1,7 +1,7 @@
 all: drop.bpf.o drop_map.bpf.o drop_kfunc.bpf.o drop_sr.bpf.o
 clean: 
-	-rm *.o
-	-rm *.skel.h
+	-rm -f *.o
+	-rm -f *.skel.h
 %.o: %.c 
 	clang \
  		-target bpf \

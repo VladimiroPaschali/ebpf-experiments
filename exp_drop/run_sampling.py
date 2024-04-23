@@ -8,8 +8,8 @@ import sys
 import re
 
 #ridefiniti nel main in base ai parametri
-EXPERIMENT_NAME = "drop_sample_rate"
-EXPRIMENT_FUNC_NAME = "drop_sample_rate" # FRANCESCO
+EXPERIMENT_NAME = "drop_sr"
+EXPRIMENT_FUNC_NAME = "drop_sr" # FRANCESCO
 INTERFACE = "ens2f0np0"
 TIME =10
 PERF_PATH="perf"
@@ -29,8 +29,7 @@ def exp_sampling(sampling):
             subprocess.check_output('chmod go+w *.o', shell=True)
     
 
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -r{sampling} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
-
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -r {sampling} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}" | cut -d" " -f12,14',shell=True)
     out=out.decode()
@@ -58,13 +57,14 @@ def exp_sampling(sampling):
 
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
     # print(value)
+    # print(newvalue_runcnt-oldvalue_runcnt)
     
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"kfunc sample rate {sampling}: throughput = {throughput} PPS latency = {latency} ns"
     subprocess.check_output(f'echo {stampa} | tee sampling_result -a >/dev/null', shell=True)
 
-    stampa = f"kfunc sample rate {sampling} {evento} per packet: {int(value)/(newvalue_runcnt-oldvalue_runcnt)}"
+    stampa = f"kfunc sample rate {sampling} {evento} per packet: {int(value)/((newvalue_runcnt-oldvalue_runcnt)/int(sampling))}"
     subprocess.check_output(f'echo {stampa} | tee sampling_result -a >/dev/null', shell=True)
 
 
@@ -82,7 +82,7 @@ def parser():
     
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
-    parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:drop)",  metavar="drop",required = False, default = "drop")
+    parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:drop)",  metavar="drop",required = False, default = "drop_sr")
     parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "ens2f0np0")
     parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "perf")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/lib64")
@@ -106,33 +106,33 @@ def main():
             subprocess.check_output('chmod go+w *.o', shell=True)
             subprocess.check_output('chmod go+w *.h', shell=True)
 
-        # 0 = 100%
-        # 1 = 50%
-        # 10 = 10%
-        # 100 = 1%
-        # 1000 = 0.1%
-        for sampling in ["0","1","10","100","1000"]:
-            subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
-            subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a sampling_result >/dev/null', shell=True)
+        for i in range(10):
+            # 1 = 100%
+            # 10 = 10%
+            # 100 = 1%
+            # 1000 = 0.1%
+            for sampling in ["1","10","100","1000"]:
+                subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
+                subprocess.check_output('echo "'+EXPERIMENT_NAME+': sampling : '+sampling+' run: '+str(i)+'" | tee -a sampling_result >/dev/null', shell=True)
 
-            # my_env = {'LD_LIBRARY_PATH': '/lib64'}
-            #nuovo path di lib64
-            my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
-            command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
-            experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
+                # my_env = {'LD_LIBRARY_PATH': '/lib64'}
+                #nuovo path di lib64
+                my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
+                command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
+                experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
 
-            out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
-            out=out.decode()
-            while out == "\n":
-                print("No Packet received")
-                time.sleep(1.0)
                 out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
                 out=out.decode()
+                while out == "\n":
+                    print("No Packet received")
+                    time.sleep(1.0)
+                    out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
+                    out=out.decode()
 
-            print(f"Starting {EXPERIMENT_NAME} with sampling rate {sampling}")
-            exp_sampling(sampling)
+                print(f"Starting {EXPERIMENT_NAME} with sampling rate {sampling} run number {i}")
+                exp_sampling(sampling)
 
-            experiment.terminate()
+                experiment.terminate()
 
 
         

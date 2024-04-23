@@ -314,8 +314,7 @@ void print_accumulated_stats()
 
         if (sample.name[0] != 0)
         {
-            fprintf(stdout, "    %s: %llu  - %llu run_count (%lld%%)\n\n", sample.name, sample.value, sample.run_cnt,
-                    (double)(sample.run_cnt / run_cnt) * 100);
+            fprintf(stdout, "    %s: %llu  - %llu run_count \n\n", sample.name, sample.value, sample.run_cnt);
         }
     }
     return;
