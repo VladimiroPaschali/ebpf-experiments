@@ -44,8 +44,8 @@ def baseline():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
 
-    #evento = "llc_misses"
-    evento = "instructions"
+    evento = "llc_misses"
+    # evento = "instructions"
 
 
     bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} {evento}',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
@@ -91,8 +91,8 @@ def bpftool():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
 
-    #evento = "LLC-load-misses"
-    evento = "instructions"
+    evento = "LLC-load-misses"
+    # evento = "instructions"
 
 
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
@@ -146,8 +146,8 @@ def kfunc():
 
     time.sleep(1.0)
 
-    #evento = "llc-misses"
-    evento = "instructions"
+    evento = "llc-misses"
+    # evento = "instructions"
 
 
     if not (os.path.exists(LOADER_STATS)):
