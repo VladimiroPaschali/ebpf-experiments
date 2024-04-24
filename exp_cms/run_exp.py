@@ -46,8 +46,8 @@ def baseline():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
 
-    evento = "llc_misses"
-    # evento = "instructions"
+    # evento = "llc_misses"
+    evento = "instructions"
 
 
     # bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} instructions > /dev/null 2> /dev/null',shell=True,preexec_fn=os.setsid)
@@ -91,8 +91,8 @@ def bpftool():
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
-    evento = "LLC-load-misses"
-    # evento = "instructions"
+    # evento = "LLC-load-misses"
+    evento = "instructions"
 
 
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
@@ -144,8 +144,8 @@ def perf():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def kfunc():
 
-    evento = "llc-misses"
-    # evento = "instructions"
+    # evento = "llc-misses"
+    evento = "instructions"
 
 
     time.sleep(1.0)
@@ -160,7 +160,7 @@ def kfunc():
     #myenv non va
     loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
 
-    #oldvalue_time
+    print("experiment_name", EXPERIMENT_NAME)
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
     out=out.decode()
     oldvalue_time = int(out.split(" ")[0])
@@ -181,8 +181,8 @@ def kfunc():
     #retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
-    # print(output)
-    # print(errors)
+    print(output)
+    print(errors)
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
     # print(value)
 

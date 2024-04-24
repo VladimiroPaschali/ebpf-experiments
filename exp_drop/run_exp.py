@@ -44,8 +44,8 @@ def baseline():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def bpftool():
 
-    evento = "llc_misses"
-    # evento = "instructions"
+    #evento = "llc_misses"
+    evento = "instructions"
 
 
     bpftool = subprocess.Popen(f'sudo bpftool prog profile name {EXPERIMENT_NAME} {evento}',shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=os.setsid)
@@ -91,8 +91,8 @@ def bpftool():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
 
-    evento = "LLC-load-misses"
-    # evento = "instructions"
+    #evento = "LLC-load-misses"
+    evento = "instructions"
 
 
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
@@ -146,8 +146,8 @@ def kfunc():
 
     time.sleep(1.0)
 
-    evento = "llc-misses"
-    # evento = "instructions"
+    #evento = "llc-misses"
+    evento = "instructions"
 
 
     if not (os.path.exists(LOADER_STATS)):
@@ -253,7 +253,7 @@ def main():
         
         global EXPERIMENT_NAME
         oldEXPERIMENT_NAME = EXPERIMENT_NAME
-        for EXPERIMENT_NAME in [EXPERIMENT_NAME, EXPERIMENT_NAME+"_map"]:
+        for EXPERIMENT_NAME in [EXPERIMENT_NAME]:#, EXPERIMENT_NAME+"_map"]:
             print(f"Starting {EXPERIMENT_NAME}")
             subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
             subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
@@ -297,7 +297,7 @@ def main():
         subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
         command = f"./{EXPERIMENT_NAME}.o {INTERFACE}"
         experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
-        kfunc()
+        # kfunc()
         
         print(f"Start {EXPERIMENT_NAME} perf")
         perf()

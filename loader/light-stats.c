@@ -90,6 +90,10 @@ int enable_run_count;
 int prev_run_count;
 int run_cnt;
 
+// profiler
+static struct profiler *profile_obj;
+int profile;
+
 struct profile_metric selected_metrics[MAX_METRICS];
 int selected_metrics_cnt;
 
@@ -196,6 +200,42 @@ static void end_perf()
     }
     return;
 }
+
+int attach_profiler()
+{
+    int err;
+    // this will be the profiler program
+    struct bpf_program *prof_prog;
+
+    bpf_object__for_each_program(prof_prog, profile_obj->obj)
+    {
+        err = bpf_program__set_attach_target(prof_prog, prog_fd, prog_name);
+        if (err)
+        {
+            fprintf(stderr, "[%s]: setting attach target during profiler init\n", ERR);
+            return 1;
+        }
+    }
+
+    // load profiler
+    err = profiler__load(profile_obj);
+    if (err)
+    {
+        fprintf(stderr, "[%s]: loading profiler\n", ERR);
+        return 1;
+    }
+
+    // attach profiler
+    err = profiler__attach(profile_obj);
+    if (err)
+    {
+        fprintf(stderr, "[%s]: attaching profiler\n", ERR);
+        return 1;
+    }
+
+    return 0;
+}
+
 // from bpftool
 static int prog_fd_by_nametag(char nametag[15])
 {
@@ -375,6 +415,11 @@ static void init_exit(int sig)
         end_perf();
     }
 
+    if (profile_obj)
+    {
+        profiler__destroy(profile_obj);
+    }
+
     fprintf(stdout, "[%s]: Done \n", INFO);
     exit(0);
 }
@@ -411,9 +456,10 @@ int main(int arg, char **argv)
     data = malloc(n_cpus * sizeof(struct record_array));
     array_map_fd = -1;
     timeout = 3;
+    profile = 0;
 
     // retrieve opt
-    while ((opt = getopt(arg, argv, "e:n:o:P:t:r:cavsh")) != -1)
+    while ((opt = getopt(arg, argv, "e:n:o:P:t:r:cxavsh")) != -1)
     {
         switch (opt)
         {
@@ -452,6 +498,8 @@ int main(int arg, char **argv)
         case 'a':
             accumulate = 1;
             break;
+        case 'x':
+            profile = 1;
         case 'v':
             verbose = 1;
             break;
@@ -548,6 +596,23 @@ int main(int arg, char **argv)
     }
 
     fprintf(stdout, "[%s]: Program name: %s\n", DEBUG, info.name);
+
+    if (profile)
+    {
+        profile_obj = profiler__open();
+        if (!profile_obj)
+        {
+            fprintf(stderr, "[%s]: during profiler open\n", ERR);
+            return 1;
+        }
+
+        err = attach_profiler();
+        if (err)
+        {
+            fprintf(stderr, "[%s]: during attaching profiler\n", ERR);
+            return 1;
+        }
+    }
 
     fprintf(stdout, "[%s]: Running... \nPress Ctrl+C to stop\n", INFO);
     if (array_map_fd > 0)

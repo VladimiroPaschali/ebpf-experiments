@@ -105,7 +105,7 @@ int ring_cms(struct xdp_md *ctx) {
 	    //bpf_loop(CMS_ROWS, &loop_callback, &ctx, 0) ;
 	    e = bpf_ringbuf_reserve(&rb, sizeof(struct event), 0);
 	    if (UNLIKELY(!e)) {
-		    return XDP_PASS;
+		    return XDP_DROP;
 	    }
 	    e->hash = 0;
 	    for (int i = 0; i < CMS_ROWS; i++) {
@@ -118,7 +118,7 @@ int ring_cms(struct xdp_md *ctx) {
     }
     
 end:
-    return XDP_PASS;
+    return XDP_DROP;
 }
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";

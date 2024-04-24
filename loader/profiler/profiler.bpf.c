@@ -11,6 +11,17 @@ struct
 } counts SEC(".maps");
 
 SEC("fexit/*")
+int BPF_PROG(fexit_XXX, int ret)
+{
+    if (ret)
+    {
+        bpf_printk("fexit_XXX: %d\n", ret);
+        ret = 0;
+    }
+    return 0;
+}
+
+/* SEC("fexit/*")
 int BPF_PROG(fexit_XXX)
 {
     __u32 zero = 0;
@@ -18,6 +29,6 @@ int BPF_PROG(fexit_XXX)
     if (count)
         *count += 1;
     return 0;
-}
+} */
 
 char _license[] SEC("license") = "GPL";

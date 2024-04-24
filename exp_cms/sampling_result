@@ -1,120 +1,120 @@
 cms_sr: sampling : 1 run: 0
-kfunc sample rate 1: throughput = 1654234 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 4.906896660992796e-06
+kfunc sample rate 1: throughput = 4928619 PPS latency = 130 ns
+kfunc sample rate 1 llc-misses per packet: 2.0606406519898723e-06
 cms_sr: sampling : 10 run: 0
-kfunc sample rate 10: throughput = 1785506 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 3.2828126701249274e-06
+kfunc sample rate 10: throughput = 6836056 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 2.428913558395511e-06
 cms_sr: sampling : 100 run: 0
-kfunc sample rate 100: throughput = 1803899 PPS latency = 47 ns
-kfunc sample rate 100 llc-misses per packet: 5.416707291971357e-06
+kfunc sample rate 100: throughput = 7179196 PPS latency = 62 ns
+kfunc sample rate 100 llc-misses per packet: 0.0
 cms_sr: sampling : 1000 run: 0
-kfunc sample rate 1000: throughput = 1806960 PPS latency = 46 ns
+kfunc sample rate 1000: throughput = 7218293 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 1
-kfunc sample rate 1: throughput = 1657278 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 9.489559539441615e-06
+kfunc sample rate 1: throughput = 4905276 PPS latency = 129 ns
+kfunc sample rate 1 llc-misses per packet: 4.3787325834169955e-07
 cms_sr: sampling : 10 run: 1
-kfunc sample rate 10: throughput = 1787363 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 3.279100651994513e-06
+kfunc sample rate 10: throughput = 6832343 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 4.287190916757186e-07
 cms_sr: sampling : 100 run: 1
-kfunc sample rate 100: throughput = 1806212 PPS latency = 47 ns
-kfunc sample rate 100 llc-misses per packet: 1.0817710756049805e-05
+kfunc sample rate 100: throughput = 7177708 PPS latency = 63 ns
+kfunc sample rate 100 llc-misses per packet: 0.0
 cms_sr: sampling : 1000 run: 1
-kfunc sample rate 1000: throughput = 1807901 PPS latency = 47 ns
-kfunc sample rate 1000 llc-misses per packet: 5.4054054054054054e-05
+kfunc sample rate 1000: throughput = 7300517 PPS latency = 62 ns
+kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 2
-kfunc sample rate 1: throughput = 1659542 PPS latency = 95 ns
-kfunc sample rate 1 llc-misses per packet: 1.0480194209248624e-05
+kfunc sample rate 1: throughput = 4941584 PPS latency = 129 ns
+kfunc sample rate 1 llc-misses per packet: 2.5688930683242167e-07
 cms_sr: sampling : 10 run: 2
-kfunc sample rate 10: throughput = 1782335 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 9.323912159972006e-06
+kfunc sample rate 10: throughput = 6828063 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 5.722293655521356e-07
 cms_sr: sampling : 100 run: 2
-kfunc sample rate 100: throughput = 1795397 PPS latency = 47 ns
-kfunc sample rate 100 llc-misses per packet: 5.4420584041707934e-06
+kfunc sample rate 100: throughput = 7166709 PPS latency = 63 ns
+kfunc sample rate 100 llc-misses per packet: 1.3623774030634419e-06
 cms_sr: sampling : 1000 run: 2
-kfunc sample rate 1000: throughput = 1803304 PPS latency = 46 ns
+kfunc sample rate 1000: throughput = 7263611 PPS latency = 63 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 3
-kfunc sample rate 1: throughput = 1651334 PPS latency = 97 ns
-kfunc sample rate 1 llc-misses per packet: 5.269792036242906e-06
+kfunc sample rate 1: throughput = 4942431 PPS latency = 129 ns
+kfunc sample rate 1 llc-misses per packet: 1.897448408229542e-06
 cms_sr: sampling : 10 run: 3
-kfunc sample rate 10: throughput = 1782258 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 4.939564429208632e-06
+kfunc sample rate 10: throughput = 6802178 PPS latency = 71 ns
+kfunc sample rate 10 llc-misses per packet: 4.3093733610914437e-07
 cms_sr: sampling : 100 run: 3
-kfunc sample rate 100: throughput = 1801900 PPS latency = 47 ns
-kfunc sample rate 100 llc-misses per packet: 5.426760441087089e-06
+kfunc sample rate 100: throughput = 7150069 PPS latency = 63 ns
+kfunc sample rate 100 llc-misses per packet: 1.36611648602053e-06
 cms_sr: sampling : 1000 run: 3
-kfunc sample rate 1000: throughput = 1804970 PPS latency = 46 ns
+kfunc sample rate 1000: throughput = 7247246 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 4
-kfunc sample rate 1: throughput = 1653273 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 1.802216383435067e-05
+kfunc sample rate 1: throughput = 4905037 PPS latency = 129 ns
+kfunc sample rate 1 llc-misses per packet: 2.1898722350897124e-06
 cms_sr: sampling : 10 run: 4
-kfunc sample rate 10: throughput = 1790148 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 2.7307183973959867e-06
+kfunc sample rate 10: throughput = 6831714 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 1.4293794363470893e-06
 cms_sr: sampling : 100 run: 4
-kfunc sample rate 100: throughput = 1810028 PPS latency = 47 ns
+kfunc sample rate 100: throughput = 7238977 PPS latency = 63 ns
 kfunc sample rate 100 llc-misses per packet: 0.0
 cms_sr: sampling : 1000 run: 4
-kfunc sample rate 1000: throughput = 1810756 PPS latency = 47 ns
+kfunc sample rate 1000: throughput = 7236635 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 5
-kfunc sample rate 1: throughput = 1666231 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 4.57356330304149e-06
+kfunc sample rate 1: throughput = 4928146 PPS latency = 129 ns
+kfunc sample rate 1 llc-misses per packet: 4.3595660709874485e-07
 cms_sr: sampling : 10 run: 5
-kfunc sample rate 10: throughput = 1793317 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 7.081315839214911e-06
+kfunc sample rate 10: throughput = 6829481 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 1.5729748056625377e-06
 cms_sr: sampling : 100 run: 5
-kfunc sample rate 100: throughput = 1810115 PPS latency = 47 ns
-kfunc sample rate 100 llc-misses per packet: 5.396159014013825e-06
+kfunc sample rate 100: throughput = 7134328 PPS latency = 64 ns
+kfunc sample rate 100 llc-misses per packet: 0.0
 cms_sr: sampling : 1000 run: 5
-kfunc sample rate 1000: throughput = 1807814 PPS latency = 47 ns
+kfunc sample rate 1000: throughput = 7272672 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 6
-kfunc sample rate 1: throughput = 1636622 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 3.1634025127682088e-06
+kfunc sample rate 1: throughput = 4919396 PPS latency = 130 ns
+kfunc sample rate 1 llc-misses per packet: 8.53644581941661e-07
 cms_sr: sampling : 10 run: 6
-kfunc sample rate 10: throughput = 1797456 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 2.1746954610843684e-06
+kfunc sample rate 10: throughput = 6851732 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 7.12702293418964e-07
 cms_sr: sampling : 100 run: 6
-kfunc sample rate 100: throughput = 1760300 PPS latency = 47 ns
-kfunc sample rate 100 llc-misses per packet: 0.0
+kfunc sample rate 100: throughput = 7229038 PPS latency = 63 ns
+kfunc sample rate 100 llc-misses per packet: 1.3503823607654507e-06
 cms_sr: sampling : 1000 run: 6
-kfunc sample rate 1000: throughput = 1775435 PPS latency = 47 ns
+kfunc sample rate 1000: throughput = 7217900 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 7
-kfunc sample rate 1: throughput = 1666850 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 4.981887030964128e-06
+kfunc sample rate 1: throughput = 4923706 PPS latency = 130 ns
+kfunc sample rate 1 llc-misses per packet: 5.553518383970578e-07
 cms_sr: sampling : 10 run: 7
-kfunc sample rate 10: throughput = 1786307 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 2.734093046654564e-06
+kfunc sample rate 10: throughput = 6895369 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 4.247305898474382e-07
 cms_sr: sampling : 100 run: 7
-kfunc sample rate 100: throughput = 1809639 PPS latency = 47 ns
-kfunc sample rate 100 llc-misses per packet: 5.3995097245170135e-06
+kfunc sample rate 100: throughput = 7144141 PPS latency = 63 ns
+kfunc sample rate 100 llc-misses per packet: 0.0
 cms_sr: sampling : 1000 run: 7
-kfunc sample rate 1000: throughput = 1806142 PPS latency = 47 ns
+kfunc sample rate 1000: throughput = 7288913 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 8
-kfunc sample rate 1: throughput = 1659772 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 2.7674694447820366e-06
+kfunc sample rate 1: throughput = 4912086 PPS latency = 130 ns
+kfunc sample rate 1 llc-misses per packet: 4.770781918633161e-07
 cms_sr: sampling : 10 run: 8
-kfunc sample rate 10: throughput = 1788853 PPS latency = 53 ns
-kfunc sample rate 10 llc-misses per packet: 3.84542068078229e-06
+kfunc sample rate 10: throughput = 6919225 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 1.4112505458011486e-07
 cms_sr: sampling : 100 run: 8
-kfunc sample rate 100: throughput = 1802708 PPS latency = 47 ns
+kfunc sample rate 100: throughput = 7202688 PPS latency = 63 ns
 kfunc sample rate 100 llc-misses per packet: 0.0
 cms_sr: sampling : 1000 run: 8
-kfunc sample rate 1000: throughput = 1815653 PPS latency = 47 ns
+kfunc sample rate 1000: throughput = 7258574 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0
 cms_sr: sampling : 1 run: 9
-kfunc sample rate 1: throughput = 1664436 PPS latency = 96 ns
-kfunc sample rate 1 llc-misses per packet: 5.28264715562027e-06
+kfunc sample rate 1: throughput = 4916853 PPS latency = 129 ns
+kfunc sample rate 1 llc-misses per packet: 4.3693673269316936e-07
 cms_sr: sampling : 10 run: 9
-kfunc sample rate 10: throughput = 1792911 PPS latency = 54 ns
-kfunc sample rate 10 llc-misses per packet: 5.999300808760288e-06
+kfunc sample rate 10: throughput = 6822575 PPS latency = 70 ns
+kfunc sample rate 10 llc-misses per packet: 1.4314994584637548e-07
 cms_sr: sampling : 100 run: 9
-kfunc sample rate 100: throughput = 1807976 PPS latency = 48 ns
-kfunc sample rate 100 llc-misses per packet: 0.0
+kfunc sample rate 100: throughput = 7227589 PPS latency = 63 ns
+kfunc sample rate 100 llc-misses per packet: 2.7024251563352954e-06
 cms_sr: sampling : 1000 run: 9
-kfunc sample rate 1000: throughput = 1806407 PPS latency = 47 ns
+kfunc sample rate 1000: throughput = 7263792 PPS latency = 62 ns
 kfunc sample rate 1000 llc-misses per packet: 0.0

@@ -27,7 +27,6 @@
 #include "profiler/profiler.skel.h"
 #include <mychardev.h>
 
-
 // --- PRETTY PRINT -----
 #define ERR "\033[1;31mERR\033[0m"
 #define WARN "\033[1;33mWARN\033[0m"

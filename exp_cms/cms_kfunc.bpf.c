@@ -42,14 +42,13 @@ static inline int hash(char str[15]) {
 
 	return hash;
 }
- 
-char key[15];
 
 SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx) {
 
     BPF_MYKPERF_START_TRACE_ARRAY(main);
 
+	char key[15];
     void* data = (void*)(long)(ctx->data);
     void* data_end = (void*)(long)(ctx->data_end);
     struct ethhdr* eth_hdr = data;
@@ -132,7 +131,7 @@ int cms_kfunc(struct xdp_md *ctx) {
     
 end:
 	BPF_MYKPERF_END_TRACE_ARRAY(main, 0);
-    return XDP_PASS;
+    return XDP_DROP;
 }
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";

@@ -40,7 +40,7 @@ struct event *e;
 SEC("xdp")
 int ring_cms_kfunc(struct xdp_md *ctx) {
 
-	BPF_MYKPERF_START_TRACE_ARRAY(main, 0);
+	BPF_MYKPERF_START_TRACE_ARRAY(main);
 
     void* data = (void*)(long)(ctx->data);
     void* data_end = (void*)(long)(ctx->data_end);
@@ -107,7 +107,7 @@ int ring_cms_kfunc(struct xdp_md *ctx) {
 	    //bpf_loop(CMS_ROWS, &loop_callback, &ctx, 0) ;
 	    e = bpf_ringbuf_reserve(&rb, sizeof(struct event), 0);
 	    if (UNLIKELY(!e)) {
-		    return XDP_PASS;
+		    return XDP_DROP;
 	    }
 	    e->hash = 0;
 	    for (int i = 0; i < CMS_ROWS; i++) {
@@ -121,8 +121,8 @@ int ring_cms_kfunc(struct xdp_md *ctx) {
 
     
 end:
-    BPF_MYKPERF_END_TRACE_ARRAY(main, 0, 0);
-    return XDP_PASS;
+    BPF_MYKPERF_END_TRACE_ARRAY(main, 0);
+    return XDP_DROP;
 }
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
