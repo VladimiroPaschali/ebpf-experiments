@@ -180,8 +180,8 @@ def kfunc():
     #retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
-    # print(output)
-    # print(errors)
+    print(output)
+    print(errors)
 
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
     
