@@ -6,6 +6,7 @@ import time
 import os
 import sys
 import re
+import locale
 
 #ridefiniti nel main in base ai parametri
 EXPERIMENT_NAME = "drop_sr"
@@ -15,12 +16,14 @@ TIME =10
 PERF_PATH="perf"
 LIBBPF_PATH="/lib64"
 LOADER_STATS="../loader/light-stats.o" # FRANCESCO
+SAMPLING = [1,8,32,128]
+
 
 def exp_sampling(sampling):
     time.sleep(1.0)
 
-    # evento = "llc-misses"
-    evento = "instructions"
+    evento = "llc-misses"
+    # evento = "instructions"
 
 
     if not (os.path.exists(LOADER_STATS)):
@@ -52,8 +55,8 @@ def exp_sampling(sampling):
     # retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
-    # print(output)
-    # print(errors)
+    print(output)
+    print(errors)
 
     value, runcnt = re.findall(r".*main: (\d*.*\d).*- (\d*.*\d).*", output)[0]
     # print(value,runcnt)
@@ -64,7 +67,7 @@ def exp_sampling(sampling):
     stampa = f"kfunc sample rate {sampling}: throughput = {throughput} PPS latency = {latency} ns"
     subprocess.check_output(f'echo {stampa} | tee sampling_result -a >/dev/null', shell=True)
 
-    stampa = f"kfunc sample rate {sampling} {evento} per packet: {int(value)/int(runcnt)}"
+    stampa = f"kfunc sample rate {sampling} {evento} per packet: {str(int(value)/int(runcnt)).replace('.',',')}"
     subprocess.check_output(f'echo {stampa} | tee sampling_result -a >/dev/null', shell=True)
 
 
@@ -76,6 +79,8 @@ def parser():
     global TIME
     global PERF_PATH
     global LIBBPF_PATH
+    global SAMPLING
+
 
     if os.geteuid() != 0:
         exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'. Exiting.")
@@ -86,6 +91,8 @@ def parser():
     parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "ens2f0np0")
     parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "perf")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/lib64")
+    parser.add_argument("-s", "--sampling", help = "Sampling rates (default:1,8,32,128)",metavar="1,8,32,128", required = False, default = "1,8,32,128")
+
     args = parser.parse_args()
 
     EXPERIMENT_NAME = args.experiment
@@ -111,9 +118,9 @@ def main():
             # 10 = 10%
             # 100 = 1%
             # 1000 = 0.1%
-            for sampling in ["1","10","100","1000"]:
+            for sampling in SAMPLING:
                 subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
-                subprocess.check_output('echo "'+EXPERIMENT_NAME+': sampling : '+sampling+' run: '+str(i)+'" | tee -a sampling_result >/dev/null', shell=True)
+                subprocess.check_output('echo "'+EXPERIMENT_NAME+': sampling : '+str(sampling)+' run: '+str(i)+'" | tee -a sampling_result >/dev/null', shell=True)
 
                 # my_env = {'LD_LIBRARY_PATH': '/lib64'}
                 #nuovo path di lib64

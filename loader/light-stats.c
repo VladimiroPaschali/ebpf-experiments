@@ -516,10 +516,6 @@ int main(int arg, char **argv)
         }
     }
 
-    if (selected_metrics_cnt > 0)
-    {
-        start_perf();
-    }
 
     // set trap for ctrl+c
     signal(SIGINT, init_exit);
@@ -614,6 +610,12 @@ int main(int arg, char **argv)
         }
     }
 
+    
+    if (selected_metrics_cnt > 0)
+    {
+        start_perf();
+    }
+    
     fprintf(stdout, "[%s]: Running... \nPress Ctrl+C to stop\n", INFO);
     if (array_map_fd > 0)
     {
@@ -625,6 +627,7 @@ int main(int arg, char **argv)
             if (err)
             {
                 fprintf(stderr, "[%s]: during setting sample rate\n", ERR);
+		init_exit(0);
                 return 1;
             }
         }
