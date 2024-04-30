@@ -1,9 +1,38 @@
 drop: 
-baseline: throughput = 14697817 PPS latency = 11 ns
-bpftool: throughput = 3434054 PPS latency = 206 ns
-bpftool llc_misses per packet: 1.106563748860931e-06
-perf: throughput = 3646186 PPS latency = 191 ns
-perf LLC-load-misses per packet: 4.009668622006345e-05
-drop_kfunc: 
-perf: throughput = 2983628 PPS latency = 248 ns
-perf LLC-load-misses per packet: 7.990270103305076e-05
+baseline: throughput = 15099129 PPS latency = 11 ns
+baseline: throughput = 1262609 PPS latency = 658 ns
+baseline: throughput = 1368328 PPS latency = 605 ns
+baseline: throughput = 1514173 PPS latency = 545 ns
+baseline: throughput = 1645399 PPS latency = 505 ns
+baseline: throughput = 1776613 PPS latency = 448 ns
+baseline: throughput = 1964208 PPS latency = 386 ns
+baseline: throughput = 2089920 PPS latency = 383 ns
+baseline: throughput = 2478767 PPS latency = 314 ns
+baseline: throughput = 2731354 PPS latency = 289 ns
+baseline: throughput = 2993520 PPS latency = 287 ns
+baseline: throughput = 3159598 PPS latency = 245 ns
+baseline: throughput = 3597535 PPS latency = 211 ns
+baseline: throughput = 3887894 PPS latency = 216 ns
+baseline: throughput = 4227942 PPS latency = 205 ns
+baseline: throughput = 4243174 PPS latency = 205 ns
+baseline: throughput = 4234262 PPS latency = 205 ns
+baseline: throughput = 4244965 PPS latency = 205 ns
+baseline: throughput = 4246780 PPS latency = 208 ns
+perf: throughput = 1263431 PPS latency = 641 ns
+perf: throughput = 1341707 PPS latency = 601 ns
+perf: throughput = 1506413 PPS latency = 543 ns
+perf: throughput = 1551153 PPS latency = 520 ns
+perf: throughput = 1741224 PPS latency = 461 ns
+perf: throughput = 2005387 PPS latency = 348 ns
+perf: throughput = 2247951 PPS latency = 276 ns
+perf: throughput = 2481072 PPS latency = 271 ns
+perf: throughput = 2721717 PPS latency = 278 ns
+perf: throughput = 2999569 PPS latency = 266 ns
+perf: throughput = 3273311 PPS latency = 194 ns
+perf: throughput = 3600317 PPS latency = 193 ns
+perf: throughput = 3637440 PPS latency = 226 ns
+perf: throughput = 4340359 PPS latency = 194 ns
+perf: throughput = 4329782 PPS latency = 195 ns
+perf: throughput = 4401594 PPS latency = 194 ns
+perf: throughput = 4441539 PPS latency = 193 ns
+perf: throughput = 4360405 PPS latency = 196 ns

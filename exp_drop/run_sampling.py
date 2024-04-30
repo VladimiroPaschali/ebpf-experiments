@@ -150,6 +150,8 @@ def main():
         print("Terminating experiment")
         try:
             experiment.terminate()
+            subprocess.check_output('sudo pkill light-stats.o', shell=True)
+
         except NameError:
             pass
 

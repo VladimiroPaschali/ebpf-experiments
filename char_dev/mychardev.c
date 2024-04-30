@@ -222,7 +222,33 @@ static long mychardev_ioctl(struct file *file, unsigned int cmd, unsigned long a
             return -1;
         }
         break;
+    case CHANGE_EVENT:
+        struct data msg = {0};
+        if (copy_from_user(&msg, (__u64 *)arg, sizeof(struct data)))
+        {
+            printk("Error copying data from user\n");
+            return -EFAULT;
+        }
 
+        err = change_event(msg.reg, msg.event);
+        if (err < 0)
+        {
+            printk("Error enabling event\n");
+            err = copy_to_user((uint32_t *)arg, NULL, sizeof(struct data));
+            if (err)
+            {
+                return -EFAULT;
+            }
+            return -1;
+        }
+
+        err = copy_to_user((uint32_t *)arg, &msg, sizeof(struct data));
+        if (err)
+        {
+            printk("Error copying data to user\n");
+            return -EFAULT;
+        }
+        break;
     case SET_CPU:
         if (copy_from_user(&curr_cpu, (int *)arg, sizeof(curr_cpu)))
         {
@@ -350,6 +376,27 @@ static int disable_event(__u64 reg, __u64 event)
         }
     }
     return 0;
+}
+
+static int change_event(__u64 reg, __u64 event)
+{
+    event = CAP_EVENT | event;
+    int err;
+    struct enabled_events_list *temp, *next;
+    list_for_each_entry(temp, &head, list)
+    {
+        if (temp->reg == reg + FIRST_MSR_EV_SELECT_REG)
+        {
+            err = wrmsrl_on_cpu(curr_cpu, temp->reg, event);
+            if (err)
+            {
+                printk("Error writing MSR: %d\n", err);
+                return -1;
+            }
+            printk("MYCHARDEV: Changing event %x on register: %x\n", temp->event, temp->reg);
+            return 0;
+        }
+    }
 }
 
 MODULE_LICENSE("GPL");

@@ -290,6 +290,8 @@ def main():
             pass
         try:
             experimentkfunc.terminate()
+            # subprocess.check_output('sudo pkill light-stats.o', shell=True)
+
         except NameError:
             pass
 

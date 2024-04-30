@@ -183,4 +183,30 @@ int disable_event(__u64 reg, __u64 event)
     return 0;
 }
 
+int change_event(__u64 reg, __u64 event)
+{
+    struct data msg = {
+        .event = event,
+        .reg = reg,
+    };
+
+    int fd;
+    fd = open(DEVICE_FILE, O_RDWR);
+    if (fd < 0)
+    {
+        perror("Failed to open the device.");
+        return -1;
+    }
+
+    if (ioctl(fd, CHANGE_EVENT, &msg) < 0)
+    {
+        perror("Failed to perform IOCTL GET.");
+        close(fd);
+        return -1;
+    }
+
+    close(fd);
+    return 0;
+}
+
 #endif // __USER_MYCHARDEV_H_
