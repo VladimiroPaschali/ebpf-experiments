@@ -16,7 +16,7 @@ TIME =10
 PERF_PATH="perf"
 LIBBPF_PATH="/lib64"
 LOADER_STATS="../loader/light-stats.o" # FRANCESCO
-SAMPLING = [1,8,32,128]
+SAMPLING = [1,8,32,64,128]
 
 
 def exp_sampling(sampling):

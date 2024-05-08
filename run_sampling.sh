@@ -25,7 +25,7 @@ INTERFACE="ens2f0np0"
 TIME="10"
 PERF="perf"
 LIBBPF="/lib64"
-SAMPLING="1,8,32,128"
+SAMPLING="1,8,32,64,128"
 
 terminate_experiments() {
     echo -e "${RED}Terminating all experiments ${NC}"
