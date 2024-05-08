@@ -42,7 +42,7 @@ def start_trex(c,duration,mult):
         stats = stats['global']
         tx_pps = stats['tx_pps']
         # print(tx_pps)
-        if tx_pps >= (num_mult//1.10):
+        if tx_pps >= (num_mult//1.001):
             break
     print(f"Traffic rate reached {mult} waiting for up to {duration} seconds")
 
@@ -90,9 +90,9 @@ def kfunc(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.001)
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.001)
             break
         
         if time.time()-start > TIME:
@@ -142,16 +142,16 @@ def baseline(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.001)
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.001)
             break
         
         if time.time()-start > TIME:
             break
     
     throughput = newvalue_runcnt-oldvalue_runcnt
-    # print(throughput , num_mult//1.10, throughput<num_mult//1.10)
+    # print(throughput , num_mult//1.001, throughput<num_mult//1.001)
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"baseline: throughput = {throughput} PPS latency = {latency} ns"
     subprocess.check_output(f'echo {stampa} | tee throughput_result -a >/dev/null', shell=True)
@@ -185,9 +185,9 @@ def bpftool(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.001)
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.001)
             break
         
         if time.time()-start > TIME:
@@ -239,9 +239,9 @@ def perf(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
-            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.001)
+            # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.001)
             break
         
         if time.time()-start > TIME:
@@ -360,16 +360,16 @@ def main():
 
 
 
-                # print(throughput, num_mult//1.10, throughput<num_mult//1.10)
+                # print(throughput, num_mult//1.001, throughput<num_mult//1.001)
 
                 experiment.terminate()
                 stop_trex(c)
 
 
-                if throughput < num_mult//1.10:
+                if throughput < num_mult//1.001:
                     break
                 else:
-                    num_mult = int(num_mult*1.10)
+                    num_mult = int(num_mult+10000)
                     mult = str(num_mult)+"pps"
 
 

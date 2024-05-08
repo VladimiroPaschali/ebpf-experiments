@@ -42,7 +42,7 @@ def start_trex(c,duration,mult):
         stats = stats['global']
         tx_pps = stats['tx_pps']
         # print(tx_pps)
-        if tx_pps >= (num_mult//1.10):
+        if tx_pps >= (num_mult//1.001):
             break
     print(f"Traffic rate reached {mult} waiting for up to {duration} seconds")
 
@@ -90,7 +90,7 @@ def kfunc(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
             break
@@ -142,7 +142,7 @@ def baseline(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
             break
@@ -185,7 +185,7 @@ def bpftool(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
             break
@@ -239,7 +239,7 @@ def perf(num_mult):
         newvalue_time = int(out.split(" ")[0])
         #newvalue_runcnt
         newvalue_runcnt = int(out.split(" ")[1])
-        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.10:
+        if newvalue_runcnt-oldvalue_runcnt > num_mult//1.001:
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult//1.10)
             # print(newvalue_runcnt-oldvalue_runcnt, num_mult/1.10)
             break
@@ -366,10 +366,10 @@ def main():
                 stop_trex(c)
 
 
-                if throughput < num_mult//1.10:
+                if throughput < num_mult//1.001:
                     break
                 else:
-                    num_mult = int(num_mult*1.10)
+                    num_mult = int(num_mult+10000)
                     mult = str(num_mult)+"pps"
 
 
