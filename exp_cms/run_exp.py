@@ -15,7 +15,7 @@ INTERFACE = "ens2f0np0"
 TIME =10
 PERF_PATH="perf"
 LIBBPF_PATH="/lib64"
-LOADER_STATS="../loader/light-stats.o"
+LOADER_STATS="../inxpect/inxpect"
 
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency

@@ -14,7 +14,7 @@ INTERFACE = "ens2f0np0"
 TIME =10
 PERF_PATH="perf"
 LIBBPF_PATH="/lib64"
-LOADER_STATS="../loader/light-stats.o" # FRANCESCO
+LOADER_STATS="../inxpect/inxpect" # FRANCESCO
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def baseline():

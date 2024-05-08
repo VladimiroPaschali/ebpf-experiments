@@ -20,7 +20,7 @@ EXPRIMENT_FUNC_NAME = "tunnel_kfunc" # FRANCESCO
 INTERFACE = "ens2f0np0"
 PERF_PATH="perf"
 LIBBPF_PATH="/lib64"
-LOADER_STATS="../loader/light-stats.o" # FRANCESCO
+LOADER_STATS="../inxpect/inxpect" # FRANCESCO
  
 def init_trex():
     c = STLClient(server = '128.105.146.86') # type: ignore
