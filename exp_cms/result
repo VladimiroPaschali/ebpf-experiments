@@ -1,10 +1,6 @@
 cms: 
-baseline: throughput = 10818020 PPS latency = 37 ns
-bpftool: throughput = 3165468 PPS latency = 231 ns
-bpftool llc_misses per packet: 1.9270451659266445e-06
-perf: throughput = 3245359 PPS latency = 224 ns
-perf LLC-load-misses per packet: 7.703307778790952e-05
-kfunc: throughput = 7377185 PPS latency = 80 ns
-kfunc llc-misses per packet: 1.0573138096813997e-06
-perf: throughput = 2702877 PPS latency = 282 ns
-perf LLC-load-misses per packet: 6.848256582234557e-05
+baseline: throughput = 10996894 PPS latency = 37 ns
+bpftool: throughput = 3202801 PPS latency = 231 ns
+bpftool llc_misses per packet: 1.5923558924161897e-06
+perf: throughput = 3243549 PPS latency = 227 ns
+perf LLC-load-misses per packet: 0.000243899468776413

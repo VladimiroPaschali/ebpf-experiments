@@ -1,0 +1,9 @@
+# started on Thu May  9 09:16:02 2024
+
+
+ Performance counter stats for 'BPF program(s) 22':
+
+             48907      instructions                                                          
+
+     100.102087897 seconds time elapsed
+

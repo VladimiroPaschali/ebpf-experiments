@@ -1,0 +1,15 @@
+**TODO**: improve xdp shared variables management, see how work skeleton generation
+
+**TODO**: fix server put response code in buffer. It can also be a problem 
+
+**TODO**: add error checking from response in rust console
+
+__DONE__: fix socket buffer, value is wrong
+
+__DONE__: fix socket server, it receives wrong data, why?
+__ANSWER__: seem to be telnet fault
+
+__DONE__: fix event_disable, not work properly with socket server
+__ANSWER__: it was because the main process was killed before expected
+
+__DONE__: make test using sample_rate

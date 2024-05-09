@@ -17,7 +17,7 @@ import locale
 #ridefiniti nel main in base ai parametri
 EXPERIMENT_NAME = "cms"
 EXPRIMENT_FUNC_NAME = "cms_kfunc" # FRANCESCO
-INTERFACE = "ens2f0np0"
+INTERFACE = "enp81s0f0np0"
 PERF_PATH="perf"
 LIBBPF_PATH="/lib64"
 LOADER_STATS="../inxpect/inxpect" # FRANCESCO
@@ -285,7 +285,7 @@ def parser():
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
     parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:cms)",  metavar="cms",required = False, default = "cms")
-    parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "ens2f0np0")
+    parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "enp81s0f0np0")
     parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "perf")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/lib64")
 
@@ -385,7 +385,7 @@ def main():
         except NameError:
             pass
         try:
-            subprocess.check_output('sudo pkill light-stats.o', shell=True)
+            subprocess.check_output('sudo pkill inxpect', shell=True)
         except:
             pass
 

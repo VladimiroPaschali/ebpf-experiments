@@ -5,24 +5,24 @@
 #include <linux/btf_ids.h>
 #include "mykperf_module.h"
 
-static __u64 mykperf_read_rdpmc(__u8 counter__k, __u32 low, __u32 high);
+//static __u64 mykperf_read_rdpmc(__u8 counter__k, __u32 low, __u32 high);
 
 // -------------------- bpf prototypes ------------------------
 __bpf_kfunc __u64 bpf_mykperf_read_rdpmc(__u8 counter__k);
 
-#define mykperf_rdpmc(counter, low, high)                                                                              \
+/* #define mykperf_rdpmc(counter, low, high)                                                                              \
     __asm__ __volatile__("rdpmc" : "=a"(low), "=d"(high) : "c"(counter));                                              \
-    __asm__ __volatile__("lfence" : :);
+    __asm__ __volatile__("lfence" : :); */
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Your Name");
 MODULE_DESCRIPTION("A Dummy Kernel Module");
 
-static __u64 mykperf_read_rdpmc(__u8 counter__k, __u32 low, __u32 high)
+/* static __u64 mykperf_read_rdpmc(__u8 counter__k, __u32 low, __u32 high)
 {
     mykperf_rdpmc(counter__k, low, high);
     return ((__u64)high << 32) | low;
-}
+} */
 
 __bpf_kfunc __u64 bpf_mykperf_read_rdpmc(__u8 counter__k)
 {

@@ -10,9 +10,10 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "xdpmychardev.h"
+#include "mykperf_module.h"
 
 BPF_MYKPERF_INIT_TRACE();
+DEFINE_SECTIONS("main");
 
 struct ipv4_lpm_key {
         __u32 prefixlen;
@@ -71,7 +72,7 @@ int lpmtrie_sr(struct xdp_md *ctx) {
     // return XDP_PASS;
 
 end:
-    BPF_MYKPERF_END_TRACE_ARRAY(main, 0);
+    BPF_MYKPERF_END_TRACE_ARRAY(main);
     COUNT_RUN;
 
     return XDP_DROP;

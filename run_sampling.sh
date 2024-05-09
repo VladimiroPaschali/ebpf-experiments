@@ -6,7 +6,7 @@ show_help() {
     echo "Options:"
     echo "  -h, --help                                Show this help message"
     echo "  -e, --experiment all,drop,cms,routing     Specify experiment name"
-    echo "  -i, --interface ens2f0np0                 Specify interface name"
+    echo "  -i, --interface enp81s0f0np0                 Specify interface name"
     echo "  -t, --time 10                             Specify time value"
     echo "  -p, --perf perf                           Specify perf path"
     echo "  -l, --libbpf /lib64                       Specify libbpf path"
@@ -21,11 +21,11 @@ NC='\033[0m' # No Color
 
 # Valori predefiniti
 EXPERIMENT="all"
-INTERFACE="ens2f0np0"
+INTERFACE="enp81s0f0np0"
 TIME="10"
 PERF="perf"
 LIBBPF="/lib64"
-SAMPLING="1,8,32,64,128"
+SAMPLING="1,8,16,32,64,128"
 
 terminate_experiments() {
     echo -e "${RED}Terminating all experiments ${NC}"
@@ -92,7 +92,7 @@ case $EXPERIMENT in
         cat sampling_result >> ../sampling_result
         echo -e "${GREEN}Starting Routing experiments${NC}"
         cd ../exp_routing || exit 1
-        python run_sampling.py --experiment routing_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
+        python run_sampling.py --experiment lpmtrie_rs --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result >> ../sampling_result
         echo -e "${GREEN}Starting Tunnel experiments${NC}"
         cd ../exp_tunnel || exit 1
@@ -118,7 +118,7 @@ case $EXPERIMENT in
     routing)
         echo -e "${GREEN}Starting Routing experiments${NC}"
         cd exp_routing || exit 1
-        python run_sampling.py --experiment routing_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
+        python run_sampling.py --experiment lpmtrie_rs --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result > ../sampling_result
         echo -e "${GREEN}Data saved in the sampling_result file${NC}"
         ;;

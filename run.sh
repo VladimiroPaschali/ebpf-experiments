@@ -6,7 +6,7 @@ show_help() {
     echo "Options:"
     echo "  -h, --help                                Show this help message"
     echo "  -e, --experiment all,drop,cms,routing     Specify experiment name"
-    echo "  -i, --interface ens2f0np0                 Specify interface name"
+    echo "  -i, --interface enp81s0f0np0                 Specify interface name"
     echo "  -t, --time 10                             Specify time value"
     echo "  -p, --perf perf                           Specify perf path"
     echo "  -l, --libbpf /lib64                       Specify libbpf path"
@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 
 # Valori predefiniti
 EXPERIMENT="all"
-INTERFACE="ens2f0np0"
+INTERFACE="enp81s0f0np0"
 TIME="10"
 PERF="perf"
 LIBBPF="/lib64"

@@ -1,0 +1,25 @@
+++++ 6.8.9 ++++
+
+measured with bpftool
+pass 537
+pass + fentry 693 -> 156
+pass + fexit 701 -> 164
+pass + fentry + fexit 970 -> 433
+pass + fexit + fentry 908 -> 371
+
+measured with perf
+pass 494
+pass + fentry 727 -> 233
+pass + fexit 646 -> 152
+pass + fentry + fexit 851 -> 357
+pass + fexit + fentry 919 -> 425
+
+++++ 6.5.0-28 (not modified) ++++
+
+measured with bpftool
+pass 693
+pass + fentry 1022 -> 329
+
+measured with perf
+pass 668
+pass + fentry 962 -> 294
