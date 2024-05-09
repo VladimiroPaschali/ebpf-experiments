@@ -14,24 +14,51 @@
  * limitations under the License.
  */
 
-#include <uapi/linux/bpf.h>
-#include <uapi/linux/filter.h>
-#include <uapi/linux/icmp.h>
-#include <uapi/linux/if_arp.h>
-#include <uapi/linux/if_ether.h>
-#include <uapi/linux/if_packet.h>
-#include <uapi/linux/in.h>
-#include <uapi/linux/ip.h>
-#include <uapi/linux/pkt_cls.h>
-#include <uapi/linux/tcp.h>
-#include <uapi/linux/udp.h>
+#include <linux/bpf.h>
+#include <linux/filter.h>
+#include <linux/icmp.h>
+#include <linux/if_arp.h>
+#include <linux/if_ether.h>
+#include <linux/if_packet.h>
+#include <linux/in.h>
+#include <linux/ip.h>
+#include <linux/pkt_cls.h>
+#include <linux/tcp.h>
+#include <linux/udp.h>
+#include <linux/types.h>
+#include <stdint.h>
+
+//#include <uapi/linux/bpf.h>
+//#include <uapi/linux/filter.h>
+//#include <uapi/linux/icmp.h>
+//#include <uapi/linux/if_arp.h>
+//#include <uapi/linux/if_ether.h>
+//#include <uapi/linux/if_packet.h>
+//#include <uapi/linux/in.h>
+//#include <uapi/linux/ip.h>
+//#include <uapi/linux/pkt_cls.h>
+//#include <uapi/linux/tcp.h>
+//#include <uapi/linux/udp.h>
 #include <linux/if_vlan.h>
-#include <mykperf/mykperf_module.h>
+#include <bpf/bpf_helpers.h>
 
 #include "common.h"
 #include "fasthash.h"
 
-DEFINE_SECTIONS(main)
+/* ANDREA */
+// giving program all the defs that are passed through bcc
+#define _CS_ROWS 4
+#define _CS_COLUMNS 32768
+//#define BPF_PERCPU_ARRAY(name, entry, count) \
+//struct { \
+//    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY); \
+//    __uint(max_entries, (count)); \
+//    __type(key, __u32); \
+//    __type(value, (entry)); \
+//} (name) SEC(".maps"); 
+#define _SEED_HASHFN 77
+
+/* END ANDREA */
 #define HASHFN_N _CS_ROWS
 #define COLUMNS _CS_COLUMNS
 
@@ -58,8 +85,22 @@ struct pkt_md {
 #endif
 };
 
-BPF_PERCPU_ARRAY(dropcnt, struct pkt_md, 1);
-BPF_ARRAY(countmin, struct countmin, 1);
+
+struct { 
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(max_entries, 1); 
+    __type(key, __u32); 
+    __type(value, struct pkt_md); 
+} dropcnt SEC(".maps"); 
+
+struct { 
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(max_entries, 1); 
+    __type(key, __u32); 
+    __type(value, struct countmin); 
+} countmin SEC(".maps"); 
+//BPF_PERCPU_ARRAY(dropcnt, (struct pkt_md), 1);
+//BPF_ARRAY(countmin, struct countmin, 1);
 
 static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 len)
 {
@@ -82,7 +123,7 @@ static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 
 	return;
 }
 
-int xdp_prog1(struct CTXTYPE *ctx) {
+int xdp_prog1(struct xdp_md *ctx) {
     void* data_end = (void*)(long)ctx->data_end;
     void* data = (void*)(long)ctx->data;
 

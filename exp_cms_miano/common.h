@@ -1,5 +1,4 @@
 #pragma once
-
 #define FORCE_INLINE inline __attribute__((__always_inline__))
 
 /* from linux/socket.h */
