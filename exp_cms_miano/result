@@ -1,0 +1,6 @@
+cms: 
+baseline: throughput = 2754481 PPS latency = 258 ns
+bpftool: throughput = 1379553 PPS latency = 583 ns
+bpftool llc_misses per packet: 0.00013982786023360893
+perf: throughput = 1413730 PPS latency = 566 ns
+perf LLC-load-misses per packet: 0.00015717276887701896

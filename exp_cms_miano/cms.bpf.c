@@ -26,6 +26,7 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 #include <linux/types.h>
+//#include <netinet/in.h>
 #include <stdint.h>
 
 //#include <uapi/linux/bpf.h>
@@ -39,7 +40,7 @@
 //#include <uapi/linux/pkt_cls.h>
 //#include <uapi/linux/tcp.h>
 //#include <uapi/linux/udp.h>
-#include <linux/if_vlan.h>
+//#include <linux/if_vlan.h>
 #include <bpf/bpf_helpers.h>
 
 #include "common.h"
@@ -47,16 +48,26 @@
 
 /* ANDREA */
 // giving program all the defs that are passed through bcc
+#define _OUTPUT_INTERFACE_IFINDEX 0
 #define _CS_ROWS 4
-#define _CS_COLUMNS 32768
-//#define BPF_PERCPU_ARRAY(name, entry, count) \
-//struct { \
-//    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY); \
-//    __uint(max_entries, (count)); \
-//    __type(key, __u32); \
-//    __type(value, (entry)); \
-//} (name) SEC(".maps"); 
+#define _CS_COLUMNS 524288
+
+#define BPF_PERCPU_ARRAY(name, entry, count) \
+struct { \
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY); \
+    __uint(max_entries, (count)); \
+    __type(key, __u32); \
+    __type(value, (entry)); \
+} (name) SEC(".maps"); 
+
 #define _SEED_HASHFN 77
+#define _COUNT_PACKETS
+struct vlan_hdr {
+	__be16	h_vlan_TCI;
+	__be16	h_vlan_encapsulated_proto;
+};
+#define htons(x) (((((unsigned short)(x) & 0xFF00) >> 8) | \
+			                  (((unsigned short)(x) & 0x00FF) << 8)))
 
 /* END ANDREA */
 #define HASHFN_N _CS_ROWS
@@ -65,7 +76,7 @@
 _Static_assert((COLUMNS & (COLUMNS - 1)) == 0, "COLUMNS must be a power of two");
 
 struct countmin {
-	__u32 values[HASHFN_N][COLUMNS];
+	__u8 values[HASHFN_N][COLUMNS];
 };
 
 struct pkt_5tuple {
@@ -77,16 +88,15 @@ struct pkt_5tuple {
 } __attribute__((packed));
 
 struct pkt_md {
-#if _COUNT_PACKETS == 1
+#ifdef _COUNT_PACKETS
   uint64_t drop_cnt;
-#endif
-#if _COUNT_BYTES == 1
+#else
   uint64_t bytes_cnt;
 #endif
 };
 
-
 struct { 
+    //__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(max_entries, 1); 
     __type(key, __u32); 
@@ -94,7 +104,7 @@ struct {
 } dropcnt SEC(".maps"); 
 
 struct { 
-    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(type, BPF_MAP_TYPE_ARRAY);
     __uint(max_entries, 1); 
     __type(key, __u32); 
     __type(value, struct countmin); 
@@ -123,7 +133,8 @@ static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 
 	return;
 }
 
-int xdp_prog1(struct xdp_md *ctx) {
+SEC("xdp")
+int cms(struct xdp_md *ctx) {
     void* data_end = (void*)(long)ctx->data_end;
     void* data = (void*)(long)ctx->data;
 
@@ -191,10 +202,11 @@ int xdp_prog1(struct xdp_md *ctx) {
     uint32_t zero = 0;
     struct countmin *cm;
 
-    cm = countmin.lookup(&zero);
+    cm = bpf_map_lookup_elem(&countmin,&zero);
+    //cm = countmin.lookup(&zero);
 
     if (!cm) {
-        bpf_trace_printk("Invalid entry in the countmin sketch");
+        bpf_printk("Invalid entry in the countmin sketch");
         goto DROP;
     }
 
@@ -202,12 +214,13 @@ int xdp_prog1(struct xdp_md *ctx) {
 
     struct pkt_md *md;
     uint32_t index = 0;
-    md = dropcnt.lookup(&index);
+    md = bpf_map_lookup_elem(&dropcnt,&index);
+    //md = dropcnt.lookup(&index);
     if (md) {
-#if _COUNT_PACKETS == 1
+	//bpf_printk("updating cms");
+#ifdef _COUNT_PACKETS 
         NO_TEAR_INC(md->drop_cnt);
-#endif
-#if _COUNT_BYTES == 1
+#else
         uint16_t pkt_len = (uint16_t)(data_end - data);
         NO_TEAR_ADD(md->bytes_cnt, pkt_len);
 #endif
@@ -220,7 +233,7 @@ int xdp_prog1(struct xdp_md *ctx) {
 #endif
 
 DROP:;
-    bpf_trace_printk("Error. Dropping packet\n");
+    bpf_printk("Error. Dropping packet\n");
     return XDP_DROP;
 }
 
@@ -228,3 +241,5 @@ DROP:;
 int xdp_dummy(struct xdp_md *ctx) {
     return XDP_PASS;
 }
+
+char LICENSE[] SEC("license") = "Dual BSD/GPL";
