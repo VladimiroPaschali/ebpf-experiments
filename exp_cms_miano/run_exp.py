@@ -48,6 +48,7 @@ def baseline():
 def bpftool():
 
     evento = "llc_misses"
+    #evento = ""
     # evento = "instructions"
 
 
@@ -92,7 +93,8 @@ def bpftool():
 
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
-    evento = "LLC-load-misses"
+    #evento = "LLC-load-misses"
+    evento = "L1-dcache-load-misses"
     # evento = "instructions"
 
 

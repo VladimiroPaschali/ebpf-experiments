@@ -50,7 +50,7 @@
 // giving program all the defs that are passed through bcc
 #define _OUTPUT_INTERFACE_IFINDEX 0
 #define _CS_ROWS 4
-#define _CS_COLUMNS 524288
+#define _CS_COLUMNS 1048576
 
 #define BPF_PERCPU_ARRAY(name, entry, count) \
 struct { \
@@ -76,7 +76,7 @@ struct vlan_hdr {
 _Static_assert((COLUMNS & (COLUMNS - 1)) == 0, "COLUMNS must be a power of two");
 
 struct countmin {
-	__u8 values[HASHFN_N][COLUMNS];
+	__u32 values[HASHFN_N][COLUMNS];
 };
 
 struct pkt_5tuple {
