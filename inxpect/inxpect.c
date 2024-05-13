@@ -6,6 +6,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <time.h>
+#include <pthread.h>
 
 // if_nametoindex
 #include <net/if.h>
@@ -20,11 +21,10 @@
 #include "inxpect-server.h"
 #include "mykperf_helpers.h"
 
-struct event metrics[4] = {
-    {.name = "instructions", .code = 0x00c0},
-    {.name = "cycles", .code = 0x003c},
-    {.name = "cache-misses", .code = 0x2e41},
-    {.name = "llc-misses", .code = 0x01b7},
+struct event metrics[METRICS_NR] = {
+    {.name = "instructions", .code = 0x00c0},          {.name = "cycles", .code = 0x003c},
+    {.name = "cache-misses", .code = 0x2e41},          {.name = "llc-misses", .code = 0x01b7},
+    {.name = "L1-dcache-load-misses", .code = 0x0151},
 };
 
 // --- GLOBALS ---
@@ -32,6 +32,10 @@ char prog_name[MAX_PROG_FULL_NAME];
 struct psection_t psections[MAX_PSECTIONS];
 int do_run_count = 0;
 int timeout_s = 3;
+
+// threads
+pthread_t thread_printer;                    // poll_print_stats
+pthread_t threads_poll_stats[MAX_PSECTIONS]; // poll_stats
 
 // percpu map
 int percpu_output_fd = -1;
@@ -256,7 +260,7 @@ static int percput_output__clean_and_init()
     return 0;
 }
 
-static void print_accumulated_stats()
+static void print_stats()
 {
     char *fmt = "%s: %llu   %.2f/pkt - %u run_cnt\n";
     for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
@@ -272,81 +276,67 @@ static void print_accumulated_stats()
     }
 }
 
-static int handle_event(struct record_array percpu_data[MAX_ENTRIES_PERCPU_ARRAY], int i_sec)
+static void poll_print_stats()
 {
-    struct tm *tm;
-    char ts[32];
-    time_t t;
-
-    time(&t);
-    tm = localtime(&t);
-    strftime(ts, sizeof(ts), "%H:%M:%S", tm);
-
-    // FORMAT OUTPUT
-    char *fmt = "%s     %s: %llu   %.2f/pkt - %u run_cnt\n";
-
-    // accumulate for each cpu
-    for (int cpu = 0; cpu < libbpf_num_possible_cpus(); cpu++)
-    {
-        if (percpu_data[cpu].name[0] == '\0')
-            continue;
-
-        psections[i_sec].record->value = percpu_data[cpu].value;
-        psections[i_sec].record->run_cnt = percpu_data[cpu].run_cnt;
-    }
-
-    if (!do_accumulate)
-    {
-        if (sample_rate && do_run_count)
-        {
-            fmt = "%s     %s: %llu      (%.2f%%)  %.2f/pkt - %u run_cnt\n";
-            fprintf(stdout, fmt, ts, psections[i_sec].record->name, psections[i_sec].record->value,
-                    (float)psections[i_sec].record->run_cnt / run_count__get() * 100,
-                    (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
-                    psections[i_sec].record->run_cnt);
-        }
-        else
-        {
-            fprintf(stdout, fmt, ts, psections[i_sec].record->name, psections[i_sec].record->value,
-                    (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
-                    psections[i_sec].record->run_cnt);
-        }
-    }
-
-    return 0;
-}
-
-static void poll_stats()
-{
-    int err;
-
+    char *fmt = "%s: %llu   %.2f/pkt - %u run_cnt\n";
     while (1)
     {
-        // read percpu array
-        for (int key = 0; key < MAX_ENTRIES_PERCPU_ARRAY; key++)
+        for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
         {
-            if (!psections[key].record)
+            if (!psections[i_sec].record)
             {
                 break;
             }
 
-            err = bpf_map_lookup_elem(percpu_output_fd, &key, percpu_data);
-            if (err)
-            {
-                continue;
-            }
-            handle_event(percpu_data, key);
+            fprintf(stdout, fmt, psections[i_sec].record->name, psections[i_sec].record->value,
+                    (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
+                    psections[i_sec].record->run_cnt);
+        };
+        sleep(timeout_s);
+    }
+}
+
+static void poll_stats(int key) // key is the id thread
+{
+    int err;
+    struct record_array thread_stats[libbpf_num_possible_cpus()];
+    while (1)
+    {
+        err = bpf_map_lookup_elem(percpu_output_fd, &key, thread_stats);
+        if (err)
+        {
+            continue;
         }
-        usleep(timeout_s);
+        for (int cpu = 0; cpu < libbpf_num_possible_cpus(); cpu++)
+        {
+            if (thread_stats[cpu].name[0] == '\0')
+                continue;
+
+            psections[key].record->value = thread_stats[cpu].value;
+            psections[key].record->run_cnt = thread_stats[cpu].run_cnt;
+        }
+        usleep(10000);
     }
 }
 
 static void exit_cleanup(int signo)
 {
-    if (server_process == 0)
-    {
+    if (interactive_mode)
         inxpect_server__close();
-        exit(EXIT_SUCCESS);
+    
+
+    if (!do_accumulate)
+        pthread_cancel(thread_printer);
+
+    // kill threads poll stats
+    for (int i = 0; i < MAX_PSECTIONS; i++)
+    {
+        if (!psections[i].record)
+        {
+            break;
+        }
+        if (threads_poll_stats[i])
+            pthread_cancel(threads_poll_stats[i]);
     }
 
     // get the last not yet readed events
@@ -370,7 +360,7 @@ static void exit_cleanup(int signo)
             psections[key].record->run_cnt = percpu_data[cpu].run_cnt;
         }
     }
-    print_accumulated_stats();
+    print_stats();
 
     int err;
     for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
@@ -569,32 +559,38 @@ int main(int argc, char **argv)
     if (err)
         exit_cleanup(0);
 
-    if (interactive_mode) // SERVER
-    {                     // fork the server, the parent will poll the stats
-        server_process = fork();
-        if (server_process == 0)
-        {
-            err = inxpect_server__init_server(0);
-            if (err)
-            {
-                exit_cleanup(0);
-            }
+    if (!do_accumulate)
+        pthread_create(&thread_printer, NULL, poll_print_stats, NULL);
 
-            err = inxpect_server__start_and_polling();
-            if (err)
-            {
-                exit_cleanup(0);
-            }
-        }
-        else if (server_process < 0)
+    for (int thead_id = 0; thead_id < MAX_PSECTIONS; thead_id++)
+    {
+        // if the record is NULL, we are at the end of the list and we avoid to create a thread
+        if (!psections[thead_id].record)
         {
-            fprintf(stderr, "[%s]: during forking, server not started\n", ERR);
+            break;
+        }
+        pthread_create(&threads_poll_stats[thead_id], NULL, poll_stats, thead_id);
+    }
+
+    if (interactive_mode) // SERVER
+    {
+        err = inxpect_server__init_server(0); // port = 0 -> defaul 8080 port
+        if (err)
+        {
+            exit_cleanup(0);
+        }
+
+        err = inxpect_server__start_and_polling();
+        if (err)
+        {
             exit_cleanup(0);
         }
     }
+    else
+    {
+        pause(); // wait for signal
+    }
 
-    // polling stats
-    poll_stats();
     exit_cleanup(0);
     return 0;
 }

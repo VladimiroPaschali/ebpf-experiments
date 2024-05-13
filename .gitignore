@@ -12,3 +12,7 @@ mappe/
 *.order
 *.symvers
 *.cmd
+inxpect/inxpect
+hello.pcap
+hello.dump
+*.cache

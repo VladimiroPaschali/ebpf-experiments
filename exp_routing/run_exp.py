@@ -157,7 +157,7 @@ def kfunc():
             subprocess.check_output('make', cwd="../loader",shell=True)
             subprocess.check_output('chmod go+w *.o',cwd="../loader", shell=True)
         
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a -C 14"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
 
 
     #oldvalue_time
@@ -176,8 +176,7 @@ def kfunc():
     newvalue_runcnt = int(out.split(" ")[1])
 
     # close loader_stats FRACNESCO
-    os.killpg(os.getpgid(loader_stats_output.pid), signal.SIGINT)
-
+    subprocess.check_output('sudo pkill inxpect', shell=True)
     #retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")

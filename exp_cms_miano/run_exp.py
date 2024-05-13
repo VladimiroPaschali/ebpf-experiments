@@ -9,6 +9,7 @@ import sys
 import re
 
 
+
 #ridefiniti nel main in base ai parametri
 EXPERIMENT_NAME = "cms"
 EXPRIMENT_FUNC_NAME = "cms_kfunc"
@@ -147,7 +148,7 @@ def perf():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def kfunc():
 
-    evento = "llc-misses"
+    evento = "L1-dcache-load-misses"
     # evento = "instructions"
 
 
@@ -161,7 +162,7 @@ def kfunc():
 
     # loader_stats_output = subprocess.Popen(f'sudo {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e instructions -a',env=my_env2,cwd ="../loader",stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     #myenv non va
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -C {curr_cpu} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
 
     print("experiment_name", EXPERIMENT_NAME)
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
@@ -179,7 +180,9 @@ def kfunc():
     newvalue_runcnt = int(out.split(" ")[1])
 
     # close loader_stats FRACNESCO
-    os.killpg(os.getpgid(loader_stats_output.pid), signal.SIGINT)
+    # subprocess.check_output('sudo pkill inxpect', shell=True)    
+    subprocess.check_output('sudo pkill inxpect', shell=True)
+
 
     #retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
@@ -205,7 +208,8 @@ def parser():
     global TIME
     global PERF_PATH
     global LIBBPF_PATH
-
+    global curr_cpu
+    
     if os.geteuid() != 0:
         exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'. Exiting.")
     
@@ -215,6 +219,7 @@ def parser():
     parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "enp81s0f0np0")
     parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "perf")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/lib64")
+    parser.add_argument("-c", "--cpu", help = "Current cpu running xdp", required = False, default = "0")
     args = parser.parse_args()
 
     EXPERIMENT_NAME = args.experiment
@@ -222,6 +227,7 @@ def parser():
     TIME = args.time
     PERF_PATH=args.perf
     LIBBPF_PATH=args.libbpf
+    curr_cpu = args.cpu
 
 def main():
 
@@ -271,17 +277,17 @@ def main():
 
         experiment.terminate()
 
-        #EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
-        #print(f"Start {EXPERIMENT_NAME}")
+        EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
+        print(f"Start {EXPERIMENT_NAME}")
 
-        #command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
-        #experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
-        #
-        #kfunc()
+        command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
+        experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
+        
+        kfunc()
 
-        #print(f"Start {EXPERIMENT_NAME} perf")
-        #perf()
-        #experimentkfunc.terminate()
+        print(f"Start {EXPERIMENT_NAME} perf")
+        perf()
+        experimentkfunc.terminate()
     except KeyboardInterrupt:
         print("Interrupted")
     

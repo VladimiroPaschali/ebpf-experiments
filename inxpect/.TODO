@@ -1,8 +1,10 @@
 **TODO**: improve xdp shared variables management, see how work skeleton generation
 
-**TODO**: fix server put response code in buffer. It can also be a problem 
+__DONE__: fix server put response code in buffer.
 
 **TODO**: add error checking from response in rust console
+
+--IDEA--: using threads for each psections, each thread iterates over a psection and store data.  
 
 __DONE__: fix socket buffer, value is wrong
 

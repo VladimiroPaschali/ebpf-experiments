@@ -13,7 +13,7 @@
 // #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 //  this is needed because of the way the metrics are defined
 // ARRAY SIZE not work with extern
-#define METRICS_NR 4
+#define METRICS_NR 5
 
 #define MAX_METRICS 8
 #define MAX_PSECTIONS 8

@@ -50,8 +50,7 @@ def exp_sampling(sampling):
     newvalue_runcnt = int(out.split(" ")[1])
     
     # close loader_stats FRACNESCO
-    os.killpg(os.getpgid(loader_stats_output.pid), signal.SIGINT)
-
+    subprocess.check_output('sudo pkill inxpect', shell=True)
     # retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
