@@ -77,11 +77,6 @@ int main(int argc, char **argv) {
 	bump_memlock_rlimit();
 
 	tunnel_sr = tunnel_sr_bpf__open_and_load();
-	err = tunnel_sr_bpf__attach(tunnel_sr);
-	if (err) {
-		fprintf(stderr, "Failed to load BPF program\n");
-		return 1;
-	}
 
 	if (!tunnel_sr) {
 		fprintf(stderr, "Failed to open and load BPF object\n");

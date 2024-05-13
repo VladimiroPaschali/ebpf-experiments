@@ -37,11 +37,6 @@ int main(int argc, char **argv) {
 	bump_memlock_rlimit();
 
 	drop = drop_bpf__open_and_load();
-	err = drop_bpf__attach(drop);
-	if (err) {
-		fprintf(stderr, "Failed to load BPF program\n");
-		return 1;
-	}
 
 	if (!drop) {
 		fprintf(stderr, "Failed to open and load BPF object\n");

@@ -306,12 +306,11 @@ static void poll_print_stats()
                         (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
                         psections[i_sec].record->run_cnt);
             }
-
             /*          fprintf(stdout, fmt, psections[i_sec].record->name, psections[i_sec].record->value,
                              (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
                              psections[i_sec].record->run_cnt); */
         };
-        usleep(1000000);
+        // usleep(1000000);
     }
 }
 
@@ -552,8 +551,8 @@ int main(int argc, char **argv)
         // set the event to the record array
         psections[i_sec].record->counter = psections[i_sec].metric->reg_h;
 
-        // TODO: currently reg_h is the counter, so we can use it. But I want to store the index register, so in future
-        // this should be reg_h - MAX REGISETR
+        // TODO: currently reg_h is the counter, so we can use it. But I want to store the index register, so in
+        // future this should be reg_h - MAX REGISETR
     }
 
     if (sample_rate)

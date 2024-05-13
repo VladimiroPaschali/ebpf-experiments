@@ -1,14 +1,44 @@
+#include <linux/bpf.h>
+#include <bpf/bpf.h>
 #include <bpf/libbpf.h>
 #include <net/if.h>
 #include <signal.h>
 #include <sys/resource.h>
 #include "cms.skel.h"
+#include "cms.h"
 
 
 int if_index;
 struct cms_bpf* cms;
 
 void sig_handler(int sig) {
+
+	struct cms cms_map;
+	__u32 key = 0;
+	__u32 usage = 0;
+
+	int map_fd = bpf_map__fd(cms->maps.cms_map);
+	if (map_fd < 0) {
+		printf("Failed to get map fd: %s\n", strerror(errno));
+		exit(1);
+	}
+
+	if(bpf_map_lookup_elem(map_fd, &key, &cms_map)){
+		printf("Failed to lookup element: %s\n", strerror(errno));
+		exit(1);
+	}
+
+	printf("CMS map:\n");
+
+	// printf("sizeof cms_map: %lu\n", sizeof(cms_map));
+	for (__u32 i = 0; i < CMS_SIZE; i++) {
+		if (cms_map.count[0][i] != 0) {
+			usage++;
+			// printf("Row %d, index %d, count %d\n", 0, i, cms_map.count[0][i]);
+		}
+	}
+
+	printf("Usage: %f%% \n", ((float)usage/CMS_SIZE)*100);
 	bpf_xdp_detach(if_index, 0, NULL);
 	cms_bpf__destroy(cms);
 	exit(0);
@@ -48,11 +78,6 @@ int main(int argc, char **argv) {
 	bump_memlock_rlimit();
 
 	cms = cms_bpf__open_and_load();
-	err = cms_bpf__attach(cms);
-	if (err) {
-		fprintf(stderr, "Failed to attach BPF program\n");
-		return 1;
-	}
 
 	if (!cms) {
 		fprintf(stderr, "Failed to open and load BPF object\n");

@@ -79,11 +79,6 @@ int main(int argc, char **argv) {
 	bump_memlock_rlimit();
 
 	lpmtrie = lpmtrie_bpf__open_and_load();
-	err = lpmtrie_bpf__attach(lpmtrie);
-	if (err) {
-		fprintf(stderr, "Failed to attach BPF program\n");
-		return 1;
-	}
 
 	if (!lpmtrie) {
 		fprintf(stderr, "Failed to open and load BPF object\n");

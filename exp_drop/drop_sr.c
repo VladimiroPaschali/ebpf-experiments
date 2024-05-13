@@ -40,12 +40,6 @@ int main(int argc, char **argv)
     bump_memlock_rlimit();
 
     drop_sr = drop_sr_bpf__open_and_load();
-    err = drop_sr_bpf__attach(drop_sr);
-    if (err)
-    {
-        fprintf(stderr, "Failed to attach BPF program\n");
-        return 1;
-    }
 
     if (!drop_sr)
     {

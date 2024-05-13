@@ -37,11 +37,6 @@ int main(int argc, char **argv) {
 	bump_memlock_rlimit();
 
 	drop_kfunc = drop_kfunc_bpf__open_and_load();
-	err = drop_kfunc_bpf__attach(drop_kfunc);
-	if (err) {
-		fprintf(stderr, "Failed to attach BPF program\n");
-		return 1;
-	}
 
 	if (!drop_kfunc) {
 		fprintf(stderr, "Failed to open and load BPF object\n");

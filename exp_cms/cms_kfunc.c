@@ -39,11 +39,6 @@ int main(int argc, char **argv) {
 	bump_memlock_rlimit();
 
 	cms_kfunc = cms_kfunc_bpf__open_and_load();
-	err = cms_kfunc_bpf__attach(cms_kfunc);
-	if (err) {
-		fprintf(stderr, "Failed to attach BPF program\n");
-		return 1;
-	}
 
 	if (!cms_kfunc) {
 		fprintf(stderr, "Failed to open and load BPF object\n");

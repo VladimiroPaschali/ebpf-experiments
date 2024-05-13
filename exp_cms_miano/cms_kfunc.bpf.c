@@ -56,7 +56,8 @@ DEFINE_SECTIONS("main");
 // giving program all the defs that are passed through bcc
 #define _OUTPUT_INTERFACE_IFINDEX 0
 #define _CS_ROWS 4
-#define _CS_COLUMNS 1048576
+// #define _CS_COLUMNS 1048576
+#define _CS_COLUMNS 8192
 
 #define BPF_PERCPU_ARRAY(name, entry, count)                                                                           \
     struct                                                                                                             \
@@ -84,7 +85,7 @@ _Static_assert((COLUMNS & (COLUMNS - 1)) == 0, "COLUMNS must be a power of two")
 
 struct countmin
 {
-    __u64 values[HASHFN_N][COLUMNS];
+    __u8 values[HASHFN_N][COLUMNS];
 };
 
 struct pkt_5tuple
@@ -150,7 +151,8 @@ static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 
 SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
+    BPF_MYKPERF_START_TRACE_ARRAY_DEBUG(main);
+
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
 
@@ -249,17 +251,17 @@ int cms_kfunc(struct xdp_md *ctx)
     }
 
 #if _ACTION_DROP
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(main);
     return XDP_DROP;
 #else
     int ret = bpf_redirect(_OUTPUT_INTERFACE_IFINDEX, 0); // moved here from return to allow profiling
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(main);
     return ret;
 #endif
 
 DROP:;
     // bpf_printk("Error. Dropping packet\n");
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    //BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(main);
     return XDP_DROP;
 }
 

@@ -7,7 +7,7 @@
 #define BSS_MAP ".bss"
 #define RODATA_MAP ".rodata"
 
-#define MAX_PROG_FULL_NAME 15
+#define MAX_PROG_FULL_NAME 16
 #define MAX_PSECTIONS 8
 
 struct message
