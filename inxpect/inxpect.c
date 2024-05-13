@@ -23,7 +23,7 @@
 
 struct event metrics[METRICS_NR] = {
     {.name = "instructions", .code = 0x00c0},          {.name = "cycles", .code = 0x003c},
-    {.name = "cache-misses", .code = 0x2e41},          {.name = "llc-misses", .code = 0x01b7},
+    {.name = "cache-misses", .code = 0x412e},          {.name = "llc-misses", .code = 0x01b7},
     {.name = "L1-dcache-load-misses", .code = 0x0151},
 };
 
@@ -32,6 +32,7 @@ char prog_name[MAX_PROG_FULL_NAME];
 struct psection_t psections[MAX_PSECTIONS];
 int do_run_count = 0;
 int timeout_s = 3;
+int prog_fd = -1;
 
 // threads
 pthread_t thread_printer;                    // poll_print_stats
@@ -101,7 +102,7 @@ static int psections__get_list(char psections_name_list[MAX_PSECTIONS][MAX_PROG_
 {
     int fd = -1;
     int zero = 0;
-    fd = get_rodata_map_fd();
+    fd = get_rodata_map_fd(prog_fd);
     if (fd < 0)
     {
         fprintf(stderr, "[%s]: during finding data map\n", ERR);
@@ -134,7 +135,7 @@ static int run_count__get()
 {
     int fd = -1;
     int zero = 0;
-    fd = get_bss_map_fd();
+    fd = get_bss_map_fd(prog_fd);
     if (fd < 0)
     {
         fprintf(stderr, "[%s]: during finding data map\n", ERR);
@@ -158,7 +159,7 @@ static int run_count__reset()
 {
     int fd = -1;
     int zero = 0;
-    fd = get_bss_map_fd();
+    fd = get_bss_map_fd(prog_fd);
     if (fd < 0)
     {
         fprintf(stderr, "[%s]: during finding data map\n", ERR);
@@ -279,6 +280,8 @@ static void print_stats()
 static void poll_print_stats()
 {
     char *fmt = "%s: %llu   %.2f/pkt - %u run_cnt\n";
+    int prev_run_count = 0;
+    int prev_value = 0;
     while (1)
     {
         for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
@@ -288,11 +291,27 @@ static void poll_print_stats()
                 break;
             }
 
-            fprintf(stdout, fmt, psections[i_sec].record->name, psections[i_sec].record->value,
-                    (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
-                    psections[i_sec].record->run_cnt);
+            if (prev_run_count != psections[i_sec].record->run_cnt)
+            {
+                fprintf(stdout, "%sdiff: value: %lld   %f/pkt    run_count: %lld\n", ERR,
+                        (psections[i_sec].record->value - prev_value),
+                        (float)(psections[i_sec].record->value - prev_value) /
+                            (psections[i_sec].record->run_cnt - prev_run_count),
+                        psections[i_sec].record->run_cnt - prev_run_count);
+
+                prev_run_count = psections[i_sec].record->run_cnt;
+                prev_value = psections[i_sec].record->value;
+
+                fprintf(stdout, fmt, psections[i_sec].record->name, psections[i_sec].record->value,
+                        (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
+                        psections[i_sec].record->run_cnt);
+            }
+
+            /*          fprintf(stdout, fmt, psections[i_sec].record->name, psections[i_sec].record->value,
+                             (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
+                             psections[i_sec].record->run_cnt); */
         };
-        sleep(timeout_s);
+        usleep(1000000);
     }
 }
 
@@ -312,10 +331,11 @@ static void poll_stats(int key) // key is the id thread
             if (thread_stats[cpu].name[0] == '\0')
                 continue;
 
+            // TODO: not work with more than 1 cpu
             psections[key].record->value = thread_stats[cpu].value;
             psections[key].record->run_cnt = thread_stats[cpu].run_cnt;
         }
-        usleep(10000);
+        // usleep(10000);
     }
 }
 
@@ -323,7 +343,6 @@ static void exit_cleanup(int signo)
 {
     if (interactive_mode)
         inxpect_server__close();
-    
 
     if (!do_accumulate)
         pthread_cancel(thread_printer);
@@ -475,7 +494,7 @@ int main(int argc, char **argv)
     // ------------------------------------------------
 
     // retrieve `prog_name` file descriptor by name
-    int prog_fd = prog_fd_by_nametag(prog_name);
+    prog_fd = prog_fd_by_nametag(prog_name);
     if (prog_fd < 0)
     {
         fprintf(stderr, "[%s]: can't get prog fd by name: %s\n", ERR, strerror(errno));

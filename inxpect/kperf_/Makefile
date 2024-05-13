@@ -28,4 +28,4 @@ unload:
 
 reload:
 	sudo rmmod mykperf_module.ko
-	sudo insmod mykperf_module.ko
+	sudo insmod mykperf_module.ko 

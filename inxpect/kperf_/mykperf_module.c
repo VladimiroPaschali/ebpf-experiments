@@ -201,6 +201,8 @@ static __u64 __enable_event(__u64 event, int cpu)
             return -1;
         }
 
+        
+
         // check if l and h are zero
         if ((l | h) == 0)
         {

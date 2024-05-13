@@ -25,6 +25,11 @@ struct record_array
     __u64 counter;
 } __attribute__((aligned(32)));
 
+struct histogram
+{
+    __u64 values[32];
+} __attribute__((aligned(64)));
+
 #define BPF_MYKPERF_INIT_TRACE()                                                                                       \
     __u64 bpf_mykperf__rdpmc(__u64 counter) __ksym;                                                                    \
     __u64 __sample_rate = 0;                                                                                           \
@@ -36,7 +41,15 @@ struct record_array
         __type(value, struct record_array);                                                                            \
         __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                                                                 \
         __uint(pinning, LIBBPF_PIN_BY_NAME);                                                                           \
-    } percpu_output SEC(".maps");
+    } percpu_output SEC(".maps");                                                                                      \
+    struct                                                                                                             \
+    {                                                                                                                  \
+        __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                                       \
+        __type(key, __u32);                                                                                            \
+        __type(value, struct histogram);                                                                               \
+        __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                                                                 \
+        __uint(pinning, LIBBPF_PIN_BY_NAME);                                                                           \
+    } percpu_hist SEC(".maps");
 
 #define DEFINE_SECTIONS(...) const char __sections[MAX_ENTRIES_PERCPU_ARRAY][15] = {__VA_ARGS__};
 
@@ -53,20 +66,43 @@ struct record_array
         value_##sec_name = bpf_mykperf__rdpmc(sec_name->counter);                                                      \
     }
 
+#define BPF_MYKPERF_START_TRACE_ARRAY_DEBUG(sec_name)                                                                  \
+    __u64 value_##sec_name = 0;                                                                                        \
+    struct record_array *sec_name = {0};                                                                               \
+    int key_##sec_name = 0;                                                                                            \
+    struct histogram *sec_name##_histogram = bpf_map_lookup_elem(&percpu_hist, &key_##sec_name);                       \
+    value_##sec_name = bpf_mykperf__rdpmc(0);
+
 #define BPF_MYKPERF_END_TRACE_ARRAY(sec_name)                                                                          \
     if (sec_name)                                                                                                      \
     {                                                                                                                  \
-        sec_name->value +=                                                                                             \
-            (__u64)__builtin_elementwise_abs((int)(bpf_mykperf__rdpmc(sec_name->counter) - value_##sec_name));         \
-        sec_name->run_cnt++;                                                                                           \
+        __u64 temp_value = bpf_mykperf__rdpmc(sec_name->counter) ;                                                    \
+			if (LIKELY(temp_value >= value_##sec_name)) {                                                          \
+        			sec_name->value += temp_value - value_##sec_name;           \
+        			sec_name->run_cnt++;                                                                   \
+			}                                                                                              \
+    }
+
+#define BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(sec_name)                                                                    \
+    {                                                                                                                  \
+        __u64 temp_value = (bpf_mykperf__rdpmc(0) - value_##sec_name);                                                 \
+        bpf_printk("temp_value: %lu\n", temp_value);                                                                   \
+        if (sec_name##_histogram != NULL)                                                                              \
+        {                                                                                                              \
+            if (temp_value >= 31)                                                                                      \
+                sec_name##_histogram->values[31]++;                                                                    \
+            else                                                                                                       \
+                sec_name##_histogram->values[temp_value]++;                                                            \
+        }                                                                                                              \
     }
 
 #define BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(sec_name)                                                                \
     __u64 value_##sec_name = 0;                                                                                        \
     struct record_array *sec_name = {0};                                                                               \
+    __u32 key_##sec_name = __COUNTER__;                                                                                \
+    struct histogram *sec_name##_histogram = bpf_map_lookup_elem(&percpu_hist, &key_##sec_name);                       \
     if (UNLIKELY(run_cnt % __sample_rate == 0))                                                                        \
     {                                                                                                                  \
-        __u32 key_##sec_name = __COUNTER__;                                                                            \
         sec_name = bpf_map_lookup_elem(&percpu_output, &key_##sec_name);                                               \
         if (sec_name && sec_name->name[0] != 0)                                                                        \
         {                                                                                                              \

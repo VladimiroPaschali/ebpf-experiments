@@ -156,7 +156,8 @@ def kfunc():
             subprocess.check_output('chmod go+w *.o', shell=True)
     
 
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a -C 14"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    print(f"inxpect pid {loader_stats_output.pid}")
 
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}" | cut -d" " -f12,14',shell=True)
@@ -175,13 +176,12 @@ def kfunc():
     newvalue_runcnt = int(out.split(" ")[1])
     
     # close loader_stats FRACNESCO
-    os.killpg(os.getpgid(loader_stats_output.pid), signal.SIGINT)
-
+    subprocess.check_output('sudo pkill inxpect', shell=True)
     # retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
-    # print(output)
-    # print(errors)
+    print(output)
+    print(errors)
 
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
     # print(value)
@@ -297,7 +297,7 @@ def main():
         subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
         command = f"./{EXPERIMENT_NAME}.o {INTERFACE}"
         experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
-        # kfunc()
+        kfunc()
         
         print(f"Start {EXPERIMENT_NAME} perf")
         perf()

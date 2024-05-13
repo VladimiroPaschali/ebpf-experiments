@@ -1,10 +1,8 @@
 cms: 
-baseline: throughput = 7363399 PPS latency = 33 ns
-bpftool: throughput = 2145395 PPS latency = 324 ns
-bpftool llc_misses per packet: 8.604475296672612e-05
-perf: throughput = 2194923 PPS latency = 314 ns
-perf L1-dcache-load-misses per packet: 4.126120306800698
-kfunc: throughput = 5882461 PPS latency = 73 ns
-kfunc L1-dcache-load-misses per packet: 0.7441403181423557
-perf: throughput = 2120937 PPS latency = 329 ns
-perf L1-dcache-load-misses per packet: 4.212059721314802
+baseline: throughput = 13018 PPS latency = 91 ns
+bpftool: throughput = 13185 PPS latency = 1012 ns
+bpftool llc_misses per packet: 0.8356389836935912
+perf: throughput = 13249 PPS latency = 985 ns
+perf L1-dcache-load-misses per packet: 4.687201394811723
+kfunc: throughput = 13261 PPS latency = 341 ns
+kfunc L1-dcache-load-misses per packet: 0.0

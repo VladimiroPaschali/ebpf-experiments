@@ -13,6 +13,6 @@ mappe/
 *.symvers
 *.cmd
 inxpect/inxpect
-hello.pcap
-hello.dump
+*.pcap
+*.dump
 *.cache

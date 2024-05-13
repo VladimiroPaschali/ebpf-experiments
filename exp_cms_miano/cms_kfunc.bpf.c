@@ -120,6 +120,7 @@ struct
     __uint(max_entries, 1);
     __type(key, __u32);
     __type(value, struct countmin);
+    __uint(pinning, LIBBPF_PIN_BY_NAME);
 } countmin SEC(".maps");
 // BPF_PERCPU_ARRAY(dropcnt, (struct pkt_md), 1);
 // BPF_ARRAY(countmin, struct countmin, 1);
