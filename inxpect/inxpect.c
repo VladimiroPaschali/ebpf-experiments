@@ -25,6 +25,7 @@ struct event metrics[METRICS_NR] = {
     {.name = "instructions", .code = 0x00c0},          {.name = "cycles", .code = 0x003c},
     {.name = "cache-misses", .code = 0x412e},          {.name = "llc-misses", .code = 0x01b7},
     {.name = "L1-dcache-load-misses", .code = 0x0151},
+    {.name = "L1-icache-load-misses", .code = 0x0283},
 };
 
 // --- GLOBALS ---
