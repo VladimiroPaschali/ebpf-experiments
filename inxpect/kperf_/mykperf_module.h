@@ -61,13 +61,10 @@ struct histogram
     struct record_array *sec_name = {0};                                                                               \
     __u32 key_##sec_name = __COUNTER__;                                                                                \
     sec_name = bpf_map_lookup_elem(&percpu_output, &key_##sec_name);                                                   \
-    struct histogram *sec_name##_histogram = bpf_map_lookup_elem(&percpu_hist, &key_##sec_name);                       \
-                                                                                                                       \
-    if (sec_name && sec_name->name[0] != 0)                                                                            \
-    {                                                                                                                  \
-        value_##sec_name = bpf_mykperf__rdpmc(sec_name->counter);                                                      \
-    }
+    value_##sec_name = bpf_mykperf__rdpmc(0);                                                      			
 
+
+    
 #define BPF_MYKPERF_START_TRACE_ARRAY_DEBUG(sec_name)                                                                  \
     __u64 value_##sec_name = 0;                                                                                        \
     struct record_array *sec_name = {0};                                                                               \
@@ -78,25 +75,13 @@ struct histogram
 #define BPF_MYKPERF_END_TRACE_ARRAY(sec_name)                                                                          \
     if (sec_name && sec_name->name[0] != 0)                                                                            \
     {                                                                                                                  \
-        __u64 temp_value = bpf_mykperf__rdpmc(sec_name->counter);                                                      \
-        if (LIKELY(temp_value >= value_##sec_name))                                                                    \
-        {                                                                                                              \
-            sec_name->value += (temp_value - value_##sec_name);                                                        \
-            sec_name->run_cnt++;                                                                                       \
-        }                                                                                                              \
-        if (sec_name##_histogram)                                                                                      \
-        {                                                                                                              \
-            __u64 tmp = temp_value - value_##sec_name;                                                                 \
-            if (tmp >= 63)                                                                                             \
-                sec_name##_histogram->values[63]++;                                                                    \
-            else                                                                                                       \
-            {                                                                                                          \
-                sec_name##_histogram->values[tmp]++;                                                                   \
-            }                                                                                                          \
-        }                                                                                                              \
+        __u64 temp_value = bpf_mykperf__rdpmc(0);                                                      \
+        sec_name->value += (temp_value - value_##sec_name);                                                        \
+        sec_name->run_cnt++;                                                                                       \
     }
 
-#define BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(sec_name)                                                                    \
+
+#define BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(sec_name) {                                                                    \
     __u64 temp_value = (bpf_mykperf__rdpmc(0) - value_##sec_name);                                                           \
     if (sec_name##_histogram != NULL)                                                                                  \
     {                                                                                                                  \
@@ -104,7 +89,8 @@ struct histogram
             sec_name##_histogram->values[63]++;                                                                        \
         else                                                                                                           \
             sec_name##_histogram->values[temp_value]++;                                                                \
-    }
+    } \
+}
 
 #define BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(sec_name)                                                                \
     __u64 value_##sec_name = 0;                                                                                        \

@@ -151,7 +151,7 @@ static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 
 SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY_DEBUG(main);
+    BPF_MYKPERF_START_TRACE_ARRAY(main);
 
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
@@ -251,17 +251,17 @@ int cms_kfunc(struct xdp_md *ctx)
     }
 
 #if _ACTION_DROP
-    BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(main);
+    BPF_MYKPERF_END_TRACE_ARRAY(main);
     return XDP_DROP;
 #else
     int ret = bpf_redirect(_OUTPUT_INTERFACE_IFINDEX, 0); // moved here from return to allow profiling
-    BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(main);
+    BPF_MYKPERF_END_TRACE_ARRAY(main);
     return ret;
 #endif
 
-DROP:;
+DROP:
     // bpf_printk("Error. Dropping packet\n");
-    //BPF_MYKPERF_END_TRACE_ARRAY_DEBUG(main);
+    BPF_MYKPERF_END_TRACE_ARRAY(main);
     return XDP_DROP;
 }
 

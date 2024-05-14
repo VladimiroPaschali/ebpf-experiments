@@ -105,6 +105,7 @@ static int psections__get_list(char psections_name_list[MAX_PSECTIONS][MAX_PROG_
     fd = get_rodata_map_fd(prog_fd);
     if (fd < 0)
     {
+
         fprintf(stderr, "[%s]: during finding data map\n", ERR);
         return -1;
     }
@@ -125,6 +126,7 @@ static int psections__get_list(char psections_name_list[MAX_PSECTIONS][MAX_PROG_
             break;
         }
         strncpy(psections_name_list[i], bss_data.sections[i], sizeof(bss_data.sections[i]));
+        fprintf(stderr, "Found section: %s\n", psections_name_list[i]);
     }
 
     close(fd);
