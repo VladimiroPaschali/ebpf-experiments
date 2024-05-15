@@ -2,6 +2,7 @@
 #include <net/if.h>
 #include <signal.h>
 #include <sys/resource.h>
+#include <unistd.h>
 #include "cms_kfunc.skel.h"
 
 int if_index;
@@ -42,6 +43,11 @@ void bump_memlock_rlimit(void)
         exit(1);
     }
 }
+
+int acc = 0;
+int count = 0;
+
+
 int main(int argc, char **argv)
 {
 
@@ -79,8 +85,12 @@ int main(int argc, char **argv)
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
 
+
+    // create rb
+
     while (1)
-        ;
+    {
+    }
 
     return 0;
 }

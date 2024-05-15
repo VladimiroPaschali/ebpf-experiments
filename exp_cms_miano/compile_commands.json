@@ -21,10 +21,11 @@
   "directory": "/opt/ebpf-experiments/exp_cms_miano",
   "arguments": [
    "clang",
-   "-lbpf",
    "cms.c",
    "-o",
-   "cms.o"
+   "cms.o",
+   "-L/lib64",
+   "-l:libbpf.so.1.4.0"
   ],
   "file": "cms.c"
  },
@@ -50,10 +51,11 @@
   "directory": "/opt/ebpf-experiments/exp_cms_miano",
   "arguments": [
    "clang",
-   "-lbpf",
    "cms_kfunc.c",
    "-o",
-   "cms_kfunc.o"
+   "cms_kfunc.o",
+   "-L/lib64",
+   "-l:libbpf.so.1.4.0"
   ],
   "file": "cms_kfunc.c"
  }

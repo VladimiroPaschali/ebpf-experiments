@@ -1,0 +1,60 @@
+[
+ {
+  "directory": "/opt/ebpf-experiments/exp_components",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-c",
+   "fexit.bpf.c",
+   "-o",
+   "fexit.bpf.o",
+   "-I",
+   "../char_dev"
+  ],
+  "file": "fexit.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_components",
+  "arguments": [
+   "clang",
+   "-lbpf",
+   "fexit.c",
+   "-o",
+   "fexit.o"
+  ],
+  "file": "fexit.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_components",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-c",
+   "fentry.bpf.c",
+   "-o",
+   "fentry.bpf.o",
+   "-I",
+   "../char_dev"
+  ],
+  "file": "fentry.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_components",
+  "arguments": [
+   "clang",
+   "-lbpf",
+   "fentry.c",
+   "-o",
+   "fentry.o"
+  ],
+  "file": "fentry.c"
+ }
+]

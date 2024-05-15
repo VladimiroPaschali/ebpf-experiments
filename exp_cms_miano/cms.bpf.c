@@ -26,21 +26,8 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 #include <linux/types.h>
-// #include <netinet/in.h>
 #include <stdint.h>
 
-// #include <uapi/linux/bpf.h>
-// #include <uapi/linux/filter.h>
-// #include <uapi/linux/icmp.h>
-// #include <uapi/linux/if_arp.h>
-// #include <uapi/linux/if_ether.h>
-// #include <uapi/linux/if_packet.h>
-// #include <uapi/linux/in.h>
-// #include <uapi/linux/ip.h>
-// #include <uapi/linux/pkt_cls.h>
-// #include <uapi/linux/tcp.h>
-// #include <uapi/linux/udp.h>
-// #include <linux/if_vlan.h>
 #include <bpf/bpf_helpers.h>
 
 #include "common.h"
@@ -51,7 +38,7 @@
 #define _OUTPUT_INTERFACE_IFINDEX 0
 #define _CS_ROWS 4
 // #define _CS_COLUMNS 1048576
-#define _CS_COLUMNS 8192
+#define _CS_COLUMNS 16
 
 #define _ACTION_DROP 1
 
@@ -104,7 +91,6 @@ struct pkt_md
 
 struct
 {
-    //__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(max_entries, 1);
     __type(key, __u32);
@@ -118,8 +104,6 @@ struct
     __type(key, __u32);
     __type(value, struct countmin);
 } countmin SEC(".maps");
-// BPF_PERCPU_ARRAY(dropcnt, (struct pkt_md), 1);
-// BPF_ARRAY(countmin, struct countmin, 1);
 
 static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 len)
 {
@@ -178,7 +162,7 @@ int cms(struct xdp_md *ctx)
     case htons(ETH_P_IP):
         break;
     default:
-        return XDP_PASS;
+        goto DROP;
     }
 
     struct pkt_5tuple pkt;
@@ -244,21 +228,9 @@ int cms(struct xdp_md *ctx)
 #endif
     }
 
-#if _ACTION_DROP
-    return XDP_DROP;
-#else
-    return bpf_redirect(_OUTPUT_INTERFACE_IFINDEX, 0);
-#endif
-
-DROP:;
+DROP:
     // bpf_printk("Error. Dropping packet\n");
     return XDP_DROP;
-}
-
-// This is only used when the action is redirect
-int xdp_dummy(struct xdp_md *ctx)
-{
-    return XDP_PASS;
 }
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";

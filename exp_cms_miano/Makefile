@@ -8,5 +8,5 @@ clean:
  		-g -w\
  		-O2 -c $< -o $@ -I ../inxpect/kperf_ 
 	bpftool gen skeleton $@ > $(patsubst %.bpf.o,%.skel.h,$@) 
-	gcc  $(patsubst %.bpf.o,%.c,$@) -o  $(patsubst %.bpf.o,%.o,$@) -L/lib64 -l:libbpf.so.1.4.0
+	clang  $(patsubst %.bpf.o,%.c,$@) -o  $(patsubst %.bpf.o,%.o,$@) -L/lib64 -l:libbpf.so.1.4.0
 
