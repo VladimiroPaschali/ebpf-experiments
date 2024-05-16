@@ -1,6 +1,6 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
-#include <mykperf_module.h>
+#include "mykperf_module.h"
 
 BPF_MYKPERF_INIT_TRACE();
 DEFINE_SECTIONS("main");

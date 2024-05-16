@@ -92,7 +92,7 @@ case $EXPERIMENT in
         cat sampling_result >> ../sampling_result
         echo -e "${GREEN}Starting Routing experiments${NC}"
         cd ../exp_routing || exit 1
-        python run_sampling.py --experiment lpmtrie_rs --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
+        python run_sampling.py --experiment lpmtrie_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result >> ../sampling_result
         echo -e "${GREEN}Starting Tunnel experiments${NC}"
         cd ../exp_tunnel || exit 1
@@ -118,7 +118,7 @@ case $EXPERIMENT in
     routing)
         echo -e "${GREEN}Starting Routing experiments${NC}"
         cd exp_routing || exit 1
-        python run_sampling.py --experiment lpmtrie_rs --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
+        python run_sampling.py --experiment lpmtrie_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result > ../sampling_result
         echo -e "${GREEN}Data saved in the sampling_result file${NC}"
         ;;

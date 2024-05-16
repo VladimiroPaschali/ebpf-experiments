@@ -181,10 +181,10 @@ def kfunc():
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
     print(output)
-    print(errors)
+    print("eroor",errors)
 
     value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")[0].replace(".", "")
-    # print(value)
+    print(value)
     
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
