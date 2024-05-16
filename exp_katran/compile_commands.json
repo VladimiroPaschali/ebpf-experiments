@@ -1,0 +1,32 @@
+[
+ {
+  "directory": "/opt/ebpf-experiments/exp_katran",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-c",
+   "balancer.bpf.c",
+   "-o",
+   "balancer.bpf.o",
+   "-I",
+   "../inxpect/kperf_"
+  ],
+  "file": "balancer.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_katran",
+  "arguments": [
+   "clang",
+   "balancer.c",
+   "-o",
+   "balancer.o",
+   "-L/lib64",
+   "-l:libbpf.so.1.4.0"
+  ],
+  "file": "balancer.c"
+ }
+]

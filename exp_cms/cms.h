@@ -1,5 +1,5 @@
-// #define CMS_SIZE 1048576
-#define CMS_SIZE 8192
+#define CMS_SIZE 1048576
+// #define CMS_SIZE 8192
 #define CMS_ROWS 4
 
 #include <linux/types.h>
