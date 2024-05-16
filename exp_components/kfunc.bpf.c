@@ -6,13 +6,12 @@
 
 __u64 bpf_mykperf__rdpmc(__u64 counter) __ksym;
 
-
 SEC("xdp")
 int kfunc(struct xdp_md *ctx)
 {
     __u64 start = bpf_mykperf__rdpmc(0);
 
-// ---------------------------------------------------
+    // ---------------------------------------------------
     void *data = (void *)(long)(ctx->data);
     void *data_end = (void *)(long)(ctx->data_end);
     struct ethhdr *eth = data;
@@ -27,8 +26,10 @@ int kfunc(struct xdp_md *ctx)
             }
         }
     }
-// ---------------------------------------------------
+    // ---------------------------------------------------
     __u64 end = bpf_mykperf__rdpmc(0) - start;
 
     return XDP_DROP;
 }
+
+char _license[] SEC("license") = "GPL";

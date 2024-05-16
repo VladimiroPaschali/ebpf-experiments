@@ -33,3 +33,5 @@ int macro(struct xdp_md *ctx)
 
     return XDP_DROP;
 }
+
+char _license[] SEC("license") = "GPL";

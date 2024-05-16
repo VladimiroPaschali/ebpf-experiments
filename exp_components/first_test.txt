@@ -1,0 +1,33 @@
+CPU: 21
+, Interface: ens2f1np1
+, Event: instructions
+, Time: 10s
+
+
+Compiling all programs
+
+
+Running baseline benchmark
+
+prog_name: parse_drop
+Run count for program name 'parse_drop': 79801766
+Run count for program name 'parse_drop': 577598630
+value        | run count | x pkt 
+-------------+-----------+-------
+323396200329 | 497796864 | 649.65
+
+Running macro benchmark
+
+Run count for program name 'macro': 61985215
+Run count for program name 'macro': 518646933
+value        | run count | x pkt 
+-------------+-----------+-------
+338126654839 | 456661718 | 740.43
+
+Running kfunc benchmark
+
+Run count for program name 'kfunc': 64992275
+Run count for program name 'kfunc': 514378620
+value        | run count | x pkt 
+-------------+-----------+-------
+379898778793 | 449386345 | 845.37
