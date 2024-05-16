@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Failed to get ifindex of %s\n", argv[1]);
 		return 1;
 	}
-	err = bpf_xdp_attach(if_index, bpf_program__fd(balancer->progs.balancer_ingress), 0, NULL);
+	err = bpf_xdp_attach(if_index, bpf_program__fd(balancer->progs.balancer), 0, NULL);
 	if (err) {
 		fprintf(stderr, "Failed to attach BPF program\n");
 		return 1;

@@ -1,1 +1,150 @@
 drop_sr: sampling : 1 run: 0
+kfunc sample rate 1: throughput = 9376923 PPS latency = 50 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,71
+drop_sr: sampling : 8 run: 0
+kfunc sample rate 8: throughput = 10522274 PPS latency = 39 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,60
+drop_sr: sampling : 32 run: 0
+kfunc sample rate 32: throughput = 11507738 PPS latency = 31 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,91
+drop_sr: sampling : 64 run: 0
+kfunc sample rate 64: throughput = 11673277 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,90
+drop_sr: sampling : 128 run: 0
+kfunc sample rate 128: throughput = 11985773 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,88
+drop_sr: sampling : 1 run: 1
+kfunc sample rate 1: throughput = 5055202 PPS latency = 87 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,15
+drop_sr: sampling : 8 run: 1
+kfunc sample rate 8: throughput = 10705495 PPS latency = 38 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,61
+drop_sr: sampling : 32 run: 1
+kfunc sample rate 32: throughput = 11467047 PPS latency = 31 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,84
+drop_sr: sampling : 64 run: 1
+kfunc sample rate 64: throughput = 11752274 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,88
+drop_sr: sampling : 128 run: 1
+kfunc sample rate 128: throughput = 11689380 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,83
+drop_sr: sampling : 1 run: 2
+kfunc sample rate 1: throughput = 9535931 PPS latency = 49 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,71
+drop_sr: sampling : 8 run: 2
+kfunc sample rate 8: throughput = 10507019 PPS latency = 39 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,60
+drop_sr: sampling : 32 run: 2
+kfunc sample rate 32: throughput = 11542104 PPS latency = 31 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,89
+drop_sr: sampling : 64 run: 2
+kfunc sample rate 64: throughput = 11864227 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,89
+drop_sr: sampling : 128 run: 2
+kfunc sample rate 128: throughput = 11921117 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,83
+drop_sr: sampling : 1 run: 3
+kfunc sample rate 1: throughput = 9630032 PPS latency = 49 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,71
+drop_sr: sampling : 8 run: 3
+kfunc sample rate 8: throughput = 10930010 PPS latency = 38 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,59
+drop_sr: sampling : 32 run: 3
+kfunc sample rate 32: throughput = 11787996 PPS latency = 31 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,85
+drop_sr: sampling : 64 run: 3
+kfunc sample rate 64: throughput = 11912464 PPS latency = 28 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,88
+drop_sr: sampling : 128 run: 3
+kfunc sample rate 128: throughput = 12052126 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,77
+drop_sr: sampling : 1 run: 4
+kfunc sample rate 1: throughput = 9545740 PPS latency = 50 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,69
+drop_sr: sampling : 8 run: 4
+kfunc sample rate 8: throughput = 10728666 PPS latency = 38 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,58
+drop_sr: sampling : 32 run: 4
+kfunc sample rate 32: throughput = 11504638 PPS latency = 31 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,87
+drop_sr: sampling : 64 run: 4
+kfunc sample rate 64: throughput = 11965363 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,86
+drop_sr: sampling : 128 run: 4
+kfunc sample rate 128: throughput = 12130544 PPS latency = 27 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,83
+drop_sr: sampling : 1 run: 5
+kfunc sample rate 1: throughput = 9586879 PPS latency = 50 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,71
+drop_sr: sampling : 8 run: 5
+kfunc sample rate 8: throughput = 10702030 PPS latency = 39 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,60
+drop_sr: sampling : 32 run: 5
+kfunc sample rate 32: throughput = 11861151 PPS latency = 30 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,90
+drop_sr: sampling : 64 run: 5
+kfunc sample rate 64: throughput = 11947919 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,91
+drop_sr: sampling : 128 run: 5
+kfunc sample rate 128: throughput = 12063329 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,80
+drop_sr: sampling : 1 run: 6
+kfunc sample rate 1: throughput = 9514942 PPS latency = 49 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,68
+drop_sr: sampling : 8 run: 6
+kfunc sample rate 8: throughput = 10898423 PPS latency = 37 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,60
+drop_sr: sampling : 32 run: 6
+kfunc sample rate 32: throughput = 11688356 PPS latency = 30 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,92
+drop_sr: sampling : 64 run: 6
+kfunc sample rate 64: throughput = 12079251 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,85
+drop_sr: sampling : 128 run: 6
+kfunc sample rate 128: throughput = 6423242 PPS latency = 44 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,97
+drop_sr: sampling : 1 run: 7
+kfunc sample rate 1: throughput = 9443314 PPS latency = 50 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,73
+drop_sr: sampling : 8 run: 7
+kfunc sample rate 8: throughput = 10768110 PPS latency = 38 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,60
+drop_sr: sampling : 32 run: 7
+kfunc sample rate 32: throughput = 11659592 PPS latency = 30 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,89
+drop_sr: sampling : 64 run: 7
+kfunc sample rate 64: throughput = 11847258 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,87
+drop_sr: sampling : 128 run: 7
+kfunc sample rate 128: throughput = 12049116 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,80
+drop_sr: sampling : 1 run: 8
+kfunc sample rate 1: throughput = 9543330 PPS latency = 49 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,70
+drop_sr: sampling : 8 run: 8
+kfunc sample rate 8: throughput = 10749636 PPS latency = 38 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,61
+drop_sr: sampling : 32 run: 8
+kfunc sample rate 32: throughput = 11807434 PPS latency = 31 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,91
+drop_sr: sampling : 64 run: 8
+kfunc sample rate 64: throughput = 11883605 PPS latency = 29 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,91
+drop_sr: sampling : 128 run: 8
+kfunc sample rate 128: throughput = 11905291 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,86
+drop_sr: sampling : 1 run: 9
+kfunc sample rate 1: throughput = 9541402 PPS latency = 50 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 0,70
+drop_sr: sampling : 8 run: 9
+kfunc sample rate 8: throughput = 10855920 PPS latency = 37 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 0,61
+drop_sr: sampling : 32 run: 9
+kfunc sample rate 32: throughput = 11395509 PPS latency = 31 ns
+kfunc sample rate 32 L1-dcache-load-misses per packet: 0,92
+drop_sr: sampling : 64 run: 9
+kfunc sample rate 64: throughput = 12122087 PPS latency = 28 ns
+kfunc sample rate 64 L1-dcache-load-misses per packet: 0,89
+drop_sr: sampling : 128 run: 9
+kfunc sample rate 128: throughput = 12063431 PPS latency = 28 ns
+kfunc sample rate 128 L1-dcache-load-misses per packet: 0,81

@@ -1,4 +1,4 @@
-#define CMS_SIZE 16384
+#define CMS_SIZE 131072
 // #define CMS_SIZE 16
 #define CMS_ROWS 4
 

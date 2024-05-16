@@ -24,8 +24,7 @@
 struct event metrics[METRICS_NR] = {
     {.name = "instructions", .code = 0x00c0},          {.name = "cycles", .code = 0x003c},
     {.name = "cache-misses", .code = 0x412e},          {.name = "llc-misses", .code = 0x01b7},
-    {.name = "L1-dcache-load-misses", .code = 0x0151},
-    {.name = "L1-icache-load-misses", .code = 0x0283},
+    {.name = "L1-dcache-load-misses", .code = 0x0151}, {.name = "L1-icache-load-misses", .code = 0x0283},
 };
 
 // --- GLOBALS ---
@@ -283,8 +282,8 @@ static void print_stats()
 static void poll_print_stats()
 {
     char *fmt = "%s: %llu   %.2f/pkt - %u run_cnt\n";
-    int prev_run_count = 0;
-    int prev_value = 0;
+    __u64 prev_run_count = 0;
+    __u64 prev_value = 0;
     while (1)
     {
         for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
@@ -296,7 +295,7 @@ static void poll_print_stats()
 
             if (prev_run_count != psections[i_sec].record->run_cnt)
             {
-                fprintf(stdout, "%sdiff: value: %lld   %f/pkt    run_count: %lld\n", ERR,
+                fprintf(stdout, "%sdiff: value: %llu   %.2f/pkt    run_count: %llu\n", ERR,
                         (psections[i_sec].record->value - prev_value),
                         (float)(psections[i_sec].record->value - prev_value) /
                             (psections[i_sec].record->run_cnt - prev_run_count),
@@ -313,7 +312,7 @@ static void poll_print_stats()
                              (float)psections[i_sec].record->value / psections[i_sec].record->run_cnt,
                              psections[i_sec].record->run_cnt); */
         };
-        // usleep(1000000);
+        sleep(timeout_s);
     }
 }
 

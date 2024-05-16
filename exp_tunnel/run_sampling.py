@@ -20,7 +20,9 @@ SAMPLING = [1,8,32,64,128]
 def exp_sampling(sampling):
     time.sleep(1.0)
 
-    evento = "llc-misses"
+    evento = "L1-dcache-load-misses"
+    #evento ="llc-misses"
+
     # evento = "instructions"
 
 
@@ -30,7 +32,7 @@ def exp_sampling(sampling):
             subprocess.check_output('chmod go+w *.o', shell=True)
     
 
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -s {sampling} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -s {sampling} -c -C 21 -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}" | cut -d" " -f12,14',shell=True)
     out=out.decode()
@@ -55,16 +57,15 @@ def exp_sampling(sampling):
     # print(output)
     # print(errors)
 
-    value, runcnt = re.findall(r".*main: (\d*.*\d).*- (\d*.*\d).*", output)[0]
-    print(value,runcnt)
-    # print(newvalue_runcnt-oldvalue_runcnt)
+    value= re.findall(r".*main: (\d*.*\d).*- (\d*.*\d).*", output)[0][0]
+    value = value.split(" ")[-1]
     
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"kfunc sample rate {sampling}: throughput = {throughput} PPS latency = {latency} ns"
     subprocess.check_output(f'echo {stampa} | tee sampling_result -a >/dev/null', shell=True)
 
-    stampa = f"kfunc sample rate {sampling} {evento} per packet: {str(int(value)/int(runcnt)).replace('.',',')}"
+    stampa = f"kfunc sample rate {sampling} {evento} per packet: {value.replace('.',',')}"
     subprocess.check_output(f'echo {stampa} | tee sampling_result -a >/dev/null', shell=True)
 
 

@@ -23,6 +23,10 @@
 #include "handle_icmp.h"
 #include "pckt_encap.h"
 #include "pckt_parsing.h"
+#include "../kperf_/mykperf_module.h"
+
+BPF_MYKPERF_INIT_TRACE();
+DEFINE_SECTIONS("main");
 
 __attribute__((__always_inline__)) static inline __u32 get_packet_hash(
     struct packet_description* pckt,
@@ -1021,7 +1025,8 @@ process_packet(struct xdp_md* xdp, __u64 off, bool is_ipv6) {
 }
 
 SEC(PROG_SEC_NAME)
-int balancer(struct xdp_md* ctx) {
+int balancer_kfunc(struct xdp_md* ctx) {
+  BPF_MYKPERF_START_TRACE(main);
   void* data = (void*)(long)ctx->data;
   void* data_end = (void*)(long)ctx->data_end;
   struct ethhdr* eth = data;
