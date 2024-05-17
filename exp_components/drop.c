@@ -4,10 +4,10 @@
 #include <net/if.h>
 #include <signal.h>
 #include <unistd.h>
-#include "parse_drop.skel.h"
+#include "drop.skel.h"
 
 int if_index;
-struct parse_drop_bpf *skel;
+struct drop_bpf *skel;
 
 void exit_(int sig)
 {
@@ -19,21 +19,21 @@ void exit_(int sig)
         return;
     }
 
-    parse_drop_bpf__destroy(skel);
+    drop_bpf__destroy(skel);
     exit(0);
 }
 
 int main(int argc, char **argv)
 {
 
-    skel = parse_drop_bpf__open();
+    skel = drop_bpf__open();
     if (!skel)
     {
         perror("Unable to open skeleton\n");
         return -1;
     }
 
-    if (parse_drop_bpf__load(skel) < 0)
+    if (drop_bpf__load(skel) < 0)
     {
         perror("Unable to load skeleton\n");
         return -1;
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
     if_index = if_nametoindex(argv[1]);
 
-    int err = bpf_xdp_attach(if_index, bpf_program__fd(skel->progs.parse_drop), 0, NULL);
+    int err = bpf_xdp_attach(if_index, bpf_program__fd(skel->progs.drop), 0, NULL);
     if (err)
     {
         fprintf(stderr, "Failed to attach BPF program\n");

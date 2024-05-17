@@ -2,19 +2,66 @@
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
 
+#include <net/if.h>
 #include <unistd.h>
 #include <linux/perf_event.h>
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 
 #include "fentry.read.skel.h"
+#include "drop.skel.h"
+
+int if_index = 0;
+struct drop_bpf *skel_drop;
+struct fentry_read_bpf *skel;
+
+void exit_(int sig)
+{
+    int err;
+    err = bpf_xdp_detach(if_index, 0, 0);
+    if (err)
+    {
+        fprintf(stderr, "Failed to detach BPF program\n");
+        return;
+    }
+
+    drop_bpf__destroy(skel_drop);
+    fentry_read_bpf__destroy(skel);
+    return;
+}
 
 int main(int argc, char *argv[])
 {
-    int fd = atoi(argv[1]);
-    int cpu = atoi(argv[3]);
 
-    struct fentry_read_bpf *skel = fentry_read_bpf__open();
+    // LOAD DROP
+    skel_drop = drop_bpf__open();
+    if (!skel_drop)
+    {
+        perror("Unable to open skeleton\n");
+        return -1;
+    }
+
+    if (drop_bpf__load(skel_drop) < 0)
+    {
+        perror("Unable to load skeleton\n");
+        return -1;
+    }
+
+    if_index = if_nametoindex(argv[1]);
+
+    int err = bpf_xdp_attach(if_index, bpf_program__fd(skel_drop->progs.drop), 0, NULL);
+    if (err)
+    {
+        fprintf(stderr, "Failed to attach BPF program\n");
+        return 1;
+    }
+
+    // LOAD ENTRY_READ
+    int fd = bpf_program__fd(skel_drop->progs.drop);
+
+    int cpu = atoi(argv[2]);
+
+    skel = fentry_read_bpf__open();
     int dst_prog = bpf_prog_get_fd_by_id(fd);
     if (dst_prog < 0)
     {

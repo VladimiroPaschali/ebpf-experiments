@@ -7,6 +7,7 @@ import signal
 
 BASH='sudo -E bash -c "export LD_LIBRARY_PATH=/lib64;'
 STATS_PATH='../inxpect/inxpect'
+KPERF_PATH = '/opt/ebpf-experiment/inxpect/kperf_'
 
 def pretty_output(output):
     # Extract the two integers from the tuple
@@ -40,6 +41,19 @@ def enable_event(cpu : int):
 def csv_output(output):
     print("Value,Run count, x pkt")
     print(f"{output[0]},{output[1]},{output[0]/output[1]}")
+
+def init():    
+    # enable bpf-stats
+    try: # sysctl -w kernel.bpf_stats_enabled=1
+        sp.run(['sudo', 'sysctl', '-w', 'kernel.bpf_stats_enabled=1'], capture_output=True, text=True)
+
+        result = sp.run(['sudo', 'lsmod', '|', 'grep', 'mykperf', '|', 'wc' '-l'], capture_output=True, text=True)
+        if not result.communicate()[0]:
+            # load module 
+            sp.run(['sudo', 'make','-C', KPERF_PATH , 'load'], capture_output=True, text=True)
+    except Exception as e:
+        print(f"An error occurred during enabling bpf_stats: {e}")
+        return 1
 
 def make_all():
     try:
@@ -140,50 +154,7 @@ def prog__load_and_attach(prog_path : str, ifname : str) -> int:
     sleep(1)
     return process
 
-def macro(prog_path : str, ifname : str, t : int, event : str) -> tuple[int, int]:
-    process = prog__load_and_attach(prog_path, ifname)
-    if process == -1:
-        print("Error loading program")
-        return None
-    
-    prog_name = prog_path.split('/')[-1]
-    prog_id = prog__get_id_by_name(prog_name)
-
-    run_cnt = bpftool__get_run_cnt(prog_name)
-    
-    value=perf__get_event_value(prog_id, event, t)
-    
-    run_cnt_new = bpftool__get_run_cnt(prog_name)
-    kill_background_process(prog_name)
-    
-    return value, (run_cnt_new - run_cnt)
-
-def baseline(prog_path : str, ifname : str, t : int, event : str) -> tuple[int, int]:
-    prog_name = ''
-    try:
-        process = prog__load_and_attach(prog_path, ifname)
-        if process == -1:
-            print("Error loading program")
-            return None
-        
-        prog_name = prog_path.split('/')[-1]
-        print(f"prog_name: {prog_name}")    
-        prog_id = prog__get_id_by_name(prog_name)
-
-        run_cnt = bpftool__get_run_cnt(prog_name)
-        
-        value=perf__get_event_value(prog_id, event, t)
-        
-        run_cnt_new = bpftool__get_run_cnt(prog_name)
-
-        kill_background_process(prog_name)
-    except Exception as e:
-        if prog_name:
-            kill_background_process(prog_name)
-        return None
-    return value, (run_cnt_new - run_cnt)
-
-def kfunc(prog_path : str, ifname : str, t : int, event : str):
+def prog_test(prog_path : str, ifname : str, t : int, event : str):
     process = prog__load_and_attach(prog_path, ifname)
     if process == -1:
         print("Error loading program")
@@ -214,11 +185,15 @@ def main():
     print(f"CPU: {args.cpu}\n, Interface: {args.interface}\n, Event: {args.event}\n, Time: {args.time}s\n")
     
     try:
+        init()
+        
+        
         print("\nCompiling all programs\n")
         make_all()
         
+        # BASELINE
         print("\nRunning baseline benchmark\n")
-        output = baseline('./parse_drop', args.interface, args.time, args.event)
+        output = prog_test('./drop', args.interface, args.time, args.event)
         if output:
             if args.csv:
                 csv_output(output)
@@ -227,9 +202,10 @@ def main():
             
         sleep(1)
         
+        # MACRO
         print("\nRunning macro benchmark\n")
         enable_event(args.cpu)
-        output=macro('./macro', args.interface, args.time, args.event)
+        output=prog_test('./macro', args.interface, args.time, args.event)
         if output:
             if args.csv:
                 csv_output(output)
@@ -238,13 +214,37 @@ def main():
             
         sleep(1)
 
+        # KFUNC
         print("\nRunning kfunc benchmark\n")
-        output=kfunc('./kfunc', args.interface, args.time, args.event)
+        output=prog_test('./kfunc', args.interface, args.time, args.event)
         if output:
             if args.csv:
                 csv_output(output)
             else: 
                 pretty_output(output)
+        
+        sleep(1)
+        
+        # FENTRY READ
+        print("\nRunning fentry_read benchmark\n")
+        output=prog_test('./fentry_read', args.interface, args.time, args.event)
+        if output:
+            if args.csv:
+                csv_output(output)
+            else: 
+                pretty_output(output)
+                
+        sleep(1)
+        
+        # FENTRY UPDATE
+        print("\nRunning fentry_update benchmark\n")
+        output=prog_test('./fentry_update', args.interface, args.time, args.event)
+        if output:
+            if args.csv:
+                csv_output(output)
+            else: 
+                pretty_output(output)
+                
     except Exception as e:
         print(f"An error occurred: {e}")
         

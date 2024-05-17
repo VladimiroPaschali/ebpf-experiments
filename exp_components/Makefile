@@ -1,17 +1,17 @@
 MACRO := macro
-PARSE := parse_drop
+PARSE := drop
 KFUNC := kfunc
 FENTRY_READ := fentry.read
 FENTRY_UPDATE_MAP := fentry.update
 KHEADER := ../inxpect/kperf_
 
 .PHONY: all clean
-.SILENT: parse_drop kfunc macro fentry_perf_read fentry_update_map
+.SILENT: drop kfunc macro fentry_perf_read fentry_update_map
 
-all: parse_drop kfunc macro fentry_perf_read fentry_update_map
+all: drop kfunc macro fentry_perf_read fentry_update_map
 
-parse_drop:
-	@echo "Compiling parse_drop test..."
+drop:
+	@echo "Compiling drop test..."
 	clang \
 		-target bpf \
 		-g -w\
