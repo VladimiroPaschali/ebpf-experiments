@@ -1,11 +1,9 @@
 drop: 
-baseline: throughput = 13232520 PPS latency = 12 ns
-bpftool: throughput = 2962431 PPS latency = 241 ns
-bpftool llc_misses per packet: 9.380807940396528e-05
-perf: throughput = 3517785 PPS latency = 199 ns
-perf LLC-load-misses per packet: 0.00010961443067157316
+baseline: throughput = 14544852 PPS latency = 11 ns
+perf: throughput = 3583001 PPS latency = 195 ns
+perf L1-dcache-load-misses per packet: 0.41292770879387014
 drop_kfunc: 
-kfunc: throughput = 11048588 PPS latency = 32 ns
-kfunc llc-misses per packet: 6.697688246741893e-07
-perf: throughput = 3389572 PPS latency = 209 ns
-perf LLC-load-misses per packet: 0.0003759765943359173
+kfunc: throughput = 9489888 PPS latency = 40 ns
+kfunc L1-dcache-load-misses per packet: 0.4366112540000472
+perf: throughput = 3387971 PPS latency = 208 ns
+perf L1-dcache-load-misses per packet: 0.04733529301165801

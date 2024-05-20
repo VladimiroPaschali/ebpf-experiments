@@ -1,43 +1,9 @@
 drop: 
-baseline: throughput = 13232520 PPS latency = 12 ns
-bpftool: throughput = 2962431 PPS latency = 241 ns
-bpftool llc_misses per packet: 9.380807940396528e-05
-perf: throughput = 3517785 PPS latency = 199 ns
-perf LLC-load-misses per packet: 0.00010961443067157316
+baseline: throughput = 14544852 PPS latency = 11 ns
+perf: throughput = 3583001 PPS latency = 195 ns
+perf L1-dcache-load-misses per packet: 0.41292770879387014
 drop_kfunc: 
-kfunc: throughput = 11048588 PPS latency = 32 ns
-kfunc llc-misses per packet: 6.697688246741893e-07
-perf: throughput = 3389572 PPS latency = 209 ns
-perf LLC-load-misses per packet: 0.0003759765943359173
-cms: 
-baseline: throughput = 12214833 PPS latency = 19 ns
-bpftool: throughput = 3188856 PPS latency = 229 ns
-bpftool llc_misses per packet: 8.247470268810457e-05
-perf: throughput = 3241394 PPS latency = 224 ns
-perf LLC-load-misses per packet: 0.00040374604259772187
-kfunc: throughput = 8850497 PPS latency = 55 ns
-kfunc llc-misses per packet: 7.841367463981203e-06
-perf: throughput = 3159409 PPS latency = 233 ns
-perf LLC-load-misses per packet: 0.00038121050032991925
-lpmtrie: 
-baseline: throughput = 3061771 PPS latency = 267 ns
-bpftool: throughput = 1850580 PPS latency = 460 ns
-bpftool llc_misses per packet: 0.5994951528982723
-perf: throughput = 1865776 PPS latency = 454 ns
-perf LLC-load-misses per packet: 0.5760932634900156
-lpmtrie_kfunc: 
-kfunc: throughput = 2806825 PPS latency = 297 ns
-kfunc llc-misses per packet: 0.5224891948224644
-perf: throughput = 1784722 PPS latency = 480 ns
-perf LLC-load-misses per packet: 0.6482999260837428
-tunnel: 
-baseline: throughput = 8000038 PPS latency = 34 ns
-bpftool: throughput = 2750173 PPS latency = 252 ns
-bpftool llc_misses per packet: 4.646979883049552e-05
-perf: throughput = 2854155 PPS latency = 240 ns
-perf LLC-load-misses per packet: 0.0001485903727803459
-tunnel_kfunc: 
-kfunc: throughput = 5830815 PPS latency = 86 ns
-kfunc llc-misses per packet: 0.00023434116843014228
-perf: throughput = 2711474 PPS latency = 258 ns
-perf LLC-load-misses per packet: 0.00023216150474584954
+kfunc: throughput = 9489888 PPS latency = 40 ns
+kfunc L1-dcache-load-misses per packet: 0.4366112540000472
+perf: throughput = 3387971 PPS latency = 208 ns
+perf L1-dcache-load-misses per packet: 0.04733529301165801

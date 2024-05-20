@@ -28,5 +28,35 @@
    "-l:libbpf.so.1.4.0"
   ],
   "file": "balancer.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_katran",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-c",
+   "balancer_kfunc.bpf.c",
+   "-o",
+   "balancer_kfunc.bpf.o",
+   "-I",
+   "../inxpect/kperf_"
+  ],
+  "file": "balancer_kfunc.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_katran",
+  "arguments": [
+   "clang",
+   "balancer_kfunc.c",
+   "-o",
+   "balancer_kfunc.o",
+   "-L/lib64",
+   "-l:libbpf.so.1.4.0"
+  ],
+  "file": "balancer_kfunc.c"
  }
 ]

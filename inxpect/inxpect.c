@@ -25,7 +25,7 @@ struct event metrics[METRICS_NR] = {
     {.name = "instructions", .code = 0x00c0},          {.name = "cycles", .code = 0x003c},
     {.name = "cache-misses", .code = 0x412e},          {.name = "llc-misses", .code = 0x01b7},
     {.name = "L1-dcache-load-misses", .code = 0x0151}, {.name = "L1-icache-load-misses", .code = 0x0283},
-};
+    {.name = "L2-RQSTS-misses", .code = 0x2724}};
 
 // --- GLOBALS ---
 char prog_name[MAX_PROG_FULL_NAME];
@@ -240,7 +240,10 @@ static int percput_output__clean_and_init()
             break;
         }
 
-        percpu_values[running_cpu] = *psections[i_sec].record;
+        percpu_values[running_cpu].counter = psections[i_sec].record->counter;
+        memcpy(percpu_values[running_cpu].name, psections[i_sec].record->name, 16);
+        percpu_values[running_cpu].run_cnt = 0;
+        percpu_values[running_cpu].value = 0;
 
         err = bpf_map_update_elem(percpu_output_fd, &i_sec, percpu_values, BPF_ANY);
         if (err)
@@ -397,6 +400,8 @@ static void exit_cleanup(int signo)
             {
                 fprintf(stderr, "[%s]: during disabling event %s\n", ERR, psections[i_sec].metric->name);
             }
+
+            psections[i_sec].metric = NULL;
         }
 
         // -------- FREE ALLOC IN PSECTIONS --------
@@ -523,18 +528,33 @@ int main(int argc, char **argv)
         }
 
         // alloc memory for the record
-        psections[i_sec].record = malloc(sizeof(struct record_array));
+        psections[i_sec].record = calloc(1, sizeof(struct record_array));
         if (!psections[i_sec].record)
         {
             fprintf(stderr, "[%s]: during memory allocation\n", ERR);
             exit_cleanup(0);
         }
 
-        struct event *metric = event__get_by_name(arg__event);
-        if (!metric)
+        struct event *metric = NULL;
+
+        if (arg__event[0] == 'r') // if the event is a raw event
         {
-            fprintf(stderr, "[%s]: event %s not found\n", ERR, arg__event);
-            exit_cleanup(0);
+            metric = malloc(sizeof(struct event));
+            struct event tmp_metric = {
+                .name = arg__event,
+                .code = atoi(arg__event + 1),
+            };
+
+            memcpy(metric, &tmp_metric, sizeof(struct event));
+        }
+        else // otherwise is a perf event
+        {
+            metric = event__get_by_name(arg__event);
+            if (!metric)
+            {
+                fprintf(stderr, "[%s]: event %s not found\n", ERR, arg__event);
+                exit_cleanup(0);
+            }
         }
 
         strcpy(psections[i_sec].record->name, psections_name_list[i_sec]);

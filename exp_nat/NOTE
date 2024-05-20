@@ -1,0 +1,8 @@
+sudo cat /sys/kernel/debug/tracing/trace_pipe
+sudo python ip_forge.py -d ciao -i virbr1 -p udp 2e:8c:40:7c:f4:9c 192.168.122.1:44436 192.168.50.150:9998
+sudo python ip_forge.py -d ciao -i virbr1 -p udp 2e:8c:40:7c:f4:9c 192.168.50.150:9998 190.186.254.202:256
+sudo ./nat_user -d ens8 -A
+sudo ip l set dev ens8 xdp off
+sudo bpftool map list 
+https://bolinfest.github.io/opensnoop-native/
+llvm-objdump -S nat.o 

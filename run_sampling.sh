@@ -86,8 +86,8 @@ case $EXPERIMENT in
         cd exp_drop || exit 1
         python run_sampling.py --experiment drop_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result > ../sampling_result
-        echo -e "${GREEN}Starting CMS experiments${NC}"
-        cd ../exp_cms || exit 1
+        echo -e "${GREEN}Starting CMS experiments MIANO${NC}"
+        cd ../exp_cms_miano || exit 1
         python run_sampling.py --experiment cms_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result >> ../sampling_result
         echo -e "${GREEN}Starting Routing experiments${NC}"
@@ -109,8 +109,8 @@ case $EXPERIMENT in
 
         ;;
     cms)
-        echo -e "${GREEN}Starting CMS experiments${NC}"
-        cd exp_cms || exit 1
+        echo -e "${GREEN}Starting CMS experiments MIANO${NC}"
+        cd exp_cms_miano || exit 1
         python run_sampling.py --experiment cms_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result > ../sampling_result
         echo -e "${GREEN}Data saved in the sampling_result file${NC}"
@@ -124,7 +124,7 @@ case $EXPERIMENT in
         ;;
     tunnel)
         echo -e "${GREEN}Starting Tunnel experiments${NC}"
-        cd exp_routing || exit 1
+        cd exp_tunnel || exit 1
         python run_sampling.py --experiment tunnel_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
         cat sampling_result > ../sampling_result
         echo -e "${GREEN}Data saved in the sampling_result file${NC}"

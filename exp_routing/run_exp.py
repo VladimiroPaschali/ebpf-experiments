@@ -92,7 +92,8 @@ def bpftool():
 def perf():
 
     # evento = "instructions"
-    evento = "LLC-load-misses"
+    # evento = "LLC-load-misses"
+    evento = "L1-dcache-load-misses"
 
 
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f1',shell=True)
@@ -147,7 +148,9 @@ def perf():
 def kfunc():
     
     # evento = "instructions"
-    evento = "llc-misses"
+    # evento = "llc-misses"
+    evento = "L1-dcache-load-misses"
+
 
 
     time.sleep(1.0)
@@ -156,10 +159,12 @@ def kfunc():
             print("Compiling Kfunc loader")
             subprocess.check_output('make', cwd="../loader",shell=True)
             subprocess.check_output('chmod go+w *.o',cwd="../loader", shell=True)
-        
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a -C 21"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
 
+    cpu=subprocess.check_output(f'sudo /opt/script_interrupts.sh {INTERFACE}',shell=True)
+    cpu=cpu.decode().strip()
+    print("CPU =",cpu)
 
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a -C {cpu}"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
     out=out.decode()

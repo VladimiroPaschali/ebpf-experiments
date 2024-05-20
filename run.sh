@@ -80,8 +80,8 @@ case $EXPERIMENT in
         cd exp_drop || exit 1
         python run_exp.py --experiment drop --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF"
         cat result > ../result
-        echo -e "${GREEN}Starting CMS experiments${NC}"
-        cd ../exp_cms || exit 1
+        echo -e "${GREEN}Starting CMS experiments MIANO${NC}"
+        cd ../exp_cms_miano || exit 1
         python run_exp.py --experiment cms --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF"
         cat result >> ../result
         echo -e "${GREEN}Starting Routing experiments${NC}"

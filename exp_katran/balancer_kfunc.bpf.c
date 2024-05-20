@@ -1199,6 +1199,7 @@ int balancer_kfunc(struct xdp_md *ctx)
     if (data + nh_off > data_end)
     {
         // bogus packet, len less than minimum ethernet frame size
+	BPF_MYKPERF_END_TRACE_ARRAY(main);
         return XDP_DROP;
     }
 
@@ -1206,14 +1207,17 @@ int balancer_kfunc(struct xdp_md *ctx)
 
     if (eth_proto == BE_ETH_P_IP)
     {
+	BPF_MYKPERF_END_TRACE_ARRAY(main);
         return process_packet(ctx, nh_off, false);
     }
     else if (eth_proto == BE_ETH_P_IPV6)
     {
+	BPF_MYKPERF_END_TRACE_ARRAY(main);
         return process_packet(ctx, nh_off, true);
     }
     else
     {
+	BPF_MYKPERF_END_TRACE_ARRAY(main);
         // pass to tcp/ip stack
         return XDP_PASS;
     }

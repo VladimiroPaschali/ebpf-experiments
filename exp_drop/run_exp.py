@@ -91,7 +91,8 @@ def bpftool():
 #legge stats da bpftool prog si possono calcolare PPS e Latency
 def perf():
 
-    evento = "LLC-load-misses"
+    # evento = "LLC-load-misses"
+    evento = "L1-dcache-load-misses"
     # evento = "instructions"
 
 
@@ -101,7 +102,6 @@ def perf():
     prog_id = int(out)
 
     perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e {evento} -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-    # perf = subprocess.Popen(f'sudo {PERF_PATH} stat -e instructions -b {prog_id}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
 
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}" | cut -d" " -f12,14  ',shell=True)
@@ -122,6 +122,7 @@ def perf():
     os.killpg(os.getpgid(perf.pid), signal.SIGINT)
     #reads PIPE stdout and stderr
     output, ris = perf.communicate()
+    print(ris)
     ris = ris.splitlines()
     riga = ris[3].decode("utf-8").split(" ")
     #rimuove stringhe vuote "" dalla lista
@@ -132,6 +133,7 @@ def perf():
     # print(instructions)
 
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
+    print(throughput)
     latency = (newvalue_time-oldvalue_time)//(newvalue_runcnt-oldvalue_runcnt)
     stampa = f"perf: throughput = {throughput} PPS latency = {latency} ns"
 
@@ -146,7 +148,9 @@ def kfunc():
 
     time.sleep(1.0)
 
-    evento = "llc-misses"
+    # evento = "llc-misses"
+    evento = "L1-dcache-load-misses"
+
     # evento = "instructions"
 
 
@@ -154,9 +158,13 @@ def kfunc():
             print("Compiling Kfunc loader")
             subprocess.check_output('make', cwd="../loader",shell=True)
             subprocess.check_output('chmod go+w *.o', shell=True)
-    
 
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a -C 21"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+
+    cpu=subprocess.check_output(f'sudo /opt/script_interrupts.sh {INTERFACE}',shell=True)
+    cpu=cpu.decode().strip()
+    print("CPU =",cpu)
+
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -a -C {cpu}"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     print(f"inxpect pid {loader_stats_output.pid}")
 
     #oldvalue_time
@@ -279,8 +287,8 @@ def main():
             baseline()
 
 
-            print(f"Start {EXPERIMENT_NAME} bpftool")
-            bpftool()
+            # print(f"Start {EXPERIMENT_NAME} bpftool")
+            # bpftool()
 
             print(f"Start {EXPERIMENT_NAME} perf")
             perf()

@@ -8,7 +8,7 @@ KHEADER := ../inxpect/kperf_
 .PHONY: all clean
 .SILENT: drop kfunc macro fentry_perf_read fentry_update_map
 
-all: drop kfunc macro fentry_perf_read fentry_update_map
+all: drop kfunc fentry_perf_read fentry_update_map #macro
 
 drop:
 	@echo "Compiling drop test..."

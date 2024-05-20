@@ -1,4 +1,4 @@
-all: clean cms.bpf.o cms_kfunc.bpf.o
+all: clean cms.bpf.o cms_kfunc.bpf.o cms_sr.bpf.o
 clean: 
 	-rm -f *.o
 	-rm -f *.skel.h

@@ -98,6 +98,7 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
             return 0
         
         output = result.stderr  # perf output is typically in stderr
+        print(output)
         
         pattern = re.compile(rf'^\s*([\d,]+)\s+{event_name}', re.MULTILINE)
         
@@ -148,8 +149,7 @@ def prog__get_id_by_name(prog_name : str) -> int:
 def prog__load_and_attach(prog_path : str, ifname : str) -> int:
     command = f"{BASH} {prog_path}.o {ifname}\""
     process = sp.Popen(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
-    
-    
+
     
     sleep(1)
     return process
@@ -185,11 +185,11 @@ def main():
     print(f"CPU: {args.cpu}\n, Interface: {args.interface}\n, Event: {args.event}\n, Time: {args.time}s\n")
     
     try:
-        init()
+        # init()
         
         
         print("\nCompiling all programs\n")
-        make_all()
+        # make_all()
         
         # BASELINE
         print("\nRunning baseline benchmark\n")
@@ -202,17 +202,17 @@ def main():
             
         sleep(1)
         
-        # MACRO
-        print("\nRunning macro benchmark\n")
-        enable_event(args.cpu)
-        output=prog_test('./macro', args.interface, args.time, args.event)
-        if output:
-            if args.csv:
-                csv_output(output)
-            else: 
-                pretty_output(output)
+        # # MACRO
+        # print("\nRunning macro benchmark\n")
+        # enable_event(args.cpu)
+        # output=prog_test('./macro', args.interface, args.time, args.event)
+        # if output:
+        #     if args.csv:
+        #         csv_output(output)
+        #     else: 
+        #         pretty_output(output)
             
-        sleep(1)
+        # sleep(1)
 
         # KFUNC
         print("\nRunning kfunc benchmark\n")
@@ -225,25 +225,25 @@ def main():
         
         sleep(1)
         
-        # FENTRY READ
-        print("\nRunning fentry_read benchmark\n")
-        output=prog_test('./fentry_read', args.interface, args.time, args.event)
-        if output:
-            if args.csv:
-                csv_output(output)
-            else: 
-                pretty_output(output)
+        # # FENTRY READ
+        # print("\nRunning fentry_read benchmark\n")
+        # output=prog_test('./fentry_read', args.interface, args.time, args.event)
+        # if output:
+        #     if args.csv:
+        #         csv_output(output)
+        #     else: 
+        #         pretty_output(output)
                 
-        sleep(1)
+        # sleep(1)
         
-        # FENTRY UPDATE
-        print("\nRunning fentry_update benchmark\n")
-        output=prog_test('./fentry_update', args.interface, args.time, args.event)
-        if output:
-            if args.csv:
-                csv_output(output)
-            else: 
-                pretty_output(output)
+        # # FENTRY UPDATE
+        # print("\nRunning fentry_update benchmark\n")
+        # output=prog_test('./fentry_update', args.interface, args.time, args.event)
+        # if output:
+        #     if args.csv:
+        #         csv_output(output)
+        #     else: 
+        #         pretty_output(output)
                 
     except Exception as e:
         print(f"An error occurred: {e}")

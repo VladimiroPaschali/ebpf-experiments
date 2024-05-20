@@ -13,7 +13,7 @@
 // #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 //  this is needed because of the way the metrics are defined
 // ARRAY SIZE not work with extern
-#define METRICS_NR 6
+#define METRICS_NR 7
 
 #define MAX_METRICS 8
 #define MAX_PSECTIONS 8
@@ -72,6 +72,12 @@ static int event__disable(struct event *event, int cpu)
     {
         return -1;
     }
+
+    if (event->name[0] == 'r') // this mean that it was allocated with malloc
+    {
+        free(event); 
+    }
+
     event->enabled = 0;
     return 0;
 }

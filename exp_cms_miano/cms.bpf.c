@@ -36,9 +36,6 @@
 /* ANDREA */
 // giving program all the defs that are passed through bcc
 #define _OUTPUT_INTERFACE_IFINDEX 0
-#define _CS_ROWS 4
-// #define _CS_COLUMNS 1048576
-#define _CS_COLUMNS 16
 
 #define _ACTION_DROP 1
 

@@ -1,4 +1,4 @@
-all: clean balancer.bpf.o #balancer.o
+all: clean balancer.bpf.o balancer_kfunc.bpf.o
 clean: 
 	-rm -f *.o
 	-rm -f *.skel.h

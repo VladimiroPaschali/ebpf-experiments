@@ -42,22 +42,21 @@ struct histogram
         __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                                                                 \
         __uint(pinning, LIBBPF_PIN_BY_NAME);                                                                           \
     } percpu_output SEC(".maps");                                                                                      \
-    struct                                                                                                             \
-    {                                                                                                                  \
-        __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                                       \
-        __type(key, __u32);                                                                                            \
-        __type(value, struct histogram);                                                                               \
-        __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                                                                 \
-        __uint(pinning, LIBBPF_PIN_BY_NAME);                                                                           \
-    } percpu_hist SEC(".maps");                                                                                        \
+    /*struct      {                                                                                                    \
+                   __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                            \
+                   __type(key, __u32);                                                                                 \
+                   __type(value, struct histogram);                                                                    \
+                   __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                                                      \
+                   __uint(pinning, LIBBPF_PIN_BY_NAME);                                                                \
+               } percpu_hist SEC(".maps");           */                                                                \
                                                                                                                        \
-    struct                                                                                                             \
-    {                                                                                                                  \
-        __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                                       \
-        __type(key, __u32);                                                                                            \
-        __type(value, __u64);                                                                                          \
-        __uint(max_entries, 1);                                                                                        \
-    } out SEC(".maps");
+    /*     struct                                                                                                      \
+        {                                                                                                              \
+            __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                                   \
+            __type(key, __u32);                                                                                        \
+            __type(value, __u64);                                                                                      \
+            __uint(max_entries, 1);                                                                                    \
+        } out SEC(".maps"); */
 
 #define DEFINE_SECTIONS(...) const char __sections[MAX_ENTRIES_PERCPU_ARRAY][15] = {__VA_ARGS__};
 
@@ -69,7 +68,7 @@ struct histogram
     struct record_array *sec_name = {0};                                                                               \
     __u32 key_##sec_name = __COUNTER__;                                                                                \
     sec_name = bpf_map_lookup_elem(&percpu_output, &key_##sec_name);                                                   \
-    if (sec_name && sec_name->name[0] != 0)                                                                            \
+    if (sec_name && sec_name->name[0] != '\0')                                                                         \
     {                                                                                                                  \
         value_##sec_name = bpf_mykperf__rdpmc(sec_name->counter);                                                      \
     }
@@ -110,7 +109,6 @@ struct histogram
     __u64 value_##sec_name = 0;                                                                                        \
     struct record_array *sec_name = {0};                                                                               \
     __u32 key_##sec_name = __COUNTER__;                                                                                \
-    struct histogram *sec_name##_histogram = bpf_map_lookup_elem(&percpu_hist, &key_##sec_name);                       \
     if (UNLIKELY(run_cnt % __sample_rate == 0))                                                                        \
     {                                                                                                                  \
         sec_name = bpf_map_lookup_elem(&percpu_output, &key_##sec_name);                                               \

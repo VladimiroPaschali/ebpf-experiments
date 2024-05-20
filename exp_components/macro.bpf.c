@@ -5,6 +5,7 @@
 #include <bpf/bpf_endian.h>
 
 #include "mykperf_module.h"
+
 BPF_MYKPERF_INIT_TRACE();
 DEFINE_SECTIONS("main");
 

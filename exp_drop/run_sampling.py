@@ -32,8 +32,12 @@ def exp_sampling(sampling):
             subprocess.check_output('make', cwd="../loader",shell=True)
             subprocess.check_output('chmod go+w *.o', shell=True)
     
+    cpu=subprocess.check_output(f'sudo /opt/script_interrupts.sh {INTERFACE}',shell=True)
+    cpu=cpu.decode().strip().strip()
+    print("CPU =",cpu)
 
-    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -s {sampling} -c -C 21 -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
+    # print(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -s {sampling} -c -C {cpu} -a"')
+    loader_stats_output = subprocess.Popen(f'sudo -E bash -c "export LD_LIBRARY_PATH={LIBBPF_PATH}; {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e {evento} -s {sampling} -c -C {cpu} -a"',stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}" | cut -d" " -f12,14',shell=True)
     out=out.decode()
@@ -59,7 +63,7 @@ def exp_sampling(sampling):
     print(errors)
 
     value= re.findall(r".*main: (\d*.*\d).*- (\d*.*\d).*", output)[0][0]
-    print(value)
+    # print(value)
     value = value.split(" ")[-1]
     
     throughput = (newvalue_runcnt-oldvalue_runcnt)//TIME
@@ -100,6 +104,7 @@ def parser():
     TIME = args.time
     PERF_PATH=args.perf
     LIBBPF_PATH=args.libbpf
+    SAMPLING=args.sampling.split(",")
 
 def main():
     try:
