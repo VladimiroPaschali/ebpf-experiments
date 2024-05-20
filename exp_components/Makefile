@@ -1,8 +1,8 @@
 MACRO := macro
 PARSE := drop
 KFUNC := kfunc
-FENTRY_READ := fentry.read
-FENTRY_UPDATE_MAP := fentry.update
+FENTRY_READ := fentry_read
+FENTRY_UPDATE_MAP := fentry_update
 KHEADER := ../inxpect/kperf_
 
 .PHONY: all clean

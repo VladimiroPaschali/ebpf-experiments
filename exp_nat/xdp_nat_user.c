@@ -41,7 +41,7 @@ static int load_config()
         key.src |= i;
 
         // populate the key with the fixed fields
-        key.dst = ((((second_field + rand()) % 253) + 1) << 8) | PUB_SUBNET;
+        key.dst = (((second_field + (rand() % 127) % 254) + 1) << 8) | PUB_SUBNET;
         key.dst |= (i + 1);
         key.port16[0] = rand() % 65535;
         key.port16[1] = rand() % 65535;
@@ -51,6 +51,21 @@ static int load_config()
         value.addr = value.addr + ((rand() % 254) << 8) | PRIV_SUBNET;
         value.addr |= i;
         value.port = rand() % 65535;
+
+        // print dst and src ips
+
+        printf("src: %d.%d.%d.%d\n", key.src & 0xff, (key.src >> 8) & 0xff, (key.src >> 16) & 0xff,
+               (key.src >> 24) & 0xff);
+
+        printf("dst: %d.%d.%d.%d\n", key.dst & 0xff, (key.dst >> 8) & 0xff, (key.dst >> 16) & 0xff,
+               (key.dst >> 24) & 0xff);
+
+        // check if there are dst and src with the same 2 fields
+        if ((key.src & 0x0000ff00) == (key.dst & 0x0000ff00))
+        {
+            printf("ERR: src and dst have the same 2 fields\n");
+            return -1;
+        }
 
         // insert the key-value pair in the map
         /*   err = bpf_map_update_elem(bpf_map__fd(skel->maps.nat_binding_table), &key, &value, 0);
@@ -125,8 +140,8 @@ int main(int argc, char **argv)
     signal(SIGINT, exit_);
     signal(SIGTERM, exit_);
 
-    for (;;)
-        pause();
+    /*   for (;;)
+          sleep(); */
 
     return 0;
 }

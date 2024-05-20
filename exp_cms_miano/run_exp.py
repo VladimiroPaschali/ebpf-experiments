@@ -125,6 +125,7 @@ def perf():
     #reads PIPE stdout and stderr
     output, ris = perf.communicate()
     ris = ris.splitlines()
+    print(ris)
     riga = ris[3].decode("utf-8").split(" ")
     #rimuove stringhe vuote "" dalla lista
     riga = list(filter(bool, riga))

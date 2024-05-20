@@ -50,7 +50,7 @@ static inline void fexit_update_maps(__u32 id, struct bpf_perf_event_value *afte
 }
 
 SEC("fentry/XXX")
-int BPF_PROG(fentry_XXX)
+int BPF_PROG(fentry_update)
 {
     __u32 cpu = bpf_get_smp_processor_id();
     struct bpf_perf_event_value value = {0};

@@ -9,7 +9,7 @@ struct
 } perf_map SEC(".maps");
 
 SEC("fentry/XXX")
-int BPF_PROG(fentry_XXX)
+int BPF_PROG(fentry_read)
 {
     __u32 cpu = bpf_get_smp_processor_id();
     struct bpf_perf_event_value value = {0};

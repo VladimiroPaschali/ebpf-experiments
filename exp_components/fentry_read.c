@@ -8,7 +8,7 @@
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 
-#include "fentry.read.skel.h"
+#include "fentry_read.skel.h"
 #include "drop.skel.h"
 
 int if_index = 0;

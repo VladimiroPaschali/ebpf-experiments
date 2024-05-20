@@ -9,7 +9,7 @@
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 
-#include "fentry.update.skel.h"
+#include "fentry_update.skel.h"
 #include "drop.skel.h"
 
 int if_index = 0;
