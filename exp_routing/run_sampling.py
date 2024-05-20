@@ -114,7 +114,7 @@ def main():
             subprocess.check_output('chmod go+w *.o', shell=True)
             subprocess.check_output('chmod go+w *.h', shell=True)
 
-        for i in range(10):
+        for i in range(20):
             # 1 = 100%
             # 10 = 10%
             # 100 = 1%
