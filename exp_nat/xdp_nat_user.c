@@ -33,37 +33,24 @@ static int load_config()
     int err;
     int count_err = 0;
     // generate the default values
-    for (int i = 0; i < 255; i++)
+
+    for (int i = 0; i < 255; i += 2)
     {
+        int second_field = rand() % 254;
+        key.src = (second_field << 8) | PUB_SUBNET;
+        key.src |= i;
+
         // populate the key with the fixed fields
-        key.src = PUB_SUBNET + i + ((rand() % 254) << 8);
-        key.dst = PUB_SUBNET + (i + 1);
-        key.dst = key.dst + ((rand() % 254) << 8);
+        key.dst = ((((second_field + rand()) % 253) + 1) << 8) | PUB_SUBNET;
+        key.dst |= (i + 1);
         key.port16[0] = rand() % 65535;
         key.port16[1] = rand() % 65535;
         key.proto = UDP_PROTO; //(i % 2) ? TCP_PROTO : UDP_PROTO;
 
         // populate the value with the fixed fields
-        value.addr = PRIV_SUBNET + i;
-        value.addr = value.addr + ((rand() % 254) << 8);
+        value.addr = value.addr + ((rand() % 254) << 8) | PRIV_SUBNET;
+        value.addr |= i;
         value.port = rand() % 65535;
-
-        if (i % 10)
-        {
-            unsigned char bytes[4];
-            bytes[0] = key.dst & 0xFF;
-            bytes[1] = (key.dst >> 8) & 0xFF;
-            bytes[2] = (key.dst >> 16) & 0xFF;
-            bytes[3] = (key.dst >> 24) & 0xFF;
-            printf("%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
-            printf("key.dst: %d\n", key.dst);
-            printf("key.port16[0]: %d\n", key.port16[0]);
-            printf("key.port16[1]: %d\n", key.port16[1]);
-            printf("key.proto: %d\n", key.proto);
-            printf("value.addr: %d\n", value.addr);
-            printf("value.port: %d\n", value.port);
-            printf("\n");
-        }
 
         // insert the key-value pair in the map
         /*   err = bpf_map_update_elem(bpf_map__fd(skel->maps.nat_binding_table), &key, &value, 0);

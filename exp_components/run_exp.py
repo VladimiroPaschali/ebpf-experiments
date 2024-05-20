@@ -173,6 +173,21 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str):
     kill_background_process(prog_name)
     return value, (run_cnt_new - run_cnt)
 
+def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, v : bool = False):
+    output = []
+    
+    for _ in range(reps):
+        output.append(prog_test(prog_path, ifname, t, event))
+        sleep(0.5)
+        if v:
+            pretty_output(output[-1])
+    
+    # do avg
+    
+    
+    return output
+    
+
 def main():
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
@@ -180,6 +195,7 @@ def main():
     parser.add_argument("-i", "--interface", help = "Interface name (default:ens2f1np1)",metavar="ens2f1np1", required = False, default = "ens2f1np1")
     parser.add_argument("-c", "--cpu", help = "CPU number (default:21)", metavar="21", type=int, required = False, default = 21)
     parser.add_argument("--csv", help = "Output in CSV format", action="store_true")
+    parser.add_argument("-r", "--reps", help = "Number of repetitions", metavar="1", type=int, required = False, default = 1)
     args = parser.parse_args()
 
     print(f"CPU: {args.cpu}\n, Interface: {args.interface}\n, Event: {args.event}\n, Time: {args.time}s\n")
