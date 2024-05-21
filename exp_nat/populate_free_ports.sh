@@ -1,8 +1,8 @@
 
 
-input="keys-reduced.txt"
+input="keys.txt"
 while IFS= read -r line
 do
-	echo "$line"
+	#echo "$line"
 	sh -c '$line'
 done < "$input"

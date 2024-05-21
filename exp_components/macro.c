@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
     free(record_list);
 
-    int err = bpf_xdp_attach(if_index, bpf_program__fd(skel->progs.macro), 0, NULL);
+    err = bpf_xdp_attach(if_index, bpf_program__fd(skel->progs.macro), 0, NULL);
     if (err)
     {
         fprintf(stderr, "Failed to attach BPF program\n");

@@ -40,8 +40,6 @@ static inline void fexit_update_maps(__u32 id, struct bpf_perf_event_value *afte
         diff.enabled = after->enabled - before->enabled;
         diff.running = after->running - before->running;
 
-        bpf_printk("value: %d", diff.counter);
-
         accum = bpf_map_lookup_elem(&acc_map, &id);
         if (accum)
         {

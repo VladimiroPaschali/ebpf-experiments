@@ -8,7 +8,7 @@ KHEADER := ../inxpect/kperf_
 .PHONY: all clean
 .SILENT: drop kfunc macro fentry_perf_read fentry_update_map
 
-all: drop kfunc fentry_perf_read fentry_update_map #macro
+all: drop kfunc fentry_perf_read fentry_update_map macro
 
 drop:
 	@echo "Compiling drop test..."
@@ -33,9 +33,9 @@ macro:
 	clang \
 		-target bpf \
 		-g -w\
-		-O2 -c $(MACRO).bpf.c -o $(MACRO).bpf.o -I $(KHEADER)
+		-O2 -I $(KHEADER) -c $(MACRO).bpf.c -o $(MACRO).bpf.o
 	bpftool gen skeleton $(MACRO).bpf.o > $(MACRO).skel.h 
-	clang -lbpf $(MACRO).c -o $(MACRO).o
+	clang -lbpf $(MACRO).c -o $(MACRO).o -I $(KHEADER)
 
 fentry_perf_read:
 	@echo "Compiling fentry perf event test..."

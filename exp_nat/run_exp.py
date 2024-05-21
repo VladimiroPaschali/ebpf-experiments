@@ -161,11 +161,7 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = N
     
     prog_name = prog_path.split('/')[-1]
     
-    
-    if(prog_name.startswith("fentry")):
-        prog_id = prog__get_id_by_name("drop")
-    else:
-        prog_id = prog__get_id_by_name(prog_name)
+    prog_id = prog__get_id_by_name(prog_name)
 
     run_cnt = bpftool__get_run_cnt(prog_name)
     
@@ -179,7 +175,8 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = N
 def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
     output = []
     avgs = []
-    for _ in range(reps):
+    for i in range(reps):
+        print(f"{i+1}/{reps}", end='\r')
         output.append(prog_test(prog_path, ifname, t, event, cpu))
         avgs.append(output[-1][0] / output[-1][1])
         sleep(1)
@@ -210,53 +207,9 @@ def main():
     print(f"> CPU: {args.cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
     
     try:
-        # init()
-        
-        
-        print("\nCompiling all programs\n")
-        # make_all()
-        
-        # BASELINE
-        print("\nRunning baseline benchmark\n")
-        output = do_reps('./drop', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
-            
-        sleep(1)
-        
-        # MACRO
-        print("\nRunning macro benchmark\n")
-        output = do_reps('./macro', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
-            
-        sleep(1)
-
-        # KFUNC
-        print("\nRunning kfunc benchmark\n")
-        output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
-        
-        sleep(1)
-    
-        # # CMS
-        # print("\nRunnin cms benchmark\n")
-        # output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
-
-        # FENTRY
-        print("\nRunning fentry benchmark\n")
-        output=do_reps('./fentry', args.interface, args.time, args.event, args.reps, args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
-        
-        # FENTRY READ
-        print("\nRunning fentry_read benchmark\n")
-        output=do_reps('./fentry_read', args.interface, args.time, args.event, args.reps, args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
-                
-        sleep(1)
-        
-        # # FENTRY UPDATE
-        print("\nRunning fentry_update benchmark\n")
-        output=do_reps('./fentry_update', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
+        # NAT
+        print("\nRunning nat benchmark\n")
+        output=do_reps('./xdp_nat', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
         print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
                 
     except Exception as e:
