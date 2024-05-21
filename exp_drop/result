@@ -1,9 +1,9 @@
 drop: 
-baseline: throughput = 14956256 PPS latency = 11 ns
-perf: throughput = 3724547 PPS latency = 187 ns
-perf L1-dcache-load-misses per packet: 0.06060986094578901
+baseline: throughput = 15072593 PPS latency = 11 ns
+perf: throughput = 3691694 PPS latency = 188 ns
+perf L1-dcache-load-misses per packet: 0.04513848830874214
 drop_kfunc: 
-kfunc: throughput = 10017239 PPS latency = 35 ns
-kfunc L1-dcache-load-misses per packet: 0.7288424892790323
-perf: throughput = 3533268 PPS latency = 199 ns
-perf L1-dcache-load-misses per packet: 0.035966976643074064
+kfunc: throughput = 7342237 PPS latency = 56 ns
+kfunc L1-dcache-load-misses per packet: 0.5480669223262506
+perf: throughput = 3123667 PPS latency = 235 ns
+perf L1-dcache-load-misses per packet: 0.03399456145665705

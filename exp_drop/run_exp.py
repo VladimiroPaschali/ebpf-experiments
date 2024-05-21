@@ -169,22 +169,23 @@ def kfunc():
 
     #oldvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}" | cut -d" " -f12,14',shell=True)
-    out=out.decode()
-    # print(out,EXPERIMENT_NAME)
-    oldvalue_time = int(out.split(" ")[0])
-    #oldvalue_runcnt
-    oldvalue_runcnt = int(out.split(" ")[1])
+    old=out.decode()
+    
 
     time.sleep(TIME)
     #newvalue_time
     out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
     out=out.decode()
-    newvalue_time = int(out.split(" ")[0])
-    #newvalue_runcnt
-    newvalue_runcnt = int(out.split(" ")[1])
     
     # close loader_stats FRACNESCO
     subprocess.check_output('sudo pkill inxpect', shell=True)
+    # print(out,EXPERIMENT_NAME)
+    oldvalue_time = int(old.split(" ")[0])
+    #oldvalue_runcnt
+    oldvalue_runcnt = int(old.split(" ")[1])
+    newvalue_time = int(out.split(" ")[0])
+    #newvalue_runcnt
+    newvalue_runcnt = int(out.split(" ")[1])
     # retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")

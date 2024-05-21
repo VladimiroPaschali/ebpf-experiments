@@ -11,7 +11,7 @@
 #include <sys/syscall.h>
 
 #include "fentry_update.skel.h"
-#include "drop.skel.h"
+#include "../drop.skel.h"
 
 int if_index = 0;
 struct drop_bpf *skel_drop;

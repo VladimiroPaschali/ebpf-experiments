@@ -174,26 +174,30 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = N
     run_cnt_new = bpftool__get_run_cnt(prog_name)
     
     kill_background_process(prog_name)
-    return value, (run_cnt_new - run_cnt)
+    return value, (run_cnt_new - run_cnt) 
 
 def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
     output = []
     avgs = []
-    for _ in range(reps):
+    throughput = []
+    for i in range(reps):
+        print(f"{i+1}/{reps}" ,end='\r')
         output.append(prog_test(prog_path, ifname, t, event, cpu))
         avgs.append(output[-1][0] / output[-1][1])
+        throughput.append(output[-1][1] / t)
         sleep(1)
         if v:
             pretty_output(output[-1])
     
     total_avg = sum(avgs) / len(avgs)
+    throughput_avg = sum(throughput) / len(throughput)
     
     # do error
     dev_sum = sum([abs((x - total_avg)) for x in avgs])
     mean_dev = dev_sum / len(avgs)
     
     
-    return  (total_avg, mean_dev)
+    return  (total_avg, mean_dev, throughput_avg)
     
 
 def main():
@@ -219,45 +223,48 @@ def main():
         # BASELINE
         print("\nRunning baseline benchmark\n")
         output = do_reps('./drop', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
             
         sleep(1)
         
         # MACRO
         print("\nRunning macro benchmark\n")
         output = do_reps('./macro', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+
             
         sleep(1)
 
         # KFUNC
         print("\nRunning kfunc benchmark\n")
         output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
         sleep(1)
     
         # # CMS
         # print("\nRunnin cms benchmark\n")
         # output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
 
         # FENTRY
         print("\nRunning fentry benchmark\n")
         output=do_reps('./fentry', args.interface, args.time, args.event, args.reps, args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
+        sleep(1)
+
         # FENTRY READ
         print("\nRunning fentry_read benchmark\n")
         output=do_reps('./fentry_read', args.interface, args.time, args.event, args.reps, args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
         sleep(1)
         
         # # FENTRY UPDATE
         print("\nRunning fentry_update benchmark\n")
         output=do_reps('./fentry_update', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
     except Exception as e:
         print(f"An error occurred: {e}")

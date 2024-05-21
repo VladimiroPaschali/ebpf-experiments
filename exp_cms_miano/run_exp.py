@@ -282,19 +282,18 @@ def main():
             perf()
 
             experiment.terminate()
-        EXPERIMENT_NAME = old_EXPERIMENT_NAME
 
-        EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
-        print(f"Start {EXPERIMENT_NAME}")
+            EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
+            print(f"Start {EXPERIMENT_NAME}")
 
-        command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
-        experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
-        
-        kfunc()
+            command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
+            experimentkfunc = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
+            
+            kfunc()
 
-        print(f"Start {EXPERIMENT_NAME} perf")
-        perf()
-        experimentkfunc.terminate()
+            print(f"Start {EXPERIMENT_NAME} perf")
+            perf()
+            experimentkfunc.terminate()
     except KeyboardInterrupt:
         print("Interrupted")
     

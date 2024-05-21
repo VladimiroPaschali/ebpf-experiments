@@ -1,8 +1,9 @@
 MACRO := macro
 PARSE := drop
 KFUNC := kfunc
-FENTRY_READ := fentry_read
-FENTRY_UPDATE_MAP := fentry_update
+FENTRY_READ := fentry/fentry_read
+FENTRY_UPDATE_MAP := fentry/fentry_update
+FENTRY := fentry/fentry
 KHEADER := ../inxpect/kperf_
 
 .PHONY: all clean
@@ -36,6 +37,15 @@ macro:
 		-O2 -I $(KHEADER) -c $(MACRO).bpf.c -o $(MACRO).bpf.o
 	bpftool gen skeleton $(MACRO).bpf.o > $(MACRO).skel.h 
 	clang -lbpf $(MACRO).c -o $(MACRO).o -I $(KHEADER)
+
+fentry:
+	@echo "Compiling fentry test..."
+	clang \
+		-target bpf \
+		-g -w\
+		-O2 -c $(FENTRY).bpf.c -o $(FENTRY).bpf.o -I $(KHEADER)
+	bpftool gen skeleton $(FENTRY).bpf.o > $(FENTRY).skel.h 
+	clang -lbpf $(FENTRY).c -o $(FENTRY).o
 
 fentry_perf_read:
 	@echo "Compiling fentry perf event test..."
