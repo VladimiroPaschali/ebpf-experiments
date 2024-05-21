@@ -9,48 +9,16 @@
 #include <linux/ipv6.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
+#include <stdbool.h>
+//#include <bpf/libbpf.h>
 #include "fw.bpf.h"
 
-
-//#define DEBUG 1
-#ifdef  DEBUG
-
-#define bpf_debug(fmt, ...)						\
-			({							\
-				char ____fmt[] = fmt;				\
-				bpf_trace_printk(____fmt, sizeof(____fmt),	\
-				##__VA_ARGS__);			\
-			})
-#else
-#define bpf_debug(fmt, ...) { } while (0)
-#endif
 
 
 struct cms {
 	__u32 data[4][32];
 };
-static inline void biflow(struct flow_ctx_table_key *flow_key){
-	__u32 swap;
-	if (flow_key->ip_src > flow_key->ip_dst){
-		swap = flow_key->ip_src;
-		flow_key->ip_src = flow_key->ip_dst;
-		flow_key->ip_dst = swap;
-	}
 
-	if (flow_key->l4_src  > flow_key->l4_dst){
-		swap = flow_key->l4_src;
-		flow_key->l4_src = flow_key->l4_dst;
-		flow_key->l4_dst = swap;
-	}
-
-}
-
-struct {
-	__uint(type,BPF_MAP_TYPE_DEVMAP);
-	__uint(max_entries,10);
-	__type(key, __u32);
-	__type(value, struct cms);
-} tx_port SEC(".maps");
 
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
@@ -59,6 +27,35 @@ struct {
 	__type(value, struct flow_ctx_table_key);
 } flow_ctx_table SEC(".maps");
 
+inline void insert_key(struct flow_ctx_table_key* flow_key) {
+	// swap src and dest
+	__u32 temp;
+	__u16 temp1;
+	temp = flow_key->ip_dst;
+	flow_key->ip_dst = flow_key->ip_src;
+	flow_key->ip_src = temp;
+	flow_key->l4_dst = temp1;
+	flow_key->l4_dst = flow_key->l4_src;
+	flow_key->l4_src = temp1;
+	bpf_map_update_elem(&flow_ctx_table,flow_key,flow_key,BPF_ANY);
+	return;
+}
+
+inline bool check_key(struct flow_ctx_table_key* flow_key) {
+	struct flow_ctx_table_key *value;
+	value = bpf_map_lookup_elem(&flow_ctx_table,flow_key);
+	if (value) {
+		return true;
+	}
+	return false;
+}
+
+#define DEBUG 0
+#if DEBUG==0
+#define bpf_debug(...) 
+#else
+#define bpf_debug(...) bpf_printk(__VA_ARGS__)
+#endif
 
 SEC("xdp")
 int fw(struct xdp_md *ctx)
@@ -67,9 +64,7 @@ int fw(struct xdp_md *ctx)
 	void* data_end = (void*)(long)ctx->data_end;
 	void* data         = (void*)(long)ctx->data;
 	
-	struct flow_ctx_table_leaf new_flow = {0};
 	struct flow_ctx_table_key flow_key  = {0};
-	struct flow_ctx_table_leaf *flow_leaf;
 
 	struct ethhdr *ethernet;
 	struct iphdr       *ip;
@@ -130,31 +125,20 @@ l4: {
 	flow_key.l4_src = l4->source;
 	flow_key.l4_dst = l4->dest;
 
-	biflow(&flow_key);
-	
 
+	if (is_internal_ip(&flow_key)) {
+		// add key to the table
+		insert_key(&flow_key);
+		return XDP_TX;
 
-
-	if (ingress_ifindex == B_PORT){
-		flow_leaf = bpf_map_lookup_elem(&flow_ctx_table, &flow_key);
-			
-		if (flow_leaf)
-			return bpf_redirect_map(&tx_port,flow_leaf->out_port, 0);
-		else 
+	} else if (is_external_ip(&flow_key)) {
+		// check if the key is available inside the map
+		if (check_key(&flow_key)) {
+			return XDP_TX;
+		} else {
 			return XDP_DROP;
-	} else {
-		flow_leaf = bpf_map_lookup_elem(&flow_ctx_table, &flow_key);
-			
-		if (!flow_leaf){
-			new_flow.in_port = B_PORT;
-			new_flow.out_port = A_PORT; //ctx->ingress_ifindex ;
-			bpf_map_update_elem(&flow_ctx_table, &flow_key, &new_flow, BPF_ANY);
 		}
-		
-		return bpf_redirect_map(&tx_port, B_PORT, 0);
 	}
-
-
 EOP:
 	return XDP_DROP;
 
