@@ -37,6 +37,7 @@ int prog_fd = -1;
 // threads
 pthread_t thread_printer;                    // poll_print_stats
 pthread_t threads_poll_stats[MAX_PSECTIONS]; // poll_stats
+int duration;
 
 // percpu map
 int percpu_output_fd = -1;
@@ -322,6 +323,8 @@ static void poll_print_stats()
 static void poll_stats(int key) // key is the id thread
 {
     int err;
+    time_t start = time(NULL);
+
     struct record_array thread_stats[libbpf_num_possible_cpus()];
     while (1)
     {

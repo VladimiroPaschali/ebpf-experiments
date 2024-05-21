@@ -12,7 +12,7 @@ SEC("xdp") int drop_sr(struct xdp_md *ctx)
 
     BPF_MYKPERF_END_TRACE_ARRAY(main);
 
-    COUNT_RUN;
+    //COUNT_RUN;
     return XDP_DROP;
 }
 

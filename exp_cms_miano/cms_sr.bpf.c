@@ -259,7 +259,7 @@ DROP:
     //        bpf_ringbuf_submit(event, BPF_RB_NO_WAKEUP);
     //}
     BPF_MYKPERF_END_TRACE_ARRAY(main);
-    COUNT_RUN;
+    //COUNT_RUN;
 
     return XDP_DROP;
 }

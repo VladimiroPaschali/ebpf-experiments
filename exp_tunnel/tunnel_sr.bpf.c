@@ -171,7 +171,7 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 
     // count_tx(vip.protocol);
     BPF_MYKPERF_END_TRACE_ARRAY(main);
-    COUNT_RUN;
+    //COUNT_RUN;
 
     return XDP_TX;
 }

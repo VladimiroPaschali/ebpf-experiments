@@ -59,7 +59,7 @@ DEFINE_SECTIONS("main");
 #define BPF_PERCPU_ARRAY(name, entry, count)                                                                           \
     struct                                                                                                             \
     {                                                                                                                  \
-        __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                                       \
+        __uint(type, BPF_MAP_TYPE_ARRAY);                                                                       \
         __uint(max_entries, (count));                                                                                  \
         __type(key, __u32);                                                                                            \
         __type(value, (entry));                                                                                        \

@@ -143,7 +143,7 @@ int cms_sr(struct xdp_md *ctx)
 
 end:
     BPF_MYKPERF_END_TRACE_ARRAY(main);
-    COUNT_RUN;
+    //COUNT_RUN;
     return XDP_DROP;
 }
 
