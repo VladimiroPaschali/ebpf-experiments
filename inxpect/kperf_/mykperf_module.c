@@ -43,12 +43,23 @@ static struct class *mykperf_class = NULL;
 __bpf_kfunc __u64 bpf_mykperf__rdpmc(__u8 counter)
 {
     __u64 ret = 0;
+    asm volatile("lfence" : : : "memory");
     rdpmcl(counter, ret);
+    //cpuid_eax(0);
+    asm volatile("lfence" : : : "memory");
+    return ret;
+}
+
+__bpf_kfunc __u64 bpf_mykperf__rdtsc(void)
+{
+    __u64 ret = 0;
+    ret = rdtsc();
     return ret;
 }
 
 BTF_SET8_START(bpf_task_set)
 BTF_ID_FLAGS(func, bpf_mykperf__rdpmc)
+BTF_ID_FLAGS(func, bpf_mykperf__rdtsc)
 BTF_SET8_END(bpf_task_set)
 
 static const struct btf_kfunc_id_set bpf_task_kfunc_set = {

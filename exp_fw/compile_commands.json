@@ -1,0 +1,28 @@
+[
+ {
+  "directory": "/opt/ebpf-experiments/exp_fw",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-O2",
+   "-g",
+   "-c",
+   "fw.bpf.c",
+   "-o",
+   "fw.bpf.o"
+  ],
+  "file": "fw.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_fw",
+  "arguments": [
+   "clang",
+   "-lbpf",
+   "fw.c",
+   "-o",
+   "fw.o"
+  ],
+  "file": "fw.c"
+ }
+]

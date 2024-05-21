@@ -17,8 +17,8 @@
 #define SKB_REJECT 0
 
 #define _CS_ROWS 4
-// #define _CS_COLUMNS 1048576
-#define _CS_COLUMNS 8192
+#define _CS_COLUMNS 1048576
+// #define _CS_COLUMNS 8192
 
 #define ETH_P_IP 0x0800
 #define ETH_P_IPV6 0x86DD

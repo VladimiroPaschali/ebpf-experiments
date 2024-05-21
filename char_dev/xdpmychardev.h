@@ -33,7 +33,7 @@ struct record_array
         __uint(pinning, LIBBPF_PIN_BY_NAME);                                                                           \
     } percpu_output SEC(".maps");
 
-#define COUNT_RUN __sync_fetch_and_add(&run_cnt, 1);
+#define //COUNT_RUN __sync_fetch_and_add(&run_cnt, 1);
 
 // ------------------------- ARRAY MAP -------------------------------
 #define BPF_MYKPERF_START_TRACE_ARRAY(sec_name) __u64 value_##sec_name = bpf_mykperf_rdmsr(reg_counter);

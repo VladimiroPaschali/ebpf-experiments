@@ -26,40 +26,23 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 #include <linux/types.h>
-// #include <netinet/in.h>
 #include <stdint.h>
 
-// #include <uapi/linux/bpf.h>
-// #include <uapi/linux/filter.h>
-// #include <uapi/linux/icmp.h>
-// #include <uapi/linux/if_arp.h>
-// #include <uapi/linux/if_ether.h>
-// #include <uapi/linux/if_packet.h>
-// #include <uapi/linux/in.h>
-// #include <uapi/linux/ip.h>
-// #include <uapi/linux/pkt_cls.h>
-// #include <uapi/linux/tcp.h>
-// #include <uapi/linux/udp.h>
-// #include <linux/if_vlan.h>
 #include <bpf/bpf_helpers.h>
 
 #include "common.h"
 #include "fasthash.h"
 
-// Inxpect
-#include "mykperf_module.h"
-
-BPF_MYKPERF_INIT_TRACE();
-DEFINE_SECTIONS("main");
-
 /* ANDREA */
 // giving program all the defs that are passed through bcc
 #define _OUTPUT_INTERFACE_IFINDEX 0
 
+#define _ACTION_DROP 1
+
 #define BPF_PERCPU_ARRAY(name, entry, count)                                                                           \
     struct                                                                                                             \
     {                                                                                                                  \
-        __uint(type, BPF_MAP_TYPE_ARRAY);                                                                       \
+        __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);                                                                       \
         __uint(max_entries, (count));                                                                                  \
         __type(key, __u32);                                                                                            \
         __type(value, (entry));                                                                                        \
@@ -105,7 +88,6 @@ struct pkt_md
 
 struct
 {
-    //__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(max_entries, 1);
     __type(key, __u32);
@@ -133,23 +115,36 @@ static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 
 
     _Static_assert(ARRAY_SIZE(hashes) == HASHFN_N, "Missing hash function");
 
-    for (int i = 0; i < ARRAY_SIZE(hashes); i++)
-    {
-        __u32 target_idx = hashes[i] & (COLUMNS - 1);
-        NO_TEAR_ADD(cm->values[i][target_idx], 1);
-    }
+    // for (int i = 0; i < ARRAY_SIZE(hashes); i++)
+    // {
+    //     __u32 target_idx = hashes[i] & (COLUMNS - 1);
+    //     NO_TEAR_ADD(cm->values[i][target_idx], 1);
+    // }
+    __u32 target_idx0 = hashes[0] & (COLUMNS - 1);
+    __u32 target_idx1= hashes[1] & (COLUMNS - 1);
+    __u32 target_idx2 = hashes[2] & (COLUMNS - 1);
+    __u32 target_idx3 = hashes[3] & (COLUMNS - 1);
+
+    __u8 val0 = cm->values[0][target_idx0];
+    __u8 val1 = cm->values[1][target_idx1];
+    __u8 val2 = cm->values[2][target_idx2];
+    __u8 val3 = cm->values[3][target_idx3];
+
+    cm->values[0][target_idx0] = val0 + 1;
+    cm->values[1][target_idx1] = val1 + 1;
+    cm->values[2][target_idx2] = val2 + 1;
+    cm->values[3][target_idx3] = val3 + 1;
+
 
     return;
 }
 
 SEC("xdp")
-int cms_kfunc(struct xdp_md *ctx)
+int cms_meglio(struct xdp_md *ctx)
 {
 
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
-
 
     uint64_t nh_off = 0;
     struct eth_hdr *eth = data;
@@ -158,7 +153,6 @@ int cms_kfunc(struct xdp_md *ctx)
         goto DROP;
 
     uint16_t h_proto = eth->proto;
-
 
 // parse double vlans
 #pragma unroll
@@ -179,8 +173,8 @@ int cms_kfunc(struct xdp_md *ctx)
     {
     case htons(ETH_P_IP):
         break;
-    default: // Inxpect: we don't want to profile non-IP packets
-	goto DROP;
+    default:
+        goto DROP;
     }
 
     struct pkt_5tuple pkt;
@@ -233,12 +227,11 @@ int cms_kfunc(struct xdp_md *ctx)
 
     struct pkt_md *md;
     uint32_t index = 0;
-
     md = bpf_map_lookup_elem(&dropcnt, &index);
     // md = dropcnt.lookup(&index);
     if (md)
     {
-        // bpf_printk("updating cms");
+        // bpf_printk("updating cms_meglio");
 #ifdef _COUNT_PACKETS
         NO_TEAR_INC(md->drop_cnt);
 #else
@@ -246,26 +239,10 @@ int cms_kfunc(struct xdp_md *ctx)
         NO_TEAR_ADD(md->bytes_cnt, pkt_len);
 #endif
     }
-    //END_TEST(0);
-
-
 
 DROP:
     // bpf_printk("Error. Dropping packet\n");
-
-    //if (event) {
-    //	    __u64 end = bpf_mykperf__rdpmc(0);
-    //        *event = end - start;
-    //        bpf_ringbuf_submit(event, BPF_RB_NO_WAKEUP);
-    //}
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
     return XDP_DROP;
-}
-
-// This is only used when the action is redirect
-int xdp_dummy(struct xdp_md *ctx)
-{
-    return XDP_PASS;
 }
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";

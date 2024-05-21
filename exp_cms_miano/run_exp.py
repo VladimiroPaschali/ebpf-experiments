@@ -246,41 +246,43 @@ def main():
             subprocess.check_output('chmod go+w *.h', shell=True)
 
         global EXPERIMENT_NAME
-        # for EXPERIMENT_NAME in [EXPERIMENT_NAME, "ring_"+EXPERIMENT_NAME]:
-        print(f"Starting {EXPERIMENT_NAME}")
-        subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
-        subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
+        old_EXPERIMENT_NAME = EXPERIMENT_NAME
+        for EXPERIMENT_NAME in [EXPERIMENT_NAME, EXPERIMENT_NAME+"_meglio"]:
+            print(f"Starting {EXPERIMENT_NAME}")
+            subprocess.check_output("sudo sysctl kernel.bpf_stats_enabled=1", shell=True)
+            subprocess.check_output('echo "'+EXPERIMENT_NAME+': " | tee -a result >/dev/null', shell=True)
 
-        # my_env = {'LD_LIBRARY_PATH': '/lib64'}
-        #nuovo path di lib64
-        my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
+            # my_env = {'LD_LIBRARY_PATH': '/lib64'}
+            #nuovo path di lib64
+            my_env = {'LD_LIBRARY_PATH': LIBBPF_PATH}
 
-        cwd = os.getcwd()
-        print(cwd)
+            cwd = os.getcwd()
+            print(cwd)
 
-        command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
-        experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
+            command = f"./{EXPERIMENT_NAME}.o  {INTERFACE}"
+            experiment = subprocess.Popen(shlex.split(command),env=my_env,shell=False)
 
-        out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
-        out=out.decode()
-        while out == "\n":
-            print("No Packet received")
-            time.sleep(1.0)
             out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
             out=out.decode()
+            while out == "\n":
+                print("No Packet received")
+                time.sleep(1.0)
+                out = subprocess.check_output(f'sudo bpftool prog | egrep "name {EXPERIMENT_NAME}"  | cut -d" " -f12,14',shell=True)
+                out=out.decode()
 
 
-        print(f"Start {EXPERIMENT_NAME} Baseline")
-        baseline()
+            print(f"Start {EXPERIMENT_NAME} Baseline")
+            baseline()
 
 
-        print(f"Start {EXPERIMENT_NAME} bpftool")
-        bpftool()
+            print(f"Start {EXPERIMENT_NAME} bpftool")
+            bpftool()
 
-        print(f"Start {EXPERIMENT_NAME} perf")
-        perf()
+            print(f"Start {EXPERIMENT_NAME} perf")
+            perf()
 
-        experiment.terminate()
+            experiment.terminate()
+        EXPERIMENT_NAME = old_EXPERIMENT_NAME
 
         EXPERIMENT_NAME = EXPERIMENT_NAME+"_kfunc"
         print(f"Start {EXPERIMENT_NAME}")
