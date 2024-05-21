@@ -145,23 +145,27 @@ def prog__get_id_by_name(prog_name : str) -> int:
         print(f"An error occurred: {e}")
         return 0
 
-def prog__load_and_attach(prog_path : str, ifname : str) -> int:
-    command = f"{BASH} {prog_path}.o {ifname}\""
+def prog__load_and_attach(prog_path : str, ifname : str, cpu : int = None) -> int:
+    command = f"{BASH} {prog_path}.o {ifname} {cpu if cpu != None else ''}\""
     process = sp.Popen(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
 
     
     sleep(1)
     return process
 
-def prog_test(prog_path : str, ifname : str, t : int, event : str):
-    process = prog__load_and_attach(prog_path, ifname)
+def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = None):
+    process = prog__load_and_attach(prog_path, ifname, cpu)
     if process == -1:
         print("Error loading program")
         return None
     
     prog_name = prog_path.split('/')[-1]
     
-    prog_id = prog__get_id_by_name(prog_name)
+    
+    if(prog_name.startswith("fentry")):
+        prog_id = prog__get_id_by_name("drop")
+    else:
+        prog_id = prog__get_id_by_name(prog_name)
 
     run_cnt = bpftool__get_run_cnt(prog_name)
     
@@ -172,11 +176,11 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str):
     kill_background_process(prog_name)
     return value, (run_cnt_new - run_cnt)
 
-def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int, v : bool = False) -> tuple[int, int]:
+def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
     output = []
     avgs = []
     for _ in range(reps):
-        output.append(prog_test(prog_path, ifname, t, event))
+        output.append(prog_test(prog_path, ifname, t, event, cpu))
         avgs.append(output[-1][0] / output[-1][1])
         sleep(1)
         if v:
@@ -197,7 +201,7 @@ def main():
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
     parser.add_argument("-e", "--event", help = "Name of the event (default:instructions)",  metavar="instructions",required = False, default = "instructions")
     parser.add_argument("-i", "--interface", help = "Interface name (default:ens2f1np1)",metavar="ens2f1np1", required = False, default = "ens2f1np1")
-    parser.add_argument("-c", "--cpu", help = "CPU number (default:21)", metavar="21", type=int, required = False, default = 21)
+    parser.add_argument("-c", "--cpu", help = "CPU number (default:21)", type=int, required = False, default = None)
     parser.add_argument("--csv", help = "Output in CSV format", action="store_true")
     parser.add_argument("-r", "--reps", help = "Number of repetitions", metavar="1", type=int, required = False, default = 1)
     parser.add_argument("-v", "--verbose", help = "Verbose output", action="store_true", required = False, default = False)
@@ -217,7 +221,7 @@ def main():
         output = do_reps('./drop', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
         print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
             
-        sleep(1)
+        # sleep(1)
         
         # print("\nRunning macro benchmark\n")
         # output = do_reps('./macro', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
@@ -229,24 +233,30 @@ def main():
             
         # sleep(1)
 
-        # KFUNC
-        print("\nRunning kfunc benchmark\n")
-        output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
+        # # KFUNC
+        # print("\nRunning kfunc benchmark\n")
+        # output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
         
-        sleep(1)
-        
-        # FENTRY READ
-        print("\nRunning fentry_read benchmark\n")
-        output=do_reps('./fentry_read', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
+        # sleep(1)
+    
+        # CMS
+        # print("\nRunnin cms benchmark\n")
+        # output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
+
+
+        # # FENTRY READ
+        # print("\nRunning fentry_read benchmark\n")
+        # output=do_reps('./fentry_read', args.interface, args.time, args.event, args.reps, args.cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
                 
-        sleep(1)
+        # sleep(1)
         
-        # FENTRY UPDATE
-        print("\nRunning fentry_update benchmark\n")
-        output=do_reps('./fentry_update', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
+        # # # FENTRY UPDATE
+        # print("\nRunning fentry_update benchmark\n")
+        # output=do_reps('./fentry_update', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | \033[98mERR\033[00m: {round(output[1], 4)}")
                 
     except Exception as e:
         print(f"An error occurred: {e}")

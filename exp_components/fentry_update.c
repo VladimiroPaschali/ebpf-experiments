@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <linux/perf_event.h>
 #include <sys/ioctl.h>
+#include <time.h>
 #include <sys/syscall.h>
 
 #include "fentry_update.skel.h"
@@ -20,15 +21,15 @@ void exit_(int sig)
 {
     int err;
     err = bpf_xdp_detach(if_index, 0, 0);
-    if (err){
+    if (err)
+    {
         fprintf(stderr, "Failed to detach BPF program\n");
-        return;
+        exit(0);
     }
-
 
     drop_bpf__destroy(skel_drop);
     fentry_update_bpf__destroy(skel);
-    return;
+    exit(0);
 }
 
 int main(int argc, char *argv[])
@@ -64,24 +65,26 @@ int main(int argc, char *argv[])
     int cpu = atoi(argv[2]);
 
     skel = fentry_update_bpf__open();
-    int dst_prog = bpf_prog_get_fd_by_id(fd);
-    if (dst_prog < 0)
+    if (!skel)
     {
-        perror("Unable to open dst prog\n");
-        return -1;
+        printf("Unable to load fentry update");
+        exit_(0);
     }
+
     struct bpf_program *program;
     bpf_object__for_each_program(program, skel->obj)
     {
-        if (bpf_program__set_attach_target(program, dst_prog, argv[2]) < 0)
+        if (bpf_program__set_attach_target(program, fd, "drop") < 0)
         {
             perror("Unable to set attach tgt to dst prog\n");
+            exit_(0);
             return -1;
         }
     }
     if (fentry_update_bpf__load(skel) < 0)
     {
         perror("Unable to load prog\n");
+        exit_(0);
         return -1;
     }
 
@@ -104,6 +107,7 @@ int main(int argc, char *argv[])
         {
             return 0;
         }
+        exit_(0);
         return -1;
     }
 
@@ -111,17 +115,19 @@ int main(int argc, char *argv[])
     if (bpf_map_update_elem(map_fd, &zero, &pmu_fd, BPF_ANY) || ioctl(pmu_fd, PERF_EVENT_IOC_ENABLE, 0))
     {
         close(pmu_fd);
+        exit_(0);
         return -1;
     }
 
     if (fentry_update_bpf__attach(skel) < 0)
     {
         perror("Unable to attach prog\n");
+        exit_(0);
         return -1;
     }
 
     signal(SIGINT, exit_);
 
     while (1)
-        ;
+        sleep(1);
 }

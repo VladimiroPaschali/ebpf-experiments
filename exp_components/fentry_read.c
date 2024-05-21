@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <linux/perf_event.h>
 #include <sys/ioctl.h>
+#include <signal.h>
+#include <time.h>
 #include <sys/syscall.h>
 
 #include "fentry_read.skel.h"
@@ -17,22 +19,23 @@ struct fentry_read_bpf *skel;
 
 void exit_(int sig)
 {
+    fentry_read_bpf__detach(skel);
+
     int err;
     err = bpf_xdp_detach(if_index, 0, 0);
     if (err)
     {
         fprintf(stderr, "Failed to detach BPF program\n");
-        return;
+        exit(0);
     }
 
     drop_bpf__destroy(skel_drop);
     fentry_read_bpf__destroy(skel);
-    return;
+    exit(0);
 }
 
 int main(int argc, char *argv[])
 {
-
     // LOAD DROP
     skel_drop = drop_bpf__open();
     if (!skel_drop)
@@ -47,6 +50,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    signal(SIGINT, exit_);
+
     if_index = if_nametoindex(argv[1]);
 
     int err = bpf_xdp_attach(if_index, bpf_program__fd(skel_drop->progs.drop), 0, NULL);
@@ -59,27 +64,22 @@ int main(int argc, char *argv[])
     // LOAD ENTRY_READ
     int fd = bpf_program__fd(skel_drop->progs.drop);
 
-    int cpu = atoi(argv[2]);
-
     skel = fentry_read_bpf__open();
-    int dst_prog = bpf_prog_get_fd_by_id(fd);
-    if (dst_prog < 0)
-    {
-        perror("Unable to open dst prog\n");
-        return -1;
-    }
+
     struct bpf_program *program;
     bpf_object__for_each_program(program, skel->obj)
     {
-        if (bpf_program__set_attach_target(program, dst_prog, argv[2]) < 0)
+        if (bpf_program__set_attach_target(program, fd, "drop") < 0)
         {
             perror("Unable to set attach tgt to dst prog\n");
+            exit_(0);
             return -1;
         }
     }
     if (fentry_read_bpf__load(skel) < 0)
     {
         perror("Unable to load prog\n");
+        exit_(0);
         return -1;
     }
 
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
 
     // set map
     int pmu_fd;
+    int cpu = atoi(argv[2]);
 
     struct perf_event_attr attr = {
         .type = PERF_TYPE_HARDWARE,
@@ -102,6 +103,7 @@ int main(int argc, char *argv[])
         {
             return 0;
         }
+        exit_(0);
         return -1;
     }
 
@@ -109,15 +111,17 @@ int main(int argc, char *argv[])
     if (bpf_map_update_elem(map_fd, &zero, &pmu_fd, BPF_ANY) || ioctl(pmu_fd, PERF_EVENT_IOC_ENABLE, 0))
     {
         close(pmu_fd);
+        exit_(0);
         return -1;
     }
 
     if (fentry_read_bpf__attach(skel) < 0)
     {
         perror("Unable to attach prog\n");
+        exit_(0);
         return -1;
     }
 
     while (1)
-        ;
+        sleep(1);
 }

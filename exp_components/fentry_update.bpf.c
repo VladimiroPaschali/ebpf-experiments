@@ -5,7 +5,8 @@
 struct
 {
     __uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
-    __uint(max_entries, 1);
+    __uint(key_size, sizeof(__u32));
+    __uint(value_size, sizeof(int));
 } perf_map SEC(".maps");
 
 struct
@@ -38,6 +39,8 @@ static inline void fexit_update_maps(__u32 id, struct bpf_perf_event_value *afte
         diff.counter = after->counter - before->counter;
         diff.enabled = after->enabled - before->enabled;
         diff.running = after->running - before->running;
+
+        bpf_printk("value: %d", diff.counter);
 
         accum = bpf_map_lookup_elem(&acc_map, &id);
         if (accum)
