@@ -8,8 +8,8 @@
 #include <linux/types.h>
 
 
-#define START_PRIVATE_IP 0xC0A80000
-#define END_PRIVATE_IP 0xC0A800FF
+#define START_PRIVATE_IP 0xC0A80001
+#define END_PRIVATE_IP 0xC0A800FE
 
 
 struct flow_ctx_table_key {

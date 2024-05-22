@@ -162,7 +162,7 @@ def kfunc():
     # loader_stats_output = subprocess.Popen(f'sudo {LOADER_STATS} -n {EXPRIMENT_FUNC_NAME} -e instructions -a',env=my_env2,cwd ="../loader",stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid, shell=True)
     #myenv non va
                                                                                                                                                             #cpu
-    cpu=subprocess.check_output(f'sudo /opt/script_interrupts.sh {INTERFACE}',shell=True)
+    cpu=subprocess.check_output(f'sudo /opt/ebpf-experiments/script_interrupts.sh {INTERFACE}',shell=True)
     cpu=cpu.decode().strip()
     print("CPU =",cpu)
 

@@ -6,10 +6,10 @@ FENTRY_UPDATE_MAP := fentry/fentry_update
 FENTRY := fentry/fentry
 KHEADER := ../inxpect/kperf_
 
-.PHONY: all clean
-.SILENT: drop kfunc macro fentry_perf_read fentry_update_map
+.PHONY: all clean fentry
+.SILENT: drop kfunc macro fentry_perf_read fentry_update_map fentry
 
-all: drop kfunc fentry_perf_read fentry_update_map macro
+all: drop kfunc fentry fentry_perf_read fentry_update_map macro 
 
 drop:
 	@echo "Compiling drop test..."
@@ -43,7 +43,7 @@ fentry:
 	clang \
 		-target bpf \
 		-g -w\
-		-O2 -c $(FENTRY).bpf.c -o $(FENTRY).bpf.o -I $(KHEADER)
+		-O2 -c $(FENTRY).bpf.c -o $(FENTRY).bpf.o
 	bpftool gen skeleton $(FENTRY).bpf.o > $(FENTRY).skel.h 
 	clang -lbpf $(FENTRY).c -o $(FENTRY).o
 

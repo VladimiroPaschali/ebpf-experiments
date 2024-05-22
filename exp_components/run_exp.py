@@ -114,6 +114,37 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
         print(f"An error occurred: {e}")
         return 0
     
+def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : int) -> int:
+    try:
+        
+        command = f"{BASH} {STATS_PATH}.o -n {prog_name} -C {cpu} -e {event_name} -a\""
+        result = sp.run(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
+        time.sleep(time)
+        kill_background_process(STATS_PATH.split('/')[-1])
+
+
+        if result.returncode != 0:
+            print("Error running inxpect command")
+            return 0
+        
+        output = result.stdout  # inx output is typically in stdout
+        
+        pattern = re.compile(r".*main: (\d+.*\d).*(\d+.*\d)", re.MULTILINE)
+        
+        match = pattern.search(output)
+        
+        if match:
+            event_value = match.group(1).split(" ")[0]
+            run_cnt_value = match.group(2)
+            return int(event_value), int(run_cnt_value)
+        else:
+            print(f"No value found for event '{event_name}'")
+            return 0
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 0
+    
 def kill_background_process(prog_name):
     try:
         if len(prog_name) > 0:
@@ -154,6 +185,32 @@ def prog__load_and_attach(prog_path : str, ifname : str, cpu : int = None) -> in
     return process
 
 def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = None):
+
+    process = prog__load_and_attach(prog_path, ifname, cpu)
+    if process == -1:
+        print("Error loading program")
+        return None
+    
+    prog_name = prog_path.split('/')[-1]
+    
+    
+    if(prog_name.startswith("fentry")):
+        prog_id = prog__get_id_by_name("drop")
+        sleep(1)
+    else:
+        prog_id = prog__get_id_by_name(prog_name)
+
+    run_cnt = bpftool__get_run_cnt(prog_name)
+    
+    value=perf__get_event_value(prog_id, event, t)
+    
+    run_cnt_new = bpftool__get_run_cnt(prog_name)
+    
+    kill_background_process(prog_name)
+    return value, (run_cnt_new - run_cnt) 
+
+def prog_test_kfunc(prog_path : str, ifname : str, t : int, event : str, cpu : int = None):
+
     process = prog__load_and_attach(prog_path, ifname, cpu)
     if process == -1:
         print("Error loading program")
@@ -169,14 +226,15 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = N
 
     run_cnt = bpftool__get_run_cnt(prog_name)
     
-    value=perf__get_event_value(prog_id, event, t)
+    value=inx__get_event_value(prog_id, event, t)
     
     run_cnt_new = bpftool__get_run_cnt(prog_name)
     
     kill_background_process(prog_name)
     return value, (run_cnt_new - run_cnt) 
 
-def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
+def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False, inxpect : bool = False) -> tuple[int, int]:
+    res = [0,0]
     output = []
     avgs = []
     throughput = []
@@ -190,14 +248,39 @@ def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu
             pretty_output(output[-1])
     
     total_avg = sum(avgs) / len(avgs)
-    throughput_avg = sum(throughput) / len(throughput)
+    throughput_avg = sum(throughput) // len(throughput)
     
     # do error
     dev_sum = sum([abs((x - total_avg)) for x in avgs])
     mean_dev = dev_sum / len(avgs)
+
+    print(f"PERF avg_avg: {round(total_avg, 2)} ; ERR: {round(mean_dev, 4)} ; Throughput: {throughput_avg}")
+
+
+    res[0]=(total_avg, mean_dev, throughput_avg)
     
-    
-    return  (total_avg, mean_dev, throughput_avg)
+    if(inxpect):
+        for i in range(reps):
+            print(f"{i+1}/{reps}" ,end='\r')
+            output.append(prog_test_kfunc(prog_path, ifname, t, event, cpu))
+            avgs.append(output[-1][0] / output[-1][1])
+            throughput.append(output[-1][1] / t)
+            sleep(1)
+            if v:
+                pretty_output(output[-1])
+        
+        total_avg = sum(avgs) / len(avgs)
+        throughput_avg = sum(throughput) // len(throughput)
+        
+        # do error
+        dev_sum = sum([abs((x - total_avg)) for x in avgs])
+        mean_dev = dev_sum / len(avgs)
+
+        print(f"INX avg_avg: {round(total_avg, 2)} ; ERR: {round(mean_dev, 4)} ; Throughput: {throughput_avg}")
+
+        res[1]=(total_avg, mean_dev, throughput_avg)
+
+    return  res
     
 
 def main():
@@ -211,60 +294,58 @@ def main():
     parser.add_argument("-v", "--verbose", help = "Verbose output", action="store_true", required = False, default = False)
     args = parser.parse_args()
 
-    print(f"> CPU: {args.cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
     
     try:
         # init()
+        cpu=sp.check_output(f'sudo /opt/ebpf-experiments/script_interrupts.sh {args.interface}',shell=True)
+        cpu=int(cpu.decode().strip())
+        print(f" > CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
         
         
-        print("\nCompiling all programs\n")
-        # make_all()
+        # print("\nRunning drop benchmark\n")
+        # output = do_reps('./drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
-        # BASELINE
-        print("\nRunning baseline benchmark\n")
-        output = do_reps('./drop', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
-            
         sleep(1)
         
         # MACRO
-        print("\nRunning macro benchmark\n")
-        output = do_reps('./macro', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+        # print("\nRunning macro benchmark\n")
+        # output = do_reps('./macro', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
 
             
         sleep(1)
 
         # KFUNC
-        print("\nRunning kfunc benchmark\n")
-        output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+        # print("\nRunning kfunc benchmark\n")
+        # output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
-        sleep(1)
+        sleep(2)
     
         # # CMS
         # print("\nRunnin cms benchmark\n")
-        # output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
+        # output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
 
         # FENTRY
         print("\nRunning fentry benchmark\n")
-        output=do_reps('./fentry', args.interface, args.time, args.event, args.reps, args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+        output=do_reps('./fentry/fentry', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
-        sleep(1)
+        sleep(2)
 
         # FENTRY READ
         print("\nRunning fentry_read benchmark\n")
-        output=do_reps('./fentry_read', args.interface, args.time, args.event, args.reps, args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+        output=do_reps('./fentry/fentry_read', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
-        sleep(1)
+        sleep(2)
         
         # # FENTRY UPDATE
         print("\nRunning fentry_update benchmark\n")
-        output=do_reps('./fentry_update', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+        output=do_reps('./fentry/fentry_update', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
     except Exception as e:
         print(f"An error occurred: {e}")
