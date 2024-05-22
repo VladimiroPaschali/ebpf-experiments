@@ -114,20 +114,19 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
         print(f"An error occurred: {e}")
         return 0
     
-def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : int) -> int:
+def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : int) -> tuple[int, int]:
     try:
         
-        command = f"{BASH} {STATS_PATH}.o -n {prog_name} -C {cpu} -e {event_name} -a\""
+        command = f"{BASH} {STATS_PATH} -n {prog_name} -C {cpu} -e {event_name} -d {time} -a\""
+        # print(command)
         result = sp.run(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
-        time.sleep(time)
-        kill_background_process(STATS_PATH.split('/')[-1])
-
-
+    
         if result.returncode != 0:
             print("Error running inxpect command")
             return 0
         
         output = result.stdout  # inx output is typically in stdout
+        # print(output)
         
         pattern = re.compile(r".*main: (\d+.*\d).*(\d+.*\d)", re.MULTILINE)
         
@@ -223,42 +222,43 @@ def prog_test_kfunc(prog_path : str, ifname : str, t : int, event : str, cpu : i
     else:
         prog_id = prog__get_id_by_name(prog_name)
 
-    run_cnt = bpftool__get_run_cnt(prog_name)
+    # run_cnt = bpftool__get_run_cnt(prog_name)
     
-    value=inx__get_event_value(prog_id, event, t)
+    value, inx_run_cnt=inx__get_event_value(prog_name, event, cpu, t)
     
-    run_cnt_new = bpftool__get_run_cnt(prog_name)
+    # run_cnt_new = bpftool__get_run_cnt(prog_name)
     
     kill_background_process(prog_name)
-    return value, (run_cnt_new - run_cnt) 
+    # return value, (run_cnt_new - run_cnt) 
+    return value, inx_run_cnt
 
 def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False, inxpect : bool = False) -> tuple[int, int]:
     res = [0,0]
     output = []
     avgs = []
     throughput = []
-    for i in range(reps):
-        print(f"{i+1}/{reps}" ,end='\r')
-        output.append(prog_test(prog_path, ifname, t, event, cpu))
-        avgs.append(output[-1][0] / output[-1][1])
-        throughput.append(output[-1][1] / t)
-        sleep(1)
-        if v:
-            pretty_output(output[-1])
-    
-    total_avg = sum(avgs) / len(avgs)
-    throughput_avg = sum(throughput) // len(throughput)
-    
-    # do error
-    dev_sum = sum([abs((x - total_avg)) for x in avgs])
-    mean_dev = dev_sum / len(avgs)
+    if(not inxpect):
+        for i in range(reps):
+            print(f"{i+1}/{reps}" ,end='\r')
+            output.append(prog_test(prog_path, ifname, t, event, cpu))
+            avgs.append(output[-1][0] / output[-1][1])
+            throughput.append(output[-1][1] / t)
+            sleep(1)
+            if v:
+                pretty_output(output[-1])
+        
+        total_avg = sum(avgs) / len(avgs)
+        throughput_avg = sum(throughput) // len(throughput)
+        
+        # do error
+        dev_sum = sum([abs((x - total_avg)) for x in avgs])
+        mean_dev = dev_sum / len(avgs)
 
-    print(f"PERF avg_avg: {round(total_avg, 2)} ; ERR: {round(mean_dev, 4)} ; Throughput: {throughput_avg}")
+        print(f"PERF avg_avg: {round(total_avg, 2)} ; ERR: {round(mean_dev, 4)} ; Throughput: {throughput_avg}")
+        res[0]=(total_avg, mean_dev, throughput_avg)
 
-
-    res[0]=(total_avg, mean_dev, throughput_avg)
+    else:
     
-    if(inxpect):
         for i in range(reps):
             print(f"{i+1}/{reps}" ,end='\r')
             output.append(prog_test_kfunc(prog_path, ifname, t, event, cpu))
@@ -303,7 +303,7 @@ def main():
         
         print("\nRunning drop benchmark\n")
         output = do_reps('./drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+        # # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
         sleep(1)
 

@@ -75,7 +75,7 @@ static int event__disable(struct event *event, int cpu)
 
     if (event->name[0] == 'r') // this mean that it was allocated with malloc
     {
-        free(event); 
+        free(event);
     }
 
     event->enabled = 0;
@@ -191,7 +191,7 @@ static void psection__get_all(char *json)
 }
 
 // ----------- SAMPLE RATE -----------------
-static int sample_rate__set(int sample_rate)
+static int sample_rate__set(__u32 sample_rate)
 {
     int fd = -1;
     int zero = 0;

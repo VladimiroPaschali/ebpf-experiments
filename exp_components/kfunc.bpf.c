@@ -11,8 +11,6 @@ int kfunc(struct xdp_md *ctx)
 {
     __u64 start = bpf_mykperf__rdpmc(0);
 
-    __u64 end = bpf_mykperf__rdpmc(0) - start;
-
     return XDP_DROP;
 }
 

@@ -170,7 +170,7 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
     iph->check = ~((csum & 0xffff) + (csum >> 16));
 
     // count_tx(vip.protocol);
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
     //COUNT_RUN;
 
     return XDP_TX;

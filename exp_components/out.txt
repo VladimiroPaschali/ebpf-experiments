@@ -1,5 +1,5 @@
-> CPU: 0
- > Interface: ens1f1np1
+ > CPU: 0
+ > Interface: ens2f0np0
  > Event: instructions
  > Time: 10s
  > Reps: 10
@@ -7,151 +7,14 @@
  > CSV: False
 
 
-Compiling all programs
+Running drop benchmark
 
-
-Running baseline benchmark
-
-Run count for program name 'drop': 12542318
-Run count for program name 'drop': 43063240
-Run count for program name 'drop': 12751767
-Run count for program name 'drop': 43073640
-Run count for program name 'drop': 12085248
-Run count for program name 'drop': 42061697
-Run count for program name 'drop': 12292603
-Run count for program name 'drop': 42659815
-Run count for program name 'drop': 12650624
-Run count for program name 'drop': 43088381
-Run count for program name 'drop': 12398633
-Run count for program name 'drop': 42583408
-Run count for program name 'drop': 12267357
-Run count for program name 'drop': 42506664
-Run count for program name 'drop': 12541450
-Run count for program name 'drop': 42680970
-Run count for program name 'drop': 12169116
-Run count for program name 'drop': 41959438
-Run count for program name 'drop': 12464915
-Run count for program name 'drop': 42852773
-avg_avg: 622.26 | [98mERR[00m: 0.8996
+1/102/103/104/105/106/107/108/109/1010/10PERF avg_avg: 613.85 ; ERR: 1.5256 ; Throughput: 3964136.0
 
 Running macro benchmark
 
-Run count for program name 'macro': 6563036
-Run count for program name 'macro': 33388824
-Run count for program name 'macro': 6467898
-Run count for program name 'macro': 33152448
-Run count for program name 'macro': 6523750
-Run count for program name 'macro': 33070197
-Run count for program name 'macro': 6604248
-Run count for program name 'macro': 33567034
-Run count for program name 'macro': 6509964
-Run count for program name 'macro': 33134995
-Run count for program name 'macro': 6400246
-Run count for program name 'macro': 33179151
-Run count for program name 'macro': 6613857
-Run count for program name 'macro': 33456895
-Run count for program name 'macro': 6633429
-Run count for program name 'macro': 33446228
-Run count for program name 'macro': 6605006
-Run count for program name 'macro': 33385439
-Run count for program name 'macro': 6586468
-Run count for program name 'macro': 33350872
-value            | run count         | x pkt  
------------------+-------------------+--------
-742.137926582826 | 0.520472118148723 | 1425.89
+1/102/103/104/105/106/107/108/109/1010/10PERF avg_avg: 749.31 ; ERR: 2.8497 ; Throughput: 3235518.0
 
 Running kfunc benchmark
 
-Run count for program name 'kfunc': 6951821
-Run count for program name 'kfunc': 34442359
-Run count for program name 'kfunc': 6829248
-Run count for program name 'kfunc': 34436565
-Run count for program name 'kfunc': 6844725
-Run count for program name 'kfunc': 34359465
-Run count for program name 'kfunc': 6796938
-Run count for program name 'kfunc': 34228223
-Run count for program name 'kfunc': 6779936
-Run count for program name 'kfunc': 34323303
-Run count for program name 'kfunc': 6855228
-Run count for program name 'kfunc': 34296192
-Run count for program name 'kfunc': 6833077
-Run count for program name 'kfunc': 34282393
-Run count for program name 'kfunc': 7003677
-Run count for program name 'kfunc': 34605555
-Run count for program name 'kfunc': 6902544
-Run count for program name 'kfunc': 34322764
-Run count for program name 'kfunc': 6830646
-Run count for program name 'kfunc': 34353195
-avg_avg: 699.55 | [98mERR[00m: 0.3566
-
-Runnin cms benchmark
-
-Run count for program name 'cms': 10381528
-Run count for program name 'cms': 38311424
-Run count for program name 'cms': 10409752
-Run count for program name 'cms': 38414926
-Run count for program name 'cms': 10397487
-Run count for program name 'cms': 38415708
-Run count for program name 'cms': 10485610
-Run count for program name 'cms': 38449241
-Run count for program name 'cms': 10273188
-Run count for program name 'cms': 38224845
-Run count for program name 'cms': 10617104
-Run count for program name 'cms': 38658316
-Run count for program name 'cms': 10226189
-Run count for program name 'cms': 38254562
-Run count for program name 'cms': 10509730
-Run count for program name 'cms': 38470773
-Run count for program name 'cms': 10652352
-Run count for program name 'cms': 38747644
-Run count for program name 'cms': 10515475
-Run count for program name 'cms': 38534132
-avg_avg: 781.9 | [98mERR[00m: 0.7334
-
-Running fentry_read benchmark
-
-Run count for program name 'fentry_read': 5250400
-Run count for program name 'fentry_read': 27501699
-Run count for program name 'fentry_read': 7208671
-Run count for program name 'fentry_read': 29519862
-Run count for program name 'fentry_read': 7186210
-Run count for program name 'fentry_read': 29388052
-Run count for program name 'fentry_read': 7170694
-Run count for program name 'fentry_read': 29233381
-Run count for program name 'fentry_read': 7198047
-Run count for program name 'fentry_read': 29488941
-Run count for program name 'fentry_read': 7106150
-Run count for program name 'fentry_read': 29223417
-Run count for program name 'fentry_read': 7157095
-Run count for program name 'fentry_read': 29336074
-Run count for program name 'fentry_read': 7155563
-Run count for program name 'fentry_read': 29514652
-Run count for program name 'fentry_read': 7179027
-Run count for program name 'fentry_read': 29304108
-Run count for program name 'fentry_read': 7093390
-Run count for program name 'fentry_read': 29360026
-avg_avg: 1293.54 | [98mERR[00m: 0.8538
-
-Running fentry_update benchmark
-
-Run count for program name 'fentry_update': 6940802
-Run count for program name 'fentry_update': 29006800
-Run count for program name 'fentry_update': 7081923
-Run count for program name 'fentry_update': 29036458
-Run count for program name 'fentry_update': 6939391
-Run count for program name 'fentry_update': 29000625
-Run count for program name 'fentry_update': 7002160
-Run count for program name 'fentry_update': 28966678
-Run count for program name 'fentry_update': 7003987
-Run count for program name 'fentry_update': 28849111
-Run count for program name 'fentry_update': 7068976
-Run count for program name 'fentry_update': 29053377
-Run count for program name 'fentry_update': 6966980
-Run count for program name 'fentry_update': 28741390
-Run count for program name 'fentry_update': 6940126
-Run count for program name 'fentry_update': 28679322
-Run count for program name 'fentry_update': 6906159
-Run count for program name 'fentry_update': 28885314
-Run count for program name 'fentry_update': 7014759
-Run count for program name 'fentry_update': 29121707
-avg_avg: 1324.56 | [98mERR[00m: 0.4652
+1/102/103/104/105/106/107/108/109/1010/10PERF avg_avg: 657.85 ; ERR: 1.9813 ; Throughput: 3586112.0

@@ -18,9 +18,15 @@
 #include <bpf/bpf_endian.h>
 #include <linux/ptrace.h>
 
-__attribute__((__always_inline__)) static inline void connection_table_lookup(struct binding_definition **bind,
-                                                                              struct packet_description *pckt,
-                                                                              void *map)
+#include "mykperf_module.h"
+
+BPF_MYKPERF_INIT_TRACE();
+DEFINE_SECTIONS("main");
+
+int free_port_p = 1024;
+
+    __attribute__((__always_inline__)) static inline void
+    connection_table_lookup(struct binding_definition **bind, struct packet_description *pckt, void *map)
 {
 
     void *p = bpf_map_lookup_elem(map, &pckt->flow); // XXX MAPPA
@@ -106,7 +112,6 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 {
     struct binding_definition *nat_binding_entry = NULL;
     struct packet_description pckt = {}, ret_pckt = {};
-    __u16 *free_port_p = NULL;
     __u16 new_ports[2];
     __sum16 *csum_p;
     __u32 csum_off;
@@ -123,7 +128,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 
     protocol = ip->protocol;
     pckt.flow.proto = protocol;
-    // bpf_printk("process\n");
+
     if ((ret = process_l3_headers(&pckt, ip)) != 0)
     {
         return ret;
@@ -131,7 +136,6 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 
     void *l4 = (void *)ip + 20;
 
-    // bpf_printk("l3\n");
     if (protocol == IPPROTO_TCP)
     {
         if ((ret = nat_parse_tcp(l4, data_end, &pckt)))
@@ -151,6 +155,8 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
         return XDP_DROP;
     }
 
+    BPF_MYKPERF_START_TRACE_ARRAY(main);
+
     /*if ((protocol == IPPROTO_UDP) || !(pckt.flags & F_SYN_SET)) {*/
     connection_table_lookup(&nat_binding_entry, &pckt, &nat_binding_table);
     //}
@@ -160,70 +166,41 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
         if (!nat_binding_entry)
         {
             struct binding_definition new_binding_value = {};
-            // bpf_printk("nat binding not found\n");
-            // retrieve last  free port
-            __u32 zero = 0;
-            __u32 *last_idx_p = NULL;
 
-            last_idx_p = bpf_map_lookup_elem(&last_free_port_idx, &zero);
+            //  --------------------- IMPROVED SECTION -----------------------------
 
-            if (!last_idx_p)
-            {
-                return XDP_DROP;
-            }
-            // bpf_printk("last idx %d\n", *last_idx_p);
-            // check for last_free_port_idx overflow
-            if (*last_idx_p > MAX_FREE_PORTS_ENTRIES)
-            {
-                return XDP_DROP;
-            }
-
-            *last_idx_p += 1;
-
-            // retrieve free_port
-            free_port_p = bpf_map_lookup_elem(&free_ports, last_idx_p);
-
-            if (!free_port_p)
-            {
-                return XDP_DROP;
-            }
-            // bpf_printk("current free port %d\n", *free_port_p);
             new_binding_value.addr = NAT_EXTERNAL_ADDRESS;
-            new_binding_value.port = *free_port_p;
+            new_binding_value.port = free_port_p;
 
             if (bpf_map_update_elem(&nat_binding_table, &pckt.flow, &new_binding_value, 0))
-            { // SAVE ENTRY
-                // bpf_printk("error instering nat binding\n");
+            {
+
                 return XDP_DROP;
             }
+
             // insert entry for reply packets
             ret_pckt.flow.src = pckt.flow.dst;
             ret_pckt.flow.dst = NAT_EXTERNAL_ADDRESS;
             ret_pckt.flow.port16[0] = pckt.flow.port16[1];
-            ret_pckt.flow.port16[1] = *free_port_p;
+            ret_pckt.flow.port16[1] = free_port_p;
             ret_pckt.flow.proto = pckt.flow.proto;
 
             new_binding_value.addr = pckt.flow.src;
             new_binding_value.port = pckt.flow.port16[0];
 
-            // bpf_printk("return bind src %d dst %d\n", ret_pckt.flow.src, ret_pckt.flow.dst);
-            // bpf_printk("return bind sport %d dport %d\n", ret_pckt.flow.port16[0], ret_pckt.flow.port16[1]);
-            // bpf_printk("return bind value port %d addr %d\n", new_binding_value.port, new_binding_value.addr);
-
             if (bpf_map_update_elem(&nat_binding_table, &ret_pckt.flow, &new_binding_value, 0))
             {
-                // bpf_printk("error instering nat reply binding\n");
                 return XDP_DROP;
             }
-            // bpf_printk("return binding entry stored\n");
-            new_ports[0] = *free_port_p;
+
+            new_ports[0] = free_port_p;
         }
         else
         {
-            // bpf_printk("binding entry found\n");
+
             new_ports[0] = nat_binding_entry->port;
         }
-
+        // ---------------------  -----------------------------
         new_addr = NAT_EXTERNAL_ADDRESS;
         new_addr_pck_pointer = &ip->saddr;
         new_ports[1] = ((__u16 *)l4)[1];
@@ -232,10 +209,10 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
     {
         if (!nat_binding_entry)
         {
-            // bpf_printk("local non-natted packet. pass");
+
             return XDP_DROP;
         }
-        // bpf_printk("natted return packet. get new addr and port\n");
+
         new_ports[0] = ((__u16 *)l4)[0];
         new_ports[1] = nat_binding_entry->port;
         new_addr = nat_binding_entry->addr;
@@ -278,13 +255,15 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
     // change source port
     __builtin_memcpy(l4, &new_ports[0], 4);
     __builtin_memcpy((__u8 *)new_addr_pck_pointer, &new_addr, 4);
-    // bpf_printk("ready to TX\n");
+
     return XDP_TX;
 }
 
 SEC("xdp")
-int xdp_nat(struct xdp_md *ctx)
+int xdp_nat_better(struct xdp_md *ctx)
 {
+    BPF_MYKPERF_START_TRACE_ARRAY(main);
+
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
     struct eth_hdr *eth = data;
@@ -292,7 +271,6 @@ int xdp_nat(struct xdp_md *ctx)
     __u32 nh_off;
     nh_off = sizeof(struct eth_hdr);
 
-    // bpf_printk("GOT PACKET\n");
     if (data + nh_off > data_end)
     {
         // bogus packet, len less than minimum ethernet frame size
@@ -302,10 +280,13 @@ int xdp_nat(struct xdp_md *ctx)
     eth_proto = eth->eth_proto;
     if (eth_proto == BE_ETH_P_IP)
     {
-        return process_packet(data, nh_off, data_end, ctx);
+        int ret = process_packet(data, nh_off, data_end, ctx); // moved here to allow profiling
+        BPF_MYKPERF_END_TRACE_ARRAY(main);
+        return ret;
     }
     else
     {
+        // BPF_MYKPERF_END_TRACE_ARRAY(main);
         return XDP_PASS;
     }
 }

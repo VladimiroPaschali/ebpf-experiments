@@ -33,6 +33,7 @@ struct psection_t psections[MAX_PSECTIONS];
 int do_run_count = 0;
 int timeout_s = 3;
 int prog_fd = -1;
+int duration = 0;
 
 // threads
 pthread_t thread_printer;                    // poll_print_stats
@@ -48,7 +49,7 @@ int do_accumulate = 0;
 char *arg__event = NULL;
 int nr_selected_events = 0;
 int running_cpu = 0;
-int sample_rate = 0;
+__u32 sample_rate = 0;
 
 // server
 int interactive_mode = 0;
@@ -141,6 +142,7 @@ static int run_count__get()
     fd = get_bss_map_fd(prog_fd);
     if (fd < 0)
     {
+        time_t timeout_before_end = time(NULL);
         fprintf(stderr, "[%s]: during finding data map\n", ERR);
         return -1;
     }
@@ -288,6 +290,7 @@ static void poll_print_stats()
     char *fmt = "%s: %llu   %.2f/pkt - %u run_cnt\n";
     __u64 prev_run_count = 0;
     __u64 prev_value = 0;
+
     while (1)
     {
         for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
@@ -422,7 +425,7 @@ int main(int argc, char **argv)
 {
     int err, opt;
     // retrieve opt
-    while ((opt = getopt(argc, argv, ":n:e:C:s:t:aic")) != -1)
+    while ((opt = getopt(argc, argv, ":n:e:C:s:t:d:aic")) != -1)
     {
         switch (opt)
         {
@@ -450,6 +453,9 @@ int main(int argc, char **argv)
             break;
         case 'c':
             do_run_count = 1;
+            break;
+        case 'd':
+            duration = atoi(optarg);
             break;
         case 'a':
             do_accumulate = 1;
@@ -580,7 +586,7 @@ int main(int argc, char **argv)
         // future this should be reg_h - MAX REGISETR
     }
 
-    if (sample_rate)
+    if (sample_rate > 0)
     {
         err = sample_rate__set(sample_rate);
         if (err)
@@ -597,6 +603,8 @@ int main(int argc, char **argv)
     // set signal handler
     signal(SIGINT, exit_cleanup);
     signal(SIGTERM, exit_cleanup);
+    if (duration)
+        signal(SIGALRM, exit_cleanup);
 
     err = percput_output__clean_and_init();
     if (err)
@@ -614,6 +622,8 @@ int main(int argc, char **argv)
         }
         pthread_create(&threads_poll_stats[thead_id], NULL, poll_stats, thead_id);
     }
+
+    alarm(duration);
 
     if (interactive_mode) // SERVER
     {

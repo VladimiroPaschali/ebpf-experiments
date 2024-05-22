@@ -1,0 +1,41 @@
+ > CPU: 0
+ > Interface: ens2f0np0
+ > Event: L1-dcache-load-misses
+ > Time: 10s
+ > Reps: 10
+ > Verbose: False
+ > CSV: False
+
+
+Running drop benchmark
+
+PERF avg_avg: 0.04 ; ERR: 0.0069 ; Throughput: 3978194.0
+
+Running drop KFUNC benchmark
+
+INX avg_avg: 1.04 ; ERR: 0.0347 ; Throughput: 8059683.0
+
+Running cms miano benchmark
+
+PERF avg_avg: 0.14 ; ERR: 0.0598 ; Throughput: 3673754.0
+
+Running cms miano KFUNC benchmark
+
+INX avg_avg: 1.29 ; ERR: 0.0325 ; Throughput: 6844995.0
+
+Running routing benchmark
+
+PERF avg_avg: 0.04 ; ERR: 0.0073 ; Throughput: 3855018.0
+
+Running routing KFUNC benchmark
+
+INX avg_avg: 1.22 ; ERR: 0.0525 ; Throughput: 7676987.0
+
+Running tunnel benchmark
+
+PERF avg_avg: 1.07 ; ERR: 0.0317 ; Throughput: 2962761.0
+
+Running tunnel KFUNC benchmark
+
+An error occurred: list index out of range
+An error occurred: division by zero

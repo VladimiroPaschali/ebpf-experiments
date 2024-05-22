@@ -2,8 +2,7 @@ import subprocess as sp
 import re
 from time import sleep
 import argparse
-import os
-import signal
+import sys 
 
 BASH='sudo -E bash -c "export LD_LIBRARY_PATH=/lib64;'
 STATS_PATH='../inxpect/inxpect'
@@ -113,7 +112,34 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
     except Exception as e:
         print(f"An error occurred: {e}")
         return 0
+
+def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : int) -> tuple[int, int]:
+    try:
+        
+        command = f"{BASH} {STATS_PATH} -n {prog_name} -C {cpu} -e {event_name} -d {time} -a\""
+        # print(command)
+        result = sp.run(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
+
     
+        if result.returncode != 0:
+            print("Error running inxpect command")
+            return 0,0
+        
+        output = result.stdout  # inx output is typically in stdout
+        value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")
+
+        if len(value) > 0:
+            event_value = value[0]
+            run_cnt_value = value[-1]
+            return int(event_value), int(run_cnt_value)
+        else:
+            print(f"No value found for event '{event_name}'")
+            return 0,0
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 0,0
+
 def kill_background_process(prog_name):
     try:
         if len(prog_name) > 0:
@@ -172,16 +198,40 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = N
     kill_background_process(prog_name)
     return value, (run_cnt_new - run_cnt)
 
+def prog_test_kfunc(prog_path : str, ifname : str, t : int, event : str, cpu : int = None):
+
+    process = prog__load_and_attach(prog_path, ifname, cpu)
+    if process == -1:
+        print("Error loading program")
+        return None
+    
+    prog_name = prog_path.split('/')[-1]
+    
+    
+    value, inx_run_cnt=inx__get_event_value(prog_name, event, cpu, t)
+    
+    
+    kill_background_process(prog_name)
+    return value, inx_run_cnt
+
+
 def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
     output = []
     avgs = []
+    throughput = []
     for i in range(reps):
         print(f"{i+1}/{reps}", end='\r')
         output.append(prog_test(prog_path, ifname, t, event, cpu))
         avgs.append(output[-1][0] / output[-1][1])
+        throughput.append(output[-1][1] / t)
+
         sleep(1)
         if v:
             pretty_output(output[-1])
+            
+                
+    total_avg = sum(avgs) / len(avgs)
+    throughput_avg = sum(throughput) // len(throughput)
     
     total_avg = sum(avgs) / len(avgs)
     
@@ -189,9 +239,70 @@ def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu
     dev_sum = sum([abs((x - total_avg)) for x in avgs])
     mean_dev = dev_sum / len(avgs)
     
+    print(f"PERF avg_avg: {round(total_avg, 2)} ; ERR: {round(mean_dev, 4)} ; Throughput: {throughput_avg}")
+
     
     return  (total_avg, mean_dev)
+
+def do_reps_kfunc(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
+
+    res = []
+    output = []
+    avgs = []
+    throughput = []
+
+    for i in range(reps):
+        # print(f"{i+1}/{reps}" ,end='\r')
+        output.append(prog_test_kfunc(prog_path, ifname, t, event, cpu))
+        avgs.append(output[-1][0] / output[-1][1])
+        throughput.append(output[-1][1] / t)
+        sleep(1)
+        if v:
+            pretty_output(output[-1])
     
+    total_avg = sum(avgs) / len(avgs)
+    throughput_avg = sum(throughput) // len(throughput)
+    
+    # do error
+    dev_sum = sum([abs((x - total_avg)) for x in avgs])
+    mean_dev = dev_sum / len(avgs)
+
+    print(f"INX avg_avg: {round(total_avg, 2)} ; ERR: {round(mean_dev, 4)} ; Throughput: {throughput_avg}")
+    sys.stdout.flush()
+
+
+    res=(total_avg, mean_dev, throughput_avg)
+
+    return  res
+
+def baseline(prog_path : str, ifname : str, t : int, event : str, cpu : int = None, v : bool = False):
+
+    process = prog__load_and_attach(prog_path, ifname, cpu)
+    if process == -1:
+        print("Error loading program")
+        return None
+    
+    prog_name = prog_path.split('/')[-1]
+        
+    sleep(t)
+
+    run_cnt = bpftool__get_run_cnt(prog_name)
+    
+    kill_background_process(prog_name)
+
+    return run_cnt // t
+
+def do_reps_baseline(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None ,v : bool = False,) -> int:  
+    res = []
+    for i in range(reps):
+        # print(f"{i+1}/{reps}" ,end='\r')
+        res.append(baseline(prog_path, ifname, t, event, cpu))
+        sleep(1)
+        
+    print(f"Baseline: {sum(res) // len(res)}")
+    sys.stdout.flush()
+    return sum(res) // len(res)
+
 
 def main():
     parser = argparse.ArgumentParser(description = "Performance testing")
@@ -204,13 +315,22 @@ def main():
     parser.add_argument("-v", "--verbose", help = "Verbose output", action="store_true", required = False, default = False)
     args = parser.parse_args()
 
-    print(f"> CPU: {args.cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
+    print(f"> CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
     
     try:
+        cpu=sp.check_output(f'sudo /opt/ebpf-experiments/script_interrupts.sh {args.interface}',shell=True)
+        cpu=int(cpu.decode().strip())
+
+        
         # NAT
-        print("\nRunning nat benchmark\n")
-        output=do_reps('./xdp_nat', args.interface, args.time, args.event, args.reps,args.cpu, bool(args.verbose))
-        print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)}")
+        print("\nRunning nat perf benchmark\n")
+        output=do_reps('./xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        
+        print("\nRunning nat inxpect benchmark\n")
+        output=do_reps_kfunc('./xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        
+        print("\nRunning nat better inxpect benchmark\n")
+        output=do_reps_kfunc('./xdp_nat_better', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
                 
     except Exception as e:
         print(f"An error occurred: {e}")

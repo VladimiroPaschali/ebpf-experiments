@@ -1,115 +1,20 @@
-> CPU: 0
- > Interface: ens1f1np1
- > Event: instructions
+ > CPU: 0
+ > Interface: ens2f0np0
+ > Event: L1-dcache-load-misses
  > Time: 10s
  > Reps: 10
  > Verbose: False
  > CSV: False
 
 
-Compiling all programs
+Running drop benchmark
 
-
-Running baseline benchmark
-
-Run count for program name 'drop': 17206410
-Run count for program name 'drop': 47243288
-Run count for program name 'drop': 12506011
-Run count for program name 'drop': 42676260
-Run count for program name 'drop': 12223330
-Run count for program name 'drop': 42237666
-Run count for program name 'drop': 11991164
-Run count for program name 'drop': 42012190
-Run count for program name 'drop': 12688205
-Run count for program name 'drop': 43134867
-Run count for program name 'drop': 12663411
-Run count for program name 'drop': 43190761
-Run count for program name 'drop': 12533586
-Run count for program name 'drop': 42800447
-Run count for program name 'drop': 12639297
-Run count for program name 'drop': 43136457
-Run count for program name 'drop': 12629994
-Run count for program name 'drop': 43059577
-Run count for program name 'drop': 12490511
-Run count for program name 'drop': 42832399
-avg_avg: 622.31 | [98mERR[00m: 0.6641
+1/102/103/104/105/106/107/108/109/1010/10PERF avg_avg: 0.04 ; ERR: 0.0072 ; Throughput: 3964241.0
 
 Running macro benchmark
 
-Run count for program name 'macro': 6669314
-Run count for program name 'macro': 33551018
-Run count for program name 'macro': 6622267
-Run count for program name 'macro': 33442944
-Run count for program name 'macro': 6611975
-Run count for program name 'macro': 33481745
-Run count for program name 'macro': 6654380
-Run count for program name 'macro': 33478722
-Run count for program name 'macro': 6697945
-Run count for program name 'macro': 33421071
-Run count for program name 'macro': 6581263
-Run count for program name 'macro': 33319799
-Run count for program name 'macro': 6458101
-Run count for program name 'macro': 33189056
-Run count for program name 'macro': 6614632
-Run count for program name 'macro': 33520128
-Run count for program name 'macro': 6733302
-Run count for program name 'macro': 33508660
-Run count for program name 'macro': 6597931
-Run count for program name 'macro': 33402412
-avg_avg: 742.16 | [98mERR[00m: 0.4128
+1/102/103/104/105/106/107/108/109/1010/10PERF avg_avg: 0.03 ; ERR: 0.0037 ; Throughput: 3229777.0
 
 Running kfunc benchmark
 
-Run count for program name 'kfunc': 6824428
-Run count for program name 'kfunc': 34323846
-Run count for program name 'kfunc': 6779456
-Run count for program name 'kfunc': 34323456
-Run count for program name 'kfunc': 6790659
-Run count for program name 'kfunc': 34398848
-Run count for program name 'kfunc': 6904742
-Run count for program name 'kfunc': 34374543
-Run count for program name 'kfunc': 6828288
-Run count for program name 'kfunc': 34281472
-Run count for program name 'kfunc': 6809981
-Run count for program name 'kfunc': 34413760
-Run count for program name 'kfunc': 6734179
-Run count for program name 'kfunc': 34227144
-Run count for program name 'kfunc': 6824049
-Run count for program name 'kfunc': 34122280
-Run count for program name 'kfunc': 6745498
-Run count for program name 'kfunc': 34413815
-Run count for program name 'kfunc': 6895894
-Run count for program name 'kfunc': 34433877
-avg_avg: 699.9 | [98mERR[00m: 0.3438
-
-Runnin cms benchmark
-
-Run count for program name 'cms': 10465514
-Run count for program name 'cms': 38284083
-Run count for program name 'cms': 10311877
-Run count for program name 'cms': 37752926
-Run count for program name 'cms': 10410111
-Run count for program name 'cms': 38366171
-Run count for program name 'cms': 10175925
-Run count for program name 'cms': 38191246
-Run count for program name 'cms': 10507634
-Run count for program name 'cms': 38275311
-Run count for program name 'cms': 10494667
-Run count for program name 'cms': 37535871
-Run count for program name 'cms': 10521173
-Run count for program name 'cms': 38095081
-Run count for program name 'cms': 10106269
-Run count for program name 'cms': 37963593
-Run count for program name 'cms': 10354416
-Run count for program name 'cms': 38158962
-Run count for program name 'cms': 10350690
-Run count for program name 'cms': 38426060
-avg_avg: 781.18 | [98mERR[00m: 0.9481
-
-Running fentry_read benchmark
-
-No program ID found for program name 'drop'
-No run count found for program name 'fentry_read'
-Error running perf command
-No run count found for program name 'fentry_read'
-An error occurred: division by zero
+1/102/103/104/105/106/107/108/109/1010/10PERF avg_avg: 0.03 ; ERR: 0.003 ; Throughput: 3583771.0

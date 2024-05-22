@@ -19,7 +19,7 @@ struct message
 
 struct bss
 {
-    __u64 __sample_rate;
+    __u32 __sample_rate;
     __u64 run_cnt;
 };
 

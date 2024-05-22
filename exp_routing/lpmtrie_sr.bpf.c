@@ -72,7 +72,7 @@ int lpmtrie_sr(struct xdp_md *ctx) {
     // return XDP_PASS;
 
 end:
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
     //COUNT_RUN;
 
     return XDP_DROP;

@@ -24,7 +24,6 @@
 // ETH_P_IP in be format
 #define BE_ETH_P_IP 8
 
-
 // 3FFF mask covers more fragments flag and fragment offset field.
 // 65343 = 3FFF in BigEndian
 #define PCKT_FRAGMENTED 65343
@@ -32,7 +31,7 @@
 #define F_SYN_SET (1 << 1)
 #define NO_FLAGS 0
 #define DEFAULT_MAX_ENTRIES_NAT_TABLE 100000
-#define MAX_FREE_PORTS_ENTRIES 5000
-#define NAT_EXTERNAL_ADDRESS 0xcafebabe
+#define MAX_FREE_PORTS_ENTRIES 50000
+#define NAT_EXTERNAL_ADDRESS 0x0b000000 // 0xcafebabe
 #define FURTHER_PROCESSING -1
 #endif // of __BALANCER_CONSTS_H

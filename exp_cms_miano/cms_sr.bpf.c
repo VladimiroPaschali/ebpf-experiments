@@ -258,7 +258,7 @@ DROP:
     //        *event = end - start;
     //        bpf_ringbuf_submit(event, BPF_RB_NO_WAKEUP);
     //}
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
     //COUNT_RUN;
 
     return XDP_DROP;
