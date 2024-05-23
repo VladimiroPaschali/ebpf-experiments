@@ -283,7 +283,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 }
 
 SEC("xdp")
-int xdp_nat_kfunc(struct xdp_md *ctx)
+int xdp_nat_sr(struct xdp_md *ctx)
 {
     BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(main);
 

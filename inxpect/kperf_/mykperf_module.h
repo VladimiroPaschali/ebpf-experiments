@@ -66,7 +66,7 @@ struct histogram0
 
 // ------------------------- ARRAY MAP -------------------------------
 #define BPF_MYKPERF_START_TRACE_ARRAY(sec_name)\
-    bpf_mykperf__fence();                                                                        \
+    bpf_mykperf__fence();\
     __u64 value_##sec_name = 0;                                                                                        \
     struct record_array *sec_name = {0};                                                                               \
     __u32 key_##sec_name = __COUNTER__;                                                                                \

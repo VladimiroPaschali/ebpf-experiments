@@ -44,7 +44,7 @@ void updatelpm() {
         __u64 count=0;
         FILE *fp;
         char string[50];
-        sprintf(string,"mappe/%d.txt",i);
+        sprintf(string,"/opt/ebpf-experiments/exp_routing/mappe/%d.txt",i);
         fp = fopen(string, "r");
         char *line = NULL;
         size_t len = 0;

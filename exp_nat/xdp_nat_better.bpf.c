@@ -25,8 +25,9 @@ DEFINE_SECTIONS("main");
 
 int free_port_p = 1024;
 
-    __attribute__((__always_inline__)) static inline void
-    connection_table_lookup(struct binding_definition **bind, struct packet_description *pckt, void *map)
+__attribute__((__always_inline__)) static inline void connection_table_lookup(struct binding_definition **bind,
+                                                                              struct packet_description *pckt,
+                                                                              void *map)
 {
 
     void *p = bpf_map_lookup_elem(map, &pckt->flow); // XXX MAPPA
@@ -155,7 +156,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
         return XDP_DROP;
     }
 
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
+    //    BPF_MYKPERF_START_TRACE_ARRAY(main);
 
     /*if ((protocol == IPPROTO_UDP) || !(pckt.flags & F_SYN_SET)) {*/
     connection_table_lookup(&nat_binding_entry, &pckt, &nat_binding_table);

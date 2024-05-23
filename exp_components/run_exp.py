@@ -302,8 +302,8 @@ def main():
         print(f" > CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
         
         
-        print("\nRunning drop benchmark\n")
-        output = do_reps('./drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning drop benchmark\n")
+        # output = do_reps('./drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
         sleep(1)
@@ -324,28 +324,28 @@ def main():
         # sleep(2)
     
         # # CMS
-        # print("\nRunnin cms benchmark\n")
-        # output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunnin cms benchmark\n")
+        output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
 
         # # FENTRY
-        # print("\nRunning fentry benchmark\n")
-        # output=do_reps('./fentry/fentry', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
+        print("\nRunning fentry benchmark\n")
+        output=do_reps('./fentry/fentry', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
         # # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
         sleep(2)
 
-        # # FENTRY READ
-        # print("\nRunning fentry_read benchmark\n")
-        # output=do_reps('./fentry/fentry_read', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
+        # FENTRY READ
+        print("\nRunning fentry_read benchmark\n")
+        output=do_reps('./fentry/fentry_read', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
         # # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
-        # sleep(2)
+        sleep(2)
         
-        # # # FENTRY UPDATE
-        # print("\nRunning fentry_update benchmark\n")
-        # output=do_reps('./fentry/fentry_update', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
+        # # FENTRY UPDATE
+        print("\nRunning fentry_update benchmark\n")
+        output=do_reps('./fentry/fentry_update', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
     except Exception as e:
         print(f"An error occurred: {e}")

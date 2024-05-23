@@ -19,7 +19,7 @@
 #define TCP_PROTO 6
 #define UDP_PROTO 17
 
-struct xdp_nat_kfunc_bpf *skel;
+struct xdp_nat_sr_bpf *skel;
 int ifindex = -1;
 
 static void exit_(int sig)
@@ -33,7 +33,7 @@ static void exit_(int sig)
         exit(1);
     }
     if (skel)
-        xdp_nat_kfunc_bpf__destroy(skel);
+        xdp_nat_sr_bpf__destroy(skel);
     exit(0);
 }
 
@@ -52,21 +52,21 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    skel = xdp_nat_kfunc_bpf__open();
+    skel = xdp_nat_sr_bpf__open();
     if (!skel)
     {
-        fprintf(stderr, "ERR: xdp_nat_kfunc_bpf__open failed\n");
+        fprintf(stderr, "ERR: xdp_nat_sr_bpf__open failed\n");
         return 1;
     }
 
-    int err = xdp_nat_kfunc_bpf__load(skel);
+    int err = xdp_nat_sr_bpf__load(skel);
     if (err)
     {
-        fprintf(stderr, "ERR: xdp_nat_kfunc_bpf__load failed\n");
+        fprintf(stderr, "ERR: xdp_nat_sr_bpf__load failed\n");
         return 1;
     }
 
-    err = bpf_xdp_attach(ifindex, bpf_program__fd(skel->progs.xdp_nat_kfunc), 0, 0);
+    err = bpf_xdp_attach(ifindex, bpf_program__fd(skel->progs.xdp_nat_sr), 0, 0);
     if (err)
     {
         fprintf(stderr, "ERR: bpf_xdp_attach failed\n");

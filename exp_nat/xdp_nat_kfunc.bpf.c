@@ -155,7 +155,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
         return XDP_DROP;
     }
 
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
+    //BPF_MYKPERF_START_TRACE_ARRAY(main);
 
     /*if ((protocol == IPPROTO_UDP) || !(pckt.flags & F_SYN_SET)) {*/
     connection_table_lookup(&nat_binding_entry, &pckt, &nat_binding_table);

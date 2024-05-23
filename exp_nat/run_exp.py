@@ -315,19 +315,19 @@ def main():
     parser.add_argument("-v", "--verbose", help = "Verbose output", action="store_true", required = False, default = False)
     args = parser.parse_args()
 
-    print(f"> CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
     
     try:
         cpu=sp.check_output(f'sudo /opt/ebpf-experiments/script_interrupts.sh {args.interface}',shell=True)
         cpu=int(cpu.decode().strip())
+        print(f"> CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
 
         
         # NAT
-        print("\nRunning nat perf benchmark\n")
-        output=do_reps('./xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+    #    print("\nRunning nat perf benchmark\n")
+        # output=do_reps('./xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         
         print("\nRunning nat inxpect benchmark\n")
-        output=do_reps_kfunc('./xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        #output=do_reps_kfunc('./xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         
         print("\nRunning nat better inxpect benchmark\n")
         output=do_reps_kfunc('./xdp_nat_better', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))

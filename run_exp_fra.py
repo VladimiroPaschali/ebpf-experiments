@@ -333,15 +333,13 @@ def main():
         output = do_reps_baseline('./exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         print("\nRunning drop benchmark\n")
         output = do_reps('./exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        sleep(1)
         print("\nRunning drop KFUNC benchmark\n")
         output = do_reps_kfunc('./exp_drop/drop_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
         print("\nRunning cms baseline benchmark\n")
-        output = do_reps_baseline('./exp_cms/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        output = do_reps_baseline('./exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         print("\nRunning cms miano benchmark\n")
         output = do_reps('./exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        sleep(1)
         print("\nRunning cms miano KFUNC benchmark\n")
         output = do_reps_kfunc('./exp_cms_miano/cms_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
@@ -349,7 +347,6 @@ def main():
         output = do_reps_baseline('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         print("\nRunning routing benchmark\n")
         output = do_reps('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        sleep(1)
         print("\nRunning routing KFUNC benchmark\n")
         output = do_reps_kfunc('./exp_routing/lpmtrie_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
@@ -357,7 +354,6 @@ def main():
         output = do_reps_baseline('./exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         print("\nRunning tunnel benchmark\n")
         output = do_reps('./exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        sleep(1)
         print("\nRunning tunnel KFUNC benchmark\n")
         output = do_reps_kfunc('./exp_tunnel/tunnel_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         
