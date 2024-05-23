@@ -23,6 +23,8 @@
 BPF_MYKPERF_INIT_TRACE();
 DEFINE_SECTIONS("main");
 
+int free_port_p = 10000;
+
 __attribute__((__always_inline__)) static inline void connection_table_lookup(struct binding_definition **bind,
                                                                               struct packet_description *pckt,
                                                                               void *map)
@@ -111,7 +113,6 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 {
     struct binding_definition *nat_binding_entry = NULL;
     struct packet_description pckt = {}, ret_pckt = {};
-    __u16 *free_port_p = NULL;
     __u16 new_ports[2];
     __sum16 *csum_p;
     __u32 csum_off;
@@ -155,7 +156,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
         return XDP_DROP;
     }
 
-    //BPF_MYKPERF_START_TRACE_ARRAY(main);
+    // BPF_MYKPERF_START_TRACE_ARRAY(main);
 
     /*if ((protocol == IPPROTO_UDP) || !(pckt.flags & F_SYN_SET)) {*/
     connection_table_lookup(&nat_binding_entry, &pckt, &nat_binding_table);
@@ -167,35 +168,8 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
         {
             struct binding_definition new_binding_value = {};
 
-            // retrieve last  free port
-            __u32 zero = 0;
-            __u32 *last_idx_p = NULL;
-
-            last_idx_p = bpf_map_lookup_elem(&last_free_port_idx, &zero);
-
-            if (!last_idx_p)
-            {
-                return XDP_DROP;
-            }
-
-            // check for last_free_port_idx overflow
-            if (*last_idx_p > MAX_FREE_PORTS_ENTRIES)
-            {
-                return XDP_DROP;
-            }
-
-            *last_idx_p += 1;
-
-            // retrieve free_port
-            free_port_p = bpf_map_lookup_elem(&free_ports, last_idx_p);
-
-            if (!free_port_p)
-            {
-                return XDP_DROP;
-            }
-
             new_binding_value.addr = NAT_EXTERNAL_ADDRESS;
-            new_binding_value.port = *free_port_p;
+            new_binding_value.port = free_port_p;
 
             if (bpf_map_update_elem(&nat_binding_table, &pckt.flow, &new_binding_value, 0))
             {
@@ -206,7 +180,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
             ret_pckt.flow.src = pckt.flow.dst;
             ret_pckt.flow.dst = NAT_EXTERNAL_ADDRESS;
             ret_pckt.flow.port16[0] = pckt.flow.port16[1];
-            ret_pckt.flow.port16[1] = *free_port_p;
+            ret_pckt.flow.port16[1] = free_port_p;
             ret_pckt.flow.proto = pckt.flow.proto;
 
             new_binding_value.addr = pckt.flow.src;
@@ -218,7 +192,8 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
                 return XDP_DROP;
             }
 
-            new_ports[0] = *free_port_p;
+            new_ports[0] = free_port_p;
+            free_port_p++;
         }
         else
         {

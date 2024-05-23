@@ -1,600 +1,300 @@
 tunnel_sr: sampling : 0 run: 0
-kfunc sample rate 0: throughput = 4147917 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,16
+kfunc sample rate 0: throughput = 4770251 PPS latency = 123 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,18
 tunnel_sr: sampling : 1 run: 0
-kfunc sample rate 1: throughput = 4783223 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
+kfunc sample rate 1: throughput = 5527189 PPS latency = 90 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,14
 tunnel_sr: sampling : 2 run: 0
-kfunc sample rate 2: throughput = 5560998 PPS latency = 65 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 2: throughput = 6250845 PPS latency = 68 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,10
 tunnel_sr: sampling : 3 run: 0
-kfunc sample rate 3: throughput = 6800294 PPS latency = 55 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,06
+kfunc sample rate 3: throughput = 6718687 PPS latency = 54 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,07
 tunnel_sr: sampling : 4 run: 0
-kfunc sample rate 4: throughput = 6657938 PPS latency = 49 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 4: throughput = 7145665 PPS latency = 48 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,07
 tunnel_sr: sampling : 5 run: 0
-kfunc sample rate 5: throughput = 7032341 PPS latency = 46 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
+kfunc sample rate 5: throughput = 7374080 PPS latency = 43 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,06
 tunnel_sr: sampling : 6 run: 0
-kfunc sample rate 6: throughput = 7405841 PPS latency = 44 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,46
+kfunc sample rate 6: throughput = 7367360 PPS latency = 43 ns
+kfunc sample rate 6 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 7 run: 0
-kfunc sample rate 7: throughput = 7305299 PPS latency = 45 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,65
+kfunc sample rate 7: throughput = 7504698 PPS latency = 41 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 8 run: 0
-kfunc sample rate 8: throughput = 7456665 PPS latency = 44 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 8: throughput = 7556663 PPS latency = 40 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 1,02
 tunnel_sr: sampling : 9 run: 0
-kfunc sample rate 9: throughput = 7638062 PPS latency = 41 ns
+kfunc sample rate 9: throughput = 7550181 PPS latency = 40 ns
 kfunc sample rate 9 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 0 run: 1
-kfunc sample rate 0: throughput = 4745600 PPS latency = 120 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,17
+kfunc sample rate 0: throughput = 4748454 PPS latency = 123 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,23
 tunnel_sr: sampling : 1 run: 1
-kfunc sample rate 1: throughput = 5503445 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,11
+kfunc sample rate 1: throughput = 5500282 PPS latency = 90 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,15
 tunnel_sr: sampling : 2 run: 1
-kfunc sample rate 2: throughput = 5638891 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 2: throughput = 6299053 PPS latency = 68 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,10
 tunnel_sr: sampling : 3 run: 1
-kfunc sample rate 3: throughput = 6235738 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 3: throughput = 6781907 PPS latency = 55 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,08
 tunnel_sr: sampling : 4 run: 1
-kfunc sample rate 4: throughput = 7205071 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 4: throughput = 7144682 PPS latency = 47 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,07
 tunnel_sr: sampling : 5 run: 1
-kfunc sample rate 5: throughput = 7081135 PPS latency = 43 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 5: throughput = 7234520 PPS latency = 44 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 6 run: 1
-kfunc sample rate 6: throughput = 7375320 PPS latency = 43 ns
+kfunc sample rate 6: throughput = 7424610 PPS latency = 43 ns
 kfunc sample rate 6 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 7 run: 1
-kfunc sample rate 7: throughput = 7575729 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,07
+kfunc sample rate 7: throughput = 7509448 PPS latency = 41 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 8 run: 1
-kfunc sample rate 8: throughput = 7591576 PPS latency = 41 ns
+kfunc sample rate 8: throughput = 7420338 PPS latency = 41 ns
 kfunc sample rate 8 L1-dcache-load-misses per packet: 1,02
 tunnel_sr: sampling : 9 run: 1
-kfunc sample rate 9: throughput = 7586463 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 9: throughput = 7424799 PPS latency = 41 ns
+kfunc sample rate 9 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 0 run: 2
-kfunc sample rate 0: throughput = 4115318 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
+kfunc sample rate 0: throughput = 4649712 PPS latency = 125 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,19
 tunnel_sr: sampling : 1 run: 2
-kfunc sample rate 1: throughput = 4752026 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
+kfunc sample rate 1: throughput = 5426808 PPS latency = 92 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,16
 tunnel_sr: sampling : 2 run: 2
-kfunc sample rate 2: throughput = 6289189 PPS latency = 65 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,06
+kfunc sample rate 2: throughput = 6193441 PPS latency = 67 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,13
 tunnel_sr: sampling : 3 run: 2
-kfunc sample rate 3: throughput = 6232156 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 3: throughput = 6760585 PPS latency = 54 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,10
 tunnel_sr: sampling : 4 run: 2
-kfunc sample rate 4: throughput = 6751119 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 4: throughput = 7099622 PPS latency = 48 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,08
 tunnel_sr: sampling : 5 run: 2
-kfunc sample rate 5: throughput = 7376439 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 5: throughput = 7350401 PPS latency = 44 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 6 run: 2
-kfunc sample rate 6: throughput = 7411925 PPS latency = 42 ns
+kfunc sample rate 6: throughput = 7356670 PPS latency = 42 ns
 kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 7 run: 2
-kfunc sample rate 7: throughput = 7513956 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,22
+kfunc sample rate 7: throughput = 7509800 PPS latency = 41 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 8 run: 2
-kfunc sample rate 8: throughput = 7592608 PPS latency = 41 ns
+kfunc sample rate 8: throughput = 7445366 PPS latency = 40 ns
 kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 9 run: 2
-kfunc sample rate 9: throughput = 7642922 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 9: throughput = 7445049 PPS latency = 41 ns
+kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 0 run: 3
-kfunc sample rate 0: throughput = 4080962 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
+kfunc sample rate 0: throughput = 4711071 PPS latency = 124 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,19
 tunnel_sr: sampling : 1 run: 3
-kfunc sample rate 1: throughput = 5540386 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,11
+kfunc sample rate 1: throughput = 5534853 PPS latency = 90 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,16
 tunnel_sr: sampling : 2 run: 3
-kfunc sample rate 2: throughput = 6352390 PPS latency = 65 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,05
+kfunc sample rate 2: throughput = 6145280 PPS latency = 68 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,14
 tunnel_sr: sampling : 3 run: 3
-kfunc sample rate 3: throughput = 6271171 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 3: throughput = 6700826 PPS latency = 55 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,08
 tunnel_sr: sampling : 4 run: 3
-kfunc sample rate 4: throughput = 6756727 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 4: throughput = 7158141 PPS latency = 47 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,07
 tunnel_sr: sampling : 5 run: 3
-kfunc sample rate 5: throughput = 7161173 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 5: throughput = 7312427 PPS latency = 45 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,06
 tunnel_sr: sampling : 6 run: 3
-kfunc sample rate 6: throughput = 7341681 PPS latency = 42 ns
+kfunc sample rate 6: throughput = 7478504 PPS latency = 42 ns
 kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 7 run: 3
-kfunc sample rate 7: throughput = 7571877 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,06
+kfunc sample rate 7: throughput = 7446605 PPS latency = 41 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 8 run: 3
-kfunc sample rate 8: throughput = 7552147 PPS latency = 42 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,08
+kfunc sample rate 8: throughput = 7568093 PPS latency = 40 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 9 run: 3
-kfunc sample rate 9: throughput = 7630294 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 9: throughput = 7420652 PPS latency = 42 ns
+kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 0 run: 4
-kfunc sample rate 0: throughput = 4745589 PPS latency = 120 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,18
+kfunc sample rate 0: throughput = 4701778 PPS latency = 124 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,21
 tunnel_sr: sampling : 1 run: 4
-kfunc sample rate 1: throughput = 4851251 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,10
+kfunc sample rate 1: throughput = 5484124 PPS latency = 90 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,15
 tunnel_sr: sampling : 2 run: 4
-kfunc sample rate 2: throughput = 6330366 PPS latency = 64 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,05
+kfunc sample rate 2: throughput = 6211275 PPS latency = 67 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,12
 tunnel_sr: sampling : 3 run: 4
-kfunc sample rate 3: throughput = 6900686 PPS latency = 53 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,06
+kfunc sample rate 3: throughput = 6757687 PPS latency = 54 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,08
 tunnel_sr: sampling : 4 run: 4
-kfunc sample rate 4: throughput = 6669744 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 4: throughput = 7162535 PPS latency = 47 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,07
 tunnel_sr: sampling : 5 run: 4
-kfunc sample rate 5: throughput = 7091637 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 5: throughput = 7210436 PPS latency = 45 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 6 run: 4
-kfunc sample rate 6: throughput = 7360060 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 6: throughput = 7357007 PPS latency = 42 ns
+kfunc sample rate 6 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 7 run: 4
-kfunc sample rate 7: throughput = 7578527 PPS latency = 42 ns
+kfunc sample rate 7: throughput = 7441117 PPS latency = 43 ns
 kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 8 run: 4
-kfunc sample rate 8: throughput = 7557555 PPS latency = 41 ns
+kfunc sample rate 8: throughput = 7429399 PPS latency = 42 ns
 kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 9 run: 4
-kfunc sample rate 9: throughput = 7707553 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,05
+kfunc sample rate 9: throughput = 7460709 PPS latency = 42 ns
+kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 0 run: 5
-kfunc sample rate 0: throughput = 4703971 PPS latency = 121 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,17
+kfunc sample rate 0: throughput = 4772839 PPS latency = 123 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,19
 tunnel_sr: sampling : 1 run: 5
-kfunc sample rate 1: throughput = 4788271 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,08
+kfunc sample rate 1: throughput = 5507669 PPS latency = 91 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,18
 tunnel_sr: sampling : 2 run: 5
-kfunc sample rate 2: throughput = 6402535 PPS latency = 64 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,05
+kfunc sample rate 2: throughput = 6143036 PPS latency = 69 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,13
 tunnel_sr: sampling : 3 run: 5
-kfunc sample rate 3: throughput = 6255505 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 3: throughput = 6786412 PPS latency = 55 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,09
 tunnel_sr: sampling : 4 run: 5
-kfunc sample rate 4: throughput = 6796263 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 4: throughput = 7074463 PPS latency = 49 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,07
 tunnel_sr: sampling : 5 run: 5
-kfunc sample rate 5: throughput = 7474386 PPS latency = 44 ns
+kfunc sample rate 5: throughput = 7228610 PPS latency = 45 ns
 kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 6 run: 5
-kfunc sample rate 6: throughput = 7367889 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 6: throughput = 7373874 PPS latency = 42 ns
+kfunc sample rate 6 L1-dcache-load-misses per packet: 1,08
 tunnel_sr: sampling : 7 run: 5
-kfunc sample rate 7: throughput = 7523802 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 7: throughput = 7446845 PPS latency = 42 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 8 run: 5
-kfunc sample rate 8: throughput = 7686464 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,05
+kfunc sample rate 8: throughput = 7486980 PPS latency = 42 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 9 run: 5
-kfunc sample rate 9: throughput = 7675810 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 9: throughput = 7565866 PPS latency = 40 ns
+kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 0 run: 6
-kfunc sample rate 0: throughput = 4058529 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,15
+kfunc sample rate 0: throughput = 4645041 PPS latency = 125 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,21
 tunnel_sr: sampling : 1 run: 6
-kfunc sample rate 1: throughput = 4756775 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
+kfunc sample rate 1: throughput = 5480508 PPS latency = 91 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,14
 tunnel_sr: sampling : 2 run: 6
-kfunc sample rate 2: throughput = 5576012 PPS latency = 64 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 2: throughput = 6185306 PPS latency = 67 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,10
 tunnel_sr: sampling : 3 run: 6
-kfunc sample rate 3: throughput = 6194808 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 3: throughput = 6664450 PPS latency = 55 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,09
 tunnel_sr: sampling : 4 run: 6
-kfunc sample rate 4: throughput = 7185716 PPS latency = 47 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 4: throughput = 7135169 PPS latency = 47 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 5 run: 6
-kfunc sample rate 5: throughput = 7199010 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 5: throughput = 7287957 PPS latency = 44 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 6 run: 6
-kfunc sample rate 6: throughput = 7406588 PPS latency = 43 ns
+kfunc sample rate 6: throughput = 7399697 PPS latency = 43 ns
 kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 7 run: 6
-kfunc sample rate 7: throughput = 7472347 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 7: throughput = 7401105 PPS latency = 41 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,02
 tunnel_sr: sampling : 8 run: 6
-kfunc sample rate 8: throughput = 7562580 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 8: throughput = 7440651 PPS latency = 41 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 9 run: 6
-kfunc sample rate 9: throughput = 7652254 PPS latency = 41 ns
+kfunc sample rate 9: throughput = 7484345 PPS latency = 41 ns
 kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 0 run: 7
-kfunc sample rate 0: throughput = 4071456 PPS latency = 118 ns
+kfunc sample rate 0: throughput = 4660855 PPS latency = 125 ns
 kfunc sample rate 0 L1-dcache-load-misses per packet: 1,16
 tunnel_sr: sampling : 1 run: 7
-kfunc sample rate 1: throughput = 5495662 PPS latency = 88 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,11
+kfunc sample rate 1: throughput = 5446283 PPS latency = 90 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,16
 tunnel_sr: sampling : 2 run: 7
-kfunc sample rate 2: throughput = 5586160 PPS latency = 64 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 2: throughput = 6219287 PPS latency = 67 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,11
 tunnel_sr: sampling : 3 run: 7
-kfunc sample rate 3: throughput = 6175238 PPS latency = 53 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 3: throughput = 6759762 PPS latency = 56 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,09
 tunnel_sr: sampling : 4 run: 7
-kfunc sample rate 4: throughput = 6700835 PPS latency = 47 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 4: throughput = 7039140 PPS latency = 48 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,06
 tunnel_sr: sampling : 5 run: 7
-kfunc sample rate 5: throughput = 7405002 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,11
+kfunc sample rate 5: throughput = 7257906 PPS latency = 44 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 6 run: 7
-kfunc sample rate 6: throughput = 7443902 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 6: throughput = 7385761 PPS latency = 43 ns
+kfunc sample rate 6 L1-dcache-load-misses per packet: 1,06
 tunnel_sr: sampling : 7 run: 7
-kfunc sample rate 7: throughput = 7571129 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
+kfunc sample rate 7: throughput = 7390631 PPS latency = 41 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,02
 tunnel_sr: sampling : 8 run: 7
-kfunc sample rate 8: throughput = 7563115 PPS latency = 41 ns
+kfunc sample rate 8: throughput = 7526013 PPS latency = 40 ns
 kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 9 run: 7
-kfunc sample rate 9: throughput = 7570501 PPS latency = 41 ns
+kfunc sample rate 9: throughput = 7513660 PPS latency = 40 ns
 kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 0 run: 8
-kfunc sample rate 0: throughput = 4107825 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
-tunnel_sr: sampling : 1 run: 8
-kfunc sample rate 1: throughput = 4790645 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,10
-tunnel_sr: sampling : 2 run: 8
-kfunc sample rate 2: throughput = 5501867 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 3 run: 8
-kfunc sample rate 3: throughput = 6265239 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 4 run: 8
-kfunc sample rate 4: throughput = 6740023 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 5 run: 8
-kfunc sample rate 5: throughput = 7162832 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 6 run: 8
-kfunc sample rate 6: throughput = 7308180 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 7 run: 8
-kfunc sample rate 7: throughput = 7449701 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 8 run: 8
-kfunc sample rate 8: throughput = 7611818 PPS latency = 42 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 9 run: 8
-kfunc sample rate 9: throughput = 7628529 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,05
-tunnel_sr: sampling : 0 run: 9
-kfunc sample rate 0: throughput = 4096859 PPS latency = 118 ns
+kfunc sample rate 0: throughput = 4694852 PPS latency = 125 ns
 kfunc sample rate 0 L1-dcache-load-misses per packet: 1,17
+tunnel_sr: sampling : 1 run: 8
+kfunc sample rate 1: throughput = 5494028 PPS latency = 91 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,19
+tunnel_sr: sampling : 2 run: 8
+kfunc sample rate 2: throughput = 6129985 PPS latency = 68 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,14
+tunnel_sr: sampling : 3 run: 8
+kfunc sample rate 3: throughput = 6765636 PPS latency = 55 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,07
+tunnel_sr: sampling : 4 run: 8
+kfunc sample rate 4: throughput = 7179096 PPS latency = 47 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,06
+tunnel_sr: sampling : 5 run: 8
+kfunc sample rate 5: throughput = 7148735 PPS latency = 45 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,04
+tunnel_sr: sampling : 6 run: 8
+kfunc sample rate 6: throughput = 7375799 PPS latency = 42 ns
+kfunc sample rate 6 L1-dcache-load-misses per packet: 1,04
+tunnel_sr: sampling : 7 run: 8
+kfunc sample rate 7: throughput = 7486815 PPS latency = 41 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,02
+tunnel_sr: sampling : 8 run: 8
+kfunc sample rate 8: throughput = 7443122 PPS latency = 40 ns
+kfunc sample rate 8 L1-dcache-load-misses per packet: 1,04
+tunnel_sr: sampling : 9 run: 8
+kfunc sample rate 9: throughput = 7540826 PPS latency = 40 ns
+kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
+tunnel_sr: sampling : 0 run: 9
+kfunc sample rate 0: throughput = 4765539 PPS latency = 123 ns
+kfunc sample rate 0 L1-dcache-load-misses per packet: 1,21
 tunnel_sr: sampling : 1 run: 9
-kfunc sample rate 1: throughput = 4836609 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
+kfunc sample rate 1: throughput = 5519744 PPS latency = 91 ns
+kfunc sample rate 1 L1-dcache-load-misses per packet: 1,17
 tunnel_sr: sampling : 2 run: 9
-kfunc sample rate 2: throughput = 5614584 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 2: throughput = 6317716 PPS latency = 66 ns
+kfunc sample rate 2 L1-dcache-load-misses per packet: 1,14
 tunnel_sr: sampling : 3 run: 9
-kfunc sample rate 3: throughput = 6254290 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 3: throughput = 6732614 PPS latency = 54 ns
+kfunc sample rate 3 L1-dcache-load-misses per packet: 1,10
 tunnel_sr: sampling : 4 run: 9
-kfunc sample rate 4: throughput = 6803357 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,04
+kfunc sample rate 4: throughput = 7029128 PPS latency = 48 ns
+kfunc sample rate 4 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 5 run: 9
-kfunc sample rate 5: throughput = 6999373 PPS latency = 45 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 5: throughput = 7233063 PPS latency = 44 ns
+kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
 tunnel_sr: sampling : 6 run: 9
-kfunc sample rate 6: throughput = 7275467 PPS latency = 43 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,02
+kfunc sample rate 6: throughput = 7318038 PPS latency = 42 ns
+kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
 tunnel_sr: sampling : 7 run: 9
-kfunc sample rate 7: throughput = 7343633 PPS latency = 44 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,06
+kfunc sample rate 7: throughput = 7390929 PPS latency = 42 ns
+kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
 tunnel_sr: sampling : 8 run: 9
-kfunc sample rate 8: throughput = 7484295 PPS latency = 43 ns
+kfunc sample rate 8: throughput = 7446392 PPS latency = 41 ns
 kfunc sample rate 8 L1-dcache-load-misses per packet: 1,02
 tunnel_sr: sampling : 9 run: 9
-kfunc sample rate 9: throughput = 7691979 PPS latency = 42 ns
+kfunc sample rate 9: throughput = 7374864 PPS latency = 42 ns
 kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 0 run: 10
-kfunc sample rate 0: throughput = 4689762 PPS latency = 120 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,17
-tunnel_sr: sampling : 1 run: 10
-kfunc sample rate 1: throughput = 4817346 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
-tunnel_sr: sampling : 2 run: 10
-kfunc sample rate 2: throughput = 5571972 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 3 run: 10
-kfunc sample rate 3: throughput = 6275643 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 4 run: 10
-kfunc sample rate 4: throughput = 6760117 PPS latency = 47 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 5 run: 10
-kfunc sample rate 5: throughput = 7199690 PPS latency = 43 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 6 run: 10
-kfunc sample rate 6: throughput = 7327977 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 7 run: 10
-kfunc sample rate 7: throughput = 7573863 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 8 run: 10
-kfunc sample rate 8: throughput = 7549158 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 9 run: 10
-kfunc sample rate 9: throughput = 7589627 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,06
-tunnel_sr: sampling : 0 run: 11
-kfunc sample rate 0: throughput = 4123426 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,13
-tunnel_sr: sampling : 1 run: 11
-kfunc sample rate 1: throughput = 4816995 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,07
-tunnel_sr: sampling : 2 run: 11
-kfunc sample rate 2: throughput = 5549821 PPS latency = 64 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 3 run: 11
-kfunc sample rate 3: throughput = 6135063 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 4 run: 11
-kfunc sample rate 4: throughput = 6748940 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 5 run: 11
-kfunc sample rate 5: throughput = 7118704 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 6 run: 11
-kfunc sample rate 6: throughput = 7325998 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 7 run: 11
-kfunc sample rate 7: throughput = 7570655 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,01
-tunnel_sr: sampling : 8 run: 11
-kfunc sample rate 8: throughput = 7563768 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 9 run: 11
-kfunc sample rate 9: throughput = 7678032 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,05
-tunnel_sr: sampling : 0 run: 12
-kfunc sample rate 0: throughput = 4108798 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
-tunnel_sr: sampling : 1 run: 12
-kfunc sample rate 1: throughput = 4847775 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
-tunnel_sr: sampling : 2 run: 12
-kfunc sample rate 2: throughput = 5579546 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 3 run: 12
-kfunc sample rate 3: throughput = 6230969 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,01
-tunnel_sr: sampling : 4 run: 12
-kfunc sample rate 4: throughput = 6699301 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 5 run: 12
-kfunc sample rate 5: throughput = 7085689 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 6 run: 12
-kfunc sample rate 6: throughput = 7616109 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 7 run: 12
-kfunc sample rate 7: throughput = 7469970 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 8 run: 12
-kfunc sample rate 8: throughput = 7600198 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 9 run: 12
-kfunc sample rate 9: throughput = 7669109 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 0 run: 13
-kfunc sample rate 0: throughput = 4097276 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,15
-tunnel_sr: sampling : 1 run: 13
-kfunc sample rate 1: throughput = 4783227 PPS latency = 88 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,15
-tunnel_sr: sampling : 2 run: 13
-kfunc sample rate 2: throughput = 5542724 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,06
-tunnel_sr: sampling : 3 run: 13
-kfunc sample rate 3: throughput = 6155949 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,05
-tunnel_sr: sampling : 4 run: 13
-kfunc sample rate 4: throughput = 6713095 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 5 run: 13
-kfunc sample rate 5: throughput = 7387167 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 6 run: 13
-kfunc sample rate 6: throughput = 7425824 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 7 run: 13
-kfunc sample rate 7: throughput = 7555595 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 8 run: 13
-kfunc sample rate 8: throughput = 7558019 PPS latency = 42 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 9 run: 13
-kfunc sample rate 9: throughput = 7595345 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 0 run: 14
-kfunc sample rate 0: throughput = 4063992 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,13
-tunnel_sr: sampling : 1 run: 14
-kfunc sample rate 1: throughput = 4786928 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
-tunnel_sr: sampling : 2 run: 14
-kfunc sample rate 2: throughput = 6359731 PPS latency = 65 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,07
-tunnel_sr: sampling : 3 run: 14
-kfunc sample rate 3: throughput = 6180534 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 4 run: 14
-kfunc sample rate 4: throughput = 7174127 PPS latency = 47 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 5 run: 14
-kfunc sample rate 5: throughput = 7166148 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 6 run: 14
-kfunc sample rate 6: throughput = 7381936 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,06
-tunnel_sr: sampling : 7 run: 14
-kfunc sample rate 7: throughput = 7476681 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 8 run: 14
-kfunc sample rate 8: throughput = 7594951 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 9 run: 14
-kfunc sample rate 9: throughput = 7662598 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,08
-tunnel_sr: sampling : 0 run: 15
-kfunc sample rate 0: throughput = 4096190 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
-tunnel_sr: sampling : 1 run: 15
-kfunc sample rate 1: throughput = 4831932 PPS latency = 86 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,11
-tunnel_sr: sampling : 2 run: 15
-kfunc sample rate 2: throughput = 5570875 PPS latency = 64 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 3 run: 15
-kfunc sample rate 3: throughput = 6286009 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 4 run: 15
-kfunc sample rate 4: throughput = 6701663 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 5 run: 15
-kfunc sample rate 5: throughput = 7427178 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 6 run: 15
-kfunc sample rate 6: throughput = 7409723 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 7 run: 15
-kfunc sample rate 7: throughput = 7554153 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 8 run: 15
-kfunc sample rate 8: throughput = 7575122 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 9 run: 15
-kfunc sample rate 9: throughput = 7581999 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,01
-tunnel_sr: sampling : 0 run: 16
-kfunc sample rate 0: throughput = 4102899 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
-tunnel_sr: sampling : 1 run: 16
-kfunc sample rate 1: throughput = 5515966 PPS latency = 88 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,10
-tunnel_sr: sampling : 2 run: 16
-kfunc sample rate 2: throughput = 5617305 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 3 run: 16
-kfunc sample rate 3: throughput = 6198281 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 4 run: 16
-kfunc sample rate 4: throughput = 6781917 PPS latency = 47 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 5 run: 16
-kfunc sample rate 5: throughput = 7102700 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,05
-tunnel_sr: sampling : 6 run: 16
-kfunc sample rate 6: throughput = 7355779 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 7 run: 16
-kfunc sample rate 7: throughput = 7511276 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 8 run: 16
-kfunc sample rate 8: throughput = 7550376 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 9 run: 16
-kfunc sample rate 9: throughput = 7653615 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,05
-tunnel_sr: sampling : 0 run: 17
-kfunc sample rate 0: throughput = 4058169 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
-tunnel_sr: sampling : 1 run: 17
-kfunc sample rate 1: throughput = 5534477 PPS latency = 88 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,08
-tunnel_sr: sampling : 2 run: 17
-kfunc sample rate 2: throughput = 5587099 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,06
-tunnel_sr: sampling : 3 run: 17
-kfunc sample rate 3: throughput = 6201394 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 4 run: 17
-kfunc sample rate 4: throughput = 7269779 PPS latency = 47 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,07
-tunnel_sr: sampling : 5 run: 17
-kfunc sample rate 5: throughput = 7098899 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 6 run: 17
-kfunc sample rate 6: throughput = 7371613 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 7 run: 17
-kfunc sample rate 7: throughput = 7458701 PPS latency = 41 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 8 run: 17
-kfunc sample rate 8: throughput = 7569255 PPS latency = 42 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 9 run: 17
-kfunc sample rate 9: throughput = 7686923 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 0 run: 18
-kfunc sample rate 0: throughput = 4128583 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,15
-tunnel_sr: sampling : 1 run: 18
-kfunc sample rate 1: throughput = 5546436 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,10
-tunnel_sr: sampling : 2 run: 18
-kfunc sample rate 2: throughput = 5614365 PPS latency = 64 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 3 run: 18
-kfunc sample rate 3: throughput = 6187159 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 4 run: 18
-kfunc sample rate 4: throughput = 7278097 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 5 run: 18
-kfunc sample rate 5: throughput = 7167971 PPS latency = 44 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 6 run: 18
-kfunc sample rate 6: throughput = 7375106 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,08
-tunnel_sr: sampling : 7 run: 18
-kfunc sample rate 7: throughput = 7570163 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 8 run: 18
-kfunc sample rate 8: throughput = 7605516 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 9 run: 18
-kfunc sample rate 9: throughput = 7651211 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 0 run: 19
-kfunc sample rate 0: throughput = 4086048 PPS latency = 118 ns
-kfunc sample rate 0 L1-dcache-load-misses per packet: 1,14
-tunnel_sr: sampling : 1 run: 19
-kfunc sample rate 1: throughput = 4809673 PPS latency = 87 ns
-kfunc sample rate 1 L1-dcache-load-misses per packet: 1,09
-tunnel_sr: sampling : 2 run: 19
-kfunc sample rate 2: throughput = 5600118 PPS latency = 63 ns
-kfunc sample rate 2 L1-dcache-load-misses per packet: 1,04
-tunnel_sr: sampling : 3 run: 19
-kfunc sample rate 3: throughput = 6827234 PPS latency = 52 ns
-kfunc sample rate 3 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 4 run: 19
-kfunc sample rate 4: throughput = 6773707 PPS latency = 46 ns
-kfunc sample rate 4 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 5 run: 19
-kfunc sample rate 5: throughput = 7072725 PPS latency = 43 ns
-kfunc sample rate 5 L1-dcache-load-misses per packet: 1,02
-tunnel_sr: sampling : 6 run: 19
-kfunc sample rate 6: throughput = 7303252 PPS latency = 42 ns
-kfunc sample rate 6 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 7 run: 19
-kfunc sample rate 7: throughput = 7572775 PPS latency = 42 ns
-kfunc sample rate 7 L1-dcache-load-misses per packet: 1,03
-tunnel_sr: sampling : 8 run: 19
-kfunc sample rate 8: throughput = 7632184 PPS latency = 41 ns
-kfunc sample rate 8 L1-dcache-load-misses per packet: 1,08
-tunnel_sr: sampling : 9 run: 19
-kfunc sample rate 9: throughput = 7692367 PPS latency = 41 ns
-kfunc sample rate 9 L1-dcache-load-misses per packet: 0,65

@@ -1,0 +1,16 @@
+> CPU: 0
+ > Interface: ens2f0np0
+ > Event: instructions
+ > Time: 10s
+ > Reps: 10
+ > Verbose: False
+ > CSV: False
+
+
+Running nat inxpect benchmark
+
+INX avg_avg: 709.17 ; ERR: 0.1098 ; Throughput: 4332591.0
+
+Running nat better inxpect benchmark
+
+An error occurred: division by zero

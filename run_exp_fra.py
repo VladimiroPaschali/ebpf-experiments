@@ -94,7 +94,7 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
         
         result = sp.run(command, capture_output=True, text=True)
 
-        if result.returncode != 0:
+        if result.returncode != prog_path0:
             print("Error running perf command")
             return 0
         
@@ -329,33 +329,43 @@ def main():
         print(f" > CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
         
 
-        print("\nRunning drop baseline benchmark\n")
-        output = do_reps_baseline('./exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning drop benchmark\n")
-        output = do_reps('./exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning drop KFUNC benchmark\n")
-        output = do_reps_kfunc('./exp_drop/drop_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning drop baseline benchmark\n")
+        # output = do_reps_baseline('./exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning drop benchmark\n")
+        # output = do_reps('./exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning drop KFUNC benchmark\n")
+        # output = do_reps_kfunc('./exp_drop/drop_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        print("\nRunning cms baseline benchmark\n")
-        output = do_reps_baseline('./exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning cms miano benchmark\n")
-        output = do_reps('./exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning cms miano KFUNC benchmark\n")
-        output = do_reps_kfunc('./exp_cms_miano/cms_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning cms miano baseline benchmark\n")
+        # output = do_reps_baseline('./exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning cms miano benchmark\n")
+        # output = do_reps('./exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning cms miano KFUNC benchmark\n")
+        # output = do_reps_kfunc('./exp_cms_miano/cms_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        print("\nRunning routing baseline benchmark\n")
-        output = do_reps_baseline('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning routing benchmark\n")
-        output = do_reps('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning routing KFUNC benchmark\n")
-        output = do_reps_kfunc('./exp_routing/lpmtrie_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning cms miano meglio baseline benchmark\n")
+        # output = do_reps_baseline('./exp_cms_miano/cms_meglio', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        print("\nRunning tunnel baseline benchmark\n")
-        output = do_reps_baseline('./exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning tunnel benchmark\n")
-        output = do_reps('./exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        print("\nRunning tunnel KFUNC benchmark\n")
-        output = do_reps_kfunc('./exp_tunnel/tunnel_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning routing baseline benchmark\n")
+        # output = do_reps_baseline('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning routing benchmark\n")
+        # output = do_reps('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning routing KFUNC benchmark\n")
+        # output = do_reps_kfunc('./exp_routing/lpmtrie_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+
+        # print("\nRunning tunnel baseline benchmark\n")
+        # output = do_reps_baseline('./exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning tunnel benchmark\n")
+        # output = do_reps('./exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning tunnel KFUNC benchmark\n")
+        # output = do_reps_kfunc('./exp_tunnel/tunnel_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+
+        # print("\nRunning nat baseline benchmark\n")
+        # output = do_reps_baseline('./exp_nat/xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning nat benchmark\n")
+        # output = do_reps('./exp_nat/xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning nat KFUNC benchmark\n")
+        # output = do_reps_kfunc('./exp_nat/xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         
         sleep(1)
         

@@ -3,10 +3,49 @@ import re
 from time import sleep
 import argparse
 import sys 
+import os
+sys.path.append(os.path.abspath("/opt/trex-core/scripts/automation/trex_control_plane/interactive"))
+from trex_stl_lib.api import * # type: ignore
+sys.path.append(os.path.abspath("/opt/trex-core/scripts/stl"))
+from rand_upd import register # type: ignore
 
 BASH='sudo -E bash -c "export LD_LIBRARY_PATH=/lib64;'
 STATS_PATH='../inxpect/inxpect'
 KPERF_PATH = '/opt/ebpf-experiment/inxpect/kperf_'
+
+def init_trex():
+    c = STLClient(server = '128.105.146.89') # type: ignore
+    c.connect()
+    stream = register().get_streams(None,None)
+    c.reset(ports = [0])
+    c.add_streams(stream, ports=[0])
+    return c
+
+def start_trex(c):
+    # c.clear_stats(ports=[0])
+    # num_mult = int(mult.split("pps")[0])
+    c.start(ports = [0],mult="40mpps")
+
+    # c.wait_on_traffic()
+    # print(f"Waiting for traffic to reach {mult}")
+    # while True:
+    #     stats = c.get_stats()
+    #     stats = stats['global']
+    #     tx_pps = stats['tx_pps']
+    #     # print(tx_pps)
+    #     if tx_pps >= (num_mult//1.001):
+    #         break
+    # print(f"Traffic rate reached {mult} waiting for up to {duration} seconds")
+
+    # time.sleep(duration)
+
+    # c.stop(ports=[0])
+    # print("Stopped traffic")
+
+    # print(tx_pps)
+def stop_trex(c):
+    c.stop(ports=[0])
+    # print("Stopped traffic")
 
 def pretty_output(output):
     # Extract the two integers from the tuple
@@ -140,8 +179,10 @@ def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : in
         print(f"An error occurred: {e}")
         return 0,0
 
-def kill_background_process(prog_name):
+def kill_background_process(prog_name,trex):
     try:
+        stop_trex(trex)
+        sleep(1)
         if len(prog_name) > 0:
             sp.run(['sudo', 'pkill', prog_name])
     except Exception as e:
@@ -171,16 +212,19 @@ def prog__get_id_by_name(prog_name : str) -> int:
         print(f"An error occurred: {e}")
         return 0
 
-def prog__load_and_attach(prog_path : str, ifname : str, cpu : int = None) -> int:
+def prog__load_and_attach(prog_path : str, ifname : str,trex ,cpu : int = None) -> int:
+
+
     command = f"{BASH} {prog_path}.o {ifname} {cpu if cpu != None else ''}\""
     process = sp.Popen(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
-
-    
     sleep(1)
+
+    start_trex(trex)
+
     return process
 
-def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = None):
-    process = prog__load_and_attach(prog_path, ifname, cpu)
+def prog_test(prog_path : str, ifname : str, t : int, event : str,trex ,cpu : int = None):
+    process = prog__load_and_attach(prog_path, ifname,trex,cpu)
     if process == -1:
         print("Error loading program")
         return None
@@ -195,12 +239,12 @@ def prog_test(prog_path : str, ifname : str, t : int, event : str, cpu : int = N
     
     run_cnt_new = bpftool__get_run_cnt(prog_name)
     
-    kill_background_process(prog_name)
+    kill_background_process(prog_name,trex)
     return value, (run_cnt_new - run_cnt)
 
-def prog_test_kfunc(prog_path : str, ifname : str, t : int, event : str, cpu : int = None):
+def prog_test_kfunc(prog_path : str, ifname : str, t : int, event : str,trex, cpu : int = None):
 
-    process = prog__load_and_attach(prog_path, ifname, cpu)
+    process = prog__load_and_attach(prog_path, ifname,trex, cpu)
     if process == -1:
         print("Error loading program")
         return None
@@ -211,17 +255,17 @@ def prog_test_kfunc(prog_path : str, ifname : str, t : int, event : str, cpu : i
     value, inx_run_cnt=inx__get_event_value(prog_name, event, cpu, t)
     
     
-    kill_background_process(prog_name)
+    kill_background_process(prog_name,trex)
     return value, inx_run_cnt
 
 
-def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
+def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, trex,  cpu : int = None, v : bool = False) -> tuple[int, int]:
     output = []
     avgs = []
     throughput = []
     for i in range(reps):
         print(f"{i+1}/{reps}", end='\r')
-        output.append(prog_test(prog_path, ifname, t, event, cpu))
+        output.append(prog_test(prog_path, ifname, t, event,trex, cpu))
         avgs.append(output[-1][0] / output[-1][1])
         throughput.append(output[-1][1] / t)
 
@@ -244,7 +288,7 @@ def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu
     
     return  (total_avg, mean_dev)
 
-def do_reps_kfunc(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
+def do_reps_kfunc(prog_path : str, ifname : str, t : int, event : str, reps : int,trex, cpu : int = None, v : bool = False) -> tuple[int, int]:
 
     res = []
     output = []
@@ -253,7 +297,7 @@ def do_reps_kfunc(prog_path : str, ifname : str, t : int, event : str, reps : in
 
     for i in range(reps):
         # print(f"{i+1}/{reps}" ,end='\r')
-        output.append(prog_test_kfunc(prog_path, ifname, t, event, cpu))
+        output.append(prog_test_kfunc(prog_path, ifname, t, event,trex, cpu))
         avgs.append(output[-1][0] / output[-1][1])
         throughput.append(output[-1][1] / t)
         sleep(1)
@@ -275,9 +319,9 @@ def do_reps_kfunc(prog_path : str, ifname : str, t : int, event : str, reps : in
 
     return  res
 
-def baseline(prog_path : str, ifname : str, t : int, event : str, cpu : int = None, v : bool = False):
+def baseline(prog_path : str, ifname : str, t : int, event : str,trex, cpu : int = None, v : bool = False):
 
-    process = prog__load_and_attach(prog_path, ifname, cpu)
+    process = prog__load_and_attach(prog_path, ifname,trex, cpu)
     if process == -1:
         print("Error loading program")
         return None
@@ -288,15 +332,15 @@ def baseline(prog_path : str, ifname : str, t : int, event : str, cpu : int = No
 
     run_cnt = bpftool__get_run_cnt(prog_name)
     
-    kill_background_process(prog_name)
+    kill_background_process(prog_name,trex)
 
     return run_cnt // t
 
-def do_reps_baseline(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None ,v : bool = False,) -> int:  
+def do_reps_baseline(prog_path : str, ifname : str, t : int, event : str, reps : int,trex, cpu : int = None ,v : bool = False,) -> int:  
     res = []
     for i in range(reps):
         # print(f"{i+1}/{reps}" ,end='\r')
-        res.append(baseline(prog_path, ifname, t, event, cpu))
+        res.append(baseline(prog_path, ifname, t, event,trex, cpu))
         sleep(1)
         
     print(f"Baseline: {sum(res) // len(res)}")
@@ -307,30 +351,32 @@ def do_reps_baseline(prog_path : str, ifname : str, t : int, event : str, reps :
 def main():
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
-    parser.add_argument("-e", "--event", help = "Name of the event (default:instructions)",  metavar="instructions",required = False, default = "instructions")
-    parser.add_argument("-i", "--interface", help = "Interface name (default:ens2f1np1)",metavar="ens2f1np1", required = False, default = "ens2f1np1")
-    parser.add_argument("-c", "--cpu", help = "CPU number (default:21)", type=int, required = False, default = None)
+    parser.add_argument("-e", "--event", help = "Name of the event (default:L1-dcache-load-misses)",  metavar="L1-dcache-load-misses",required = False, default = "instructions")
+    parser.add_argument("-i", "--interface", help = "Interface name (default:ens2f0np0)",metavar="ens2f0np0", required = False, default = "ens2f0np0")
     parser.add_argument("--csv", help = "Output in CSV format", action="store_true")
-    parser.add_argument("-r", "--reps", help = "Number of repetitions", metavar="1", type=int, required = False, default = 1)
+    parser.add_argument("-r", "--reps", help = "Number of repetitions", metavar="1", type=int, required = False, default = 10)
     parser.add_argument("-v", "--verbose", help = "Verbose output", action="store_true", required = False, default = False)
     args = parser.parse_args()
-
     
     try:
         cpu=sp.check_output(f'sudo /opt/ebpf-experiments/script_interrupts.sh {args.interface}',shell=True)
         cpu=int(cpu.decode().strip())
         print(f"> CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
 
-        
+        trex=init_trex()
+
         # NAT
-    #    print("\nRunning nat perf benchmark\n")
-        # output=do_reps('./xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning nat baseline benchmark\n")
+        # output = do_reps_baseline('./xdp_nat', args.interface, args.time, args.event, args.reps,trex,cpu, bool(args.verbose))
+
+        # print("\nRunning nat perf benchmark\n")
+        # output=do_reps('./xdp_nat', args.interface, args.time, args.event, args.reps,trex,cpu, bool(args.verbose))
         
         print("\nRunning nat inxpect benchmark\n")
-        #output=do_reps_kfunc('./xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        output=do_reps_kfunc('./xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,trex,cpu, bool(args.verbose))
         
-        print("\nRunning nat better inxpect benchmark\n")
-        output=do_reps_kfunc('./xdp_nat_better', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning nat better inxpect benchmark\n")
+        # output=do_reps_kfunc('./xdp_nat_better', args.interface, args.time, args.event, args.reps,trex,cpu, bool(args.verbose))
                 
     except Exception as e:
         print(f"An error occurred: {e}")

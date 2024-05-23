@@ -138,6 +138,56 @@ static void FORCE_INLINE countmin_add(struct countmin *cm, void *element, __u64 
 
     return;
 }
+static void FORCE_INLINE countmin_add_1(struct countmin *cm, void *element, __u64 len)
+{
+    // Calculate just a single hash and re-use it to update and query the sketch
+    uint64_t h = fasthash64(element, len, _SEED_HASHFN);
+
+    uint16_t target_idx0 = h & (COLUMNS - 1);
+    uint16_t target_idx1 = h >> 16 & (COLUMNS - 1);
+    uint16_t target_idx2 = h >> 32 & (COLUMNS - 1);
+    uint16_t target_idx3 = h >> 48 & (COLUMNS - 1);
+
+    __u8 val0 = cm->values[0][target_idx0];
+    __u8 val1 = cm->values[1][target_idx1];
+    __u8 val2 = cm->values[2][target_idx2];
+    __u8 val3 = cm->values[3][target_idx3];
+
+    cm->values[0][target_idx0] = val0 + 1;
+    cm->values[1][target_idx1] = val1 + 1;
+    cm->values[2][target_idx2] = val2 + 1;
+    cm->values[3][target_idx3] = val3 + 1;
+
+
+    return;
+}
+
+
+static void FORCE_INLINE countmin_add_2(struct countmin *cm, void *element, __u64 len)
+{
+    // Calculate just a single hash and re-use it to update and query the sketch
+    uint64_t h = fasthash64(element, len, _SEED_HASHFN);
+
+    uint16_t target_idx0 = h & (COLUMNS - 1);
+    __u8 val0 = cm->values[0][target_idx0];
+    
+    uint16_t target_idx1 = h >> 16 & (COLUMNS - 1);
+    uint16_t target_idx2 = h >> 32 & (COLUMNS - 1);
+    uint16_t target_idx3 = h >> 48 & (COLUMNS - 1);
+
+    __u8 val1 = cm->values[1][target_idx1];
+    __u8 val2 = cm->values[2][target_idx2];
+    __u8 val3 = cm->values[3][target_idx3];
+
+    cm->values[1][target_idx1] = val1 + 1;
+    cm->values[2][target_idx2] = val2 + 1;
+    cm->values[3][target_idx3] = val3 + 1;
+
+    cm->values[0][target_idx0] = val0 + 1;
+    
+    return;
+}
+
 
 SEC("xdp")
 int cms_meglio(struct xdp_md *ctx)
@@ -223,7 +273,7 @@ int cms_meglio(struct xdp_md *ctx)
         goto DROP;
     }
 
-    countmin_add(cm, &pkt, sizeof(pkt));
+    countmin_add_1(cm, &pkt, sizeof(pkt));
 
     struct pkt_md *md;
     uint32_t index = 0;

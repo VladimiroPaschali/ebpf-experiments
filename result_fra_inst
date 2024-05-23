@@ -1,0 +1,60 @@
+ > CPU: 0
+ > Interface: ens2f0np0
+ > Event: instructions
+ > Time: 10s
+ > Reps: 10
+ > Verbose: False
+ > CSV: False
+
+
+Running drop baseline benchmark
+
+Baseline: 14816546
+
+Running drop benchmark
+
+PERF avg_avg: 627.89 ; ERR: 1.0071 ; Throughput: 3950701.0
+
+Running drop KFUNC benchmark
+
+INX avg_avg: 41.86 ; ERR: 0.0681 ; Throughput: 7532918.0
+
+Running cms miano baseline benchmark
+
+Baseline: 12255445
+
+Running cms miano benchmark
+
+PERF avg_avg: 783.15 ; ERR: 5.5149 ; Throughput: 3591620.0
+
+Running cms miano KFUNC benchmark
+
+INX avg_avg: 208.86 ; ERR: 0.0981 ; Throughput: 6144011.0
+
+Running cms miano meglio baseline benchmark
+
+Baseline: 12365720
+
+Running routing baseline benchmark
+
+Baseline: 2795424
+
+Running routing benchmark
+
+PERF avg_avg: 1741.08 ; ERR: 6.4847 ; Throughput: 1774614.0
+
+Running routing KFUNC benchmark
+
+INX avg_avg: 1162.89 ; ERR: 1.1098 ; Throughput: 2273754.0
+
+Running tunnel baseline benchmark
+
+Baseline: 7958008
+
+Running tunnel benchmark
+
+PERF avg_avg: 947.15 ; ERR: 2.4247 ; Throughput: 2966183.0
+
+Running tunnel KFUNC benchmark
+
+INX avg_avg: 362.88 ; ERR: 0.084 ; Throughput: 4513361.0

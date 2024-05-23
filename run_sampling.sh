@@ -129,6 +129,13 @@ case $EXPERIMENT in
         cat sampling_result > ../sampling_result
         echo -e "${GREEN}Data saved in the sampling_result file${NC}"
         ;;
+    nat)
+        echo -e "${GREEN}Starting nat experiments${NC}"
+        cd exp_nat || exit 1
+        python run_sampling.py --experiment xdp_nat_sr --interface "$INTERFACE" --time "$TIME" --perf "$PERF" --libbpf "$LIBBPF" --sampling "$SAMPLING"
+        cat sampling_result > ../sampling_result
+        echo -e "${GREEN}Data saved in the sampling_result file${NC}"
+        ;;
     *)
         echo "Not a valid Experiment  $EXPERIMENT try all" >&2
         exit 1

@@ -14,7 +14,7 @@ int macro(struct xdp_md *ctx)
 {
     BPF_MYKPERF_START_TRACE_ARRAY(main);
 
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+   // BPF_MYKPERF_END_TRACE_ARRAY(main);
 
     return XDP_DROP;
 }

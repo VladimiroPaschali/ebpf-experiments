@@ -1,0 +1,92 @@
+ > CPU: 0
+ > Interface: ens2f0np0
+ > Event: instructions
+ > Time: 10s
+ > Reps: 10
+ > Verbose: False
+ > CSV: False
+
+
+Running macro benchmark
+
+1/10
+2/10
+3/10
+4/10
+5/10
+6/10
+7/10
+8/10
+9/10
+10/10
+PERF avg_avg: 764.3 ; ERR: 2.5588 ; Throughput: 3199306.0
+
+Running kfunc benchmark
+
+1/10
+2/10
+3/10
+4/10
+5/10
+6/10
+7/10
+8/10
+9/10
+10/10
+PERF avg_avg: 668.78 ; ERR: 1.2541 ; Throughput: 3574467.0
+
+Runnin cms benchmark
+
+1/10
+2/10
+3/10
+4/10
+5/10
+6/10
+7/10
+8/10
+9/10
+10/10
+PERF avg_avg: 782.33 ; ERR: 4.6272 ; Throughput: 3699355.0
+
+Running fentry benchmark
+
+1/10
+2/10
+3/10
+4/10
+5/10
+6/10
+7/10
+8/10
+9/10
+10/10
+PERF avg_avg: 1006.55 ; ERR: 1.8437 ; Throughput: 3335783.0
+
+Running fentry_read benchmark
+
+1/10
+2/10
+3/10
+4/10
+5/10
+6/10
+7/10
+8/10
+9/10
+10/10
+PERF avg_avg: 1287.4 ; ERR: 1.4969 ; Throughput: 3063115.0
+
+Running fentry_update benchmark
+
+1/10
+2/10
+3/10
+4/10
+5/10
+6/10
+7/10
+8/10
+9/10
+10/10
+PERF avg_avg: 1323.28 ; ERR: 3.4823 ; Throughput: 3019149.0

@@ -318,33 +318,33 @@ def main():
 
         # KFUNC
         print("\nRunning kfunc benchmark\n")
-        output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        #output=do_reps('./kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
         # sleep(2)
     
         # # CMS
         print("\nRunnin cms benchmark\n")
-        output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        #output=do_reps('../exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
 
         # # FENTRY
         print("\nRunning fentry benchmark\n")
-        output=do_reps('./fentry/fentry', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
+        #output=do_reps('./fentry/fentry', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
         # # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
         
         sleep(2)
 
         # FENTRY READ
         print("\nRunning fentry_read benchmark\n")
-        output=do_reps('./fentry/fentry_read', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
+        #output=do_reps('./fentry/fentry_read', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
         # # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
         sleep(2)
         
         # # FENTRY UPDATE
         print("\nRunning fentry_update benchmark\n")
-        output=do_reps('./fentry/fentry_update', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        #output=do_reps('./fentry/fentry_update', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         # print(f"avg_avg: {round(output[0], 2)} | ERR: {round(output[1], 4)} | Throughput: {round(output[2], 2)}")
                 
     except Exception as e:
