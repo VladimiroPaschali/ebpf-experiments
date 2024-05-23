@@ -36,7 +36,7 @@ int prog_fd = -1;
 int duration = 0;
 
 // debug
-int hist[256] = {0};
+int *hist;
 
 // threads
 pthread_t thread_printer;                    // poll_print_stats
@@ -344,10 +344,12 @@ static void poll_stats(int key) // key is the id thread
         {
             if (thread_stats[cpu].name[0] == '\0')
                 continue;
-            diff = thread_stats[cpu].value - psections[key].record->value;
+
+            if (thread_stats[cpu].value >= psections[key].record->value)
+                diff = thread_stats[cpu].value - psections[key].record->value;
 
             // make hist
-            if (diff > 256)
+            if (diff > 255)
             {
                 hist[255]++;
             }
@@ -362,51 +364,6 @@ static void poll_stats(int key) // key is the id thread
         }
         // usleep(10000);
     }
-}
-
-void printHistogram(int hist[], int size)
-{
-    int max = 0;
-
-    // Find the maximum value in the histogram to determine the height
-    for (int i = 0; i < size; i++)
-    {
-        if (hist[i] > max)
-        {
-            max = hist[i];
-        }
-    }
-
-    // Print the histogram from top to bottom
-    for (int i = max; i > 0; i--)
-    {
-        for (int j = 0; j < size; j++)
-        {
-            if (hist[j] >= i)
-            {
-                printf(" * ");
-            }
-            else
-            {
-                printf("   ");
-            }
-        }
-        printf("\n");
-    }
-
-    // Print the base of the histogram
-    for (int i = 0; i < size; i++)
-    {
-        printf("---");
-    }
-    printf("\n");
-
-    // Print the indices for clarity
-    for (int i = 0; i < size; i++)
-    {
-        printf(" %d ", i);
-    }
-    printf("\n");
 }
 
 static void exit_cleanup(int signo)
@@ -477,6 +434,7 @@ static void exit_cleanup(int signo)
     if (arg__event)
         free(arg__event);
 
+    printf("daioc");
     // PRINT HIST
     // printHistogram(hist, 256);
 
@@ -484,7 +442,13 @@ static void exit_cleanup(int signo)
 
     for (int i = 0; i < 256; i++)
     {
-        printf("%d,", hist[i]);
+        if (hist[i] == 0){
+            printf("0,");
+            fflush(stdout);
+        }else{
+            printf("%d,", hist[i]);
+            fflush(stdout);
+        }    
     }
 
     printf("\n");
@@ -497,11 +461,12 @@ static void exit_cleanup(int signo)
         sum += hist[i] * i;
         count += hist[i];
     }
-
-    print("sum: %d\n", sum);
-    print("count: %d\n", count);
+    printf("sum: %d\n", sum);
+    printf("count: %d\n", count);
 
     printf("mean: %.2f\n", (double)sum / count);
+
+    free(hist);
 
     // fprintf(stdout, "[%s]: exiting\n", DEBUG);
     exit(EXIT_SUCCESS);
@@ -557,6 +522,8 @@ int main(int argc, char **argv)
     }
 
     percpu_data = malloc(libbpf_num_possible_cpus() * sizeof(struct record_array));
+
+    hist = malloc(256 * sizeof(int));
 
     for (int i = 0; i < 256; i++)
     {
