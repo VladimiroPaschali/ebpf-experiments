@@ -36,7 +36,7 @@ int prog_fd = -1;
 int duration = 0;
 
 // debug
-int *hist;
+__u64 *hist;
 
 // threads
 pthread_t thread_printer;                    // poll_print_stats
@@ -434,34 +434,24 @@ static void exit_cleanup(int signo)
     if (arg__event)
         free(arg__event);
 
-    printf("daioc");
     // PRINT HIST
     // printHistogram(hist, 256);
 
     printf("\n");
 
+    // mean value
+    __u64 sum = 0;
+    int count = 0;
     for (int i = 0; i < 256; i++)
     {
-        if (hist[i] == 0){
-            printf("0,");
-            fflush(stdout);
-        }else{
-            printf("%d,", hist[i]);
-            fflush(stdout);
-        }    
+        printf("%d,", hist[i]);
+        sum += (__u64)hist[i] * (__u64)i;
+        count += hist[i];
     }
 
     printf("\n");
 
-    // mean value
-    int sum = 0;
-    int count = 0;
-    for (int i = 0; i < 256; i++)
-    {
-        sum += hist[i] * i;
-        count += hist[i];
-    }
-    printf("sum: %d\n", sum);
+    printf("sum: %u\n", sum);
     printf("count: %d\n", count);
 
     printf("mean: %.2f\n", (double)sum / count);
@@ -523,7 +513,7 @@ int main(int argc, char **argv)
 
     percpu_data = malloc(libbpf_num_possible_cpus() * sizeof(struct record_array));
 
-    hist = malloc(256 * sizeof(int));
+    hist = malloc(256 * sizeof(__u64));
 
     for (int i = 0; i < 256; i++)
     {

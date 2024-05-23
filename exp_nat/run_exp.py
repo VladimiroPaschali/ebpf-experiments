@@ -24,7 +24,9 @@ def init_trex():
 def start_trex(c):
     # c.clear_stats(ports=[0])
     # num_mult = int(mult.split("pps")[0])
-    c.start(ports = [0],mult="40mpps")
+    # c.start(ports = [0],mult="40mpps")
+    c.start_line(" -f ./nat.py -m 40mpps --port 0")
+
 
     # c.wait_on_traffic()
     # print(f"Waiting for traffic to reach {mult}")
@@ -350,8 +352,8 @@ def do_reps_baseline(prog_path : str, ifname : str, t : int, event : str, reps :
 
 def main():
     parser = argparse.ArgumentParser(description = "Performance testing")
-    parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
-    parser.add_argument("-e", "--event", help = "Name of the event (default:L1-dcache-load-misses)",  metavar="L1-dcache-load-misses",required = False, default = "instructions")
+    parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 1)
+    parser.add_argument("-e", "--event", help = "Name of the event (default:L1-dcache-load-misses)",  metavar="L1-dcache-load-misses",required = False, default = "L1-dcache-load-misses")
     parser.add_argument("-i", "--interface", help = "Interface name (default:ens2f0np0)",metavar="ens2f0np0", required = False, default = "ens2f0np0")
     parser.add_argument("--csv", help = "Output in CSV format", action="store_true")
     parser.add_argument("-r", "--reps", help = "Number of repetitions", metavar="1", type=int, required = False, default = 10)

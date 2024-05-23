@@ -13,6 +13,11 @@
 // #include <bpf/libbpf.h>
 #include "fw.bpf.h"
 
+#include "mykperf_module.h"
+
+BPF_MYKPERF_INIT_TRACE();
+DEFINE_SECTIONS("main");
+
 inline int insert_key(struct flow_ctx_table_key *flow_key)
 {
     // swap src and dest
@@ -39,8 +44,10 @@ inline bool check_key(struct flow_ctx_table_key *flow_key)
 }
 
 SEC("xdp")
-int fw(struct xdp_md *ctx)
+int fw_sr(struct xdp_md *ctx)
 {
+    BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(main);
+
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
 
@@ -114,22 +121,24 @@ l4: {
     if (is_internal_ip(&flow_key))
     {
         // add key to the table
-        if (insert_key(&flow_key))
-            // bpf_printk("err");
-            // bpf_printk("insert key\n");
-        
-            return XDP_TX;
+        insert_key(&flow_key);
+        // bpf_printk("err");
+        // bpf_printk("insert key\n");
+        BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
+        return XDP_TX;
     }
     else if (is_external_ip(&flow_key))
     {
         // check if the key is available inside the map
         if (check_key(&flow_key))
         {
-            bpf_printk("key found\n");
+            // bpf_printk("key found\n");
+            BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
             return XDP_TX;
         }
         else
         {
+            BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
             return XDP_DROP;
         }
     }

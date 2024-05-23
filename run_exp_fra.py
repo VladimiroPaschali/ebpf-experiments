@@ -94,7 +94,7 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
         
         result = sp.run(command, capture_output=True, text=True)
 
-        if result.returncode != prog_path0:
+        if result.returncode != 0:
             print("Error running perf command")
             return 0
         
@@ -369,6 +369,14 @@ def main():
         
         sleep(1)
         
+        print("\nRunning fw baseline benchmark\n")
+        output = do_reps_baseline('./exp_fw/fw', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        
+        print("\nRunning fw benchmark\n")
+        output = do_reps('./exp_fw/fw', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        
+        print("\nRunning fw KFUNC benchmark\n")
+        output = do_reps_kfunc('./exp_fw/fw_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
                 
     except Exception as e:
         print(f"An error occurred: {e}")

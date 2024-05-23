@@ -25,15 +25,22 @@ SAMPLING = [1,8,32,64,128]
 def init_trex():
     c = STLClient(server = '128.105.146.89') # type: ignore
     c.connect()
+    # try:                                                    # load a profile
+    #       profile = STLProfile.load("./nat.py")
+    # except STLError as e:
+    #     print("Error while loading profile")
+    #     print(e.brief())
+    #     return
     stream = register().get_streams(None,None)
     c.reset(ports = [0])
-    c.add_streams(stream, ports=[0])
+    # c.add_streams(profile.get_streams(), ports=[0])
     return c
 
 def start_trex(c):
     # c.clear_stats(ports=[0])
     # num_mult = int(mult.split("pps")[0])
-    c.start(ports = [0],mult="40mpps")
+    # c.start(ports = [0],mult="40mpps")
+    c.start_line(" -f ./nat.py -m 40mpps --port 0")
 
     # c.wait_on_traffic()
     # print(f"Waiting for traffic to reach {mult}")
@@ -96,8 +103,8 @@ def exp_sampling(sampling):
     # retrieve data FRANCESCO
     output, errors = loader_stats_output.communicate()
     output = output.decode("utf-8")
-    # print(output)
-    # print(errors)
+    print(output)
+    print(errors)
 
     value= re.findall(r".*main: (\d*.*\d).*- (\d*.*\d).*", output)[0][0]
     value = value.split(" ")[-1]
@@ -127,10 +134,10 @@ def parser():
     parser = argparse.ArgumentParser(description = "Performance testing")
     parser.add_argument("-t", "--time", help = "Duration of each test in seconds (default:10)", metavar="10",type=int, required = False, default = 10)
     parser.add_argument("-e", "--experiment", help = "Name of the experiment (default:xdp_nat_sr)",  metavar="xdp_nat_sr",required = False, default = "xdp_nat_sr")
-    parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "enp81s0f0np0")
+    parser.add_argument("-i", "--interface", help = "Interface name (default:enp129s0f0np0)",metavar="enp129s0f0np0", required = False, default = "ens2f0np0")
     parser.add_argument("-p", "--perf", help = "Path of perf (default:/home/guest/linux/tools/perf/)",metavar="PATH", required = False, default = "perf")
     parser.add_argument("-l", "--libbpf", help = "Path of libbpf (default:/home/guest/libbpf/src/)",metavar="PATH", required = False, default = "/lib64")
-    parser.add_argument("-s", "--sampling", help = "Sampling rates (default:1,8,32,128)",metavar="1,8,32,128", required = False, default = "1,8,32,128")
+    parser.add_argument("-s", "--sampling", help = "Sampling rates (default:1,8,32,128)",metavar="1,8,32,128", required = False, default = "1,2,3,4,5,6,7,8,9")
 
     args = parser.parse_args()
 
