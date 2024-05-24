@@ -22,11 +22,12 @@ inline int insert_key(struct flow_ctx_table_key *flow_key)
 {
     // swap src and dest
     __u32 temp;
-    __u16 temp1;
     temp = flow_key->ip_dst;
+
+    __u16 temp1;
     flow_key->ip_dst = flow_key->ip_src;
     flow_key->ip_src = temp;
-    flow_key->l4_dst = temp1;
+    temp1 = flow_key->l4_dst;
     flow_key->l4_dst = flow_key->l4_src;
     flow_key->l4_src = temp1;
     return bpf_map_update_elem(&flow_ctx_table, flow_key, flow_key, BPF_ANY);

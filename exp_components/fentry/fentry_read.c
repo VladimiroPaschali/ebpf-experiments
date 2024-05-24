@@ -86,15 +86,19 @@ int main(int argc, char *argv[])
     // get map fd
     int map_fd = bpf_map__fd(skel->maps.perf_map);
 
+    printf("map_fd: %d\n", map_fd);
+
     // set map
     int pmu_fd;
     int cpu = atoi(argv[2]);
 
     struct perf_event_attr attr = {
         .type = PERF_TYPE_HARDWARE,
-        .config = PERF_COUNT_HW_CPU_CYCLES,
+        .config = PERF_COUNT_HW_INSTRUCTIONS,
         .exclude_user = 1,
     };
+
+    printf("cpu: %d\n", cpu);
 
     pmu_fd = syscall(__NR_perf_event_open, &attr, -1 /*pid*/, cpu, -1 /*group_fd*/, 0);
     if (pmu_fd < 0)
@@ -123,5 +127,7 @@ int main(int argc, char *argv[])
     }
 
     while (1)
+    {
         sleep(1);
+    }
 }

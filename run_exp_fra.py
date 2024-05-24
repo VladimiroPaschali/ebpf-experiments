@@ -115,11 +115,14 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
         print(f"An error occurred: {e}")
         return 0
     
-def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : int) -> tuple[int, int]:
+def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : int, sample : int = None) -> tuple[int, int]:
     try:
         
         command = f"{BASH} {STATS_PATH} -n {prog_name} -C {cpu} -e {event_name} -d {time} -a\""
         # print(command)
+        if (sample):
+            command = f"{BASH} {STATS_PATH} -n {prog_name} -C {cpu} -e {event_name} -d {time} -s {sample} -a\""
+
         result = sp.run(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
 
     
@@ -222,6 +225,28 @@ def prog_test_kfunc(prog_path : str, ifname : str, t : int, event : str, cpu : i
     # return value, (run_cnt_new - run_cnt) 
     return value, inx_run_cnt
 
+def prog_test_sr(prog_path : str, ifname : str, t : int, event : str, sample : int, cpu : int = None):
+
+    process = prog__load_and_attach(prog_path, ifname, cpu)
+    if process == -1:
+        print("Error loading program")
+        return None
+    
+    prog_name = prog_path.split('/')[-1]
+    
+    run_cnt_old=bpftool__get_run_cnt(prog_name)
+    
+    
+    value, inx_run_cnt=inx__get_event_value(prog_name, event, cpu, t, sample)
+    
+    run_cnt_new=bpftool__get_run_cnt(prog_name)
+
+    
+    kill_background_process(prog_name)
+    # return value, (run_cnt_new - run_cnt) 
+    return value, inx_run_cnt, run_cnt_new - run_cnt_old
+
+
 def baseline(prog_path : str, ifname : str, t : int, event : str, cpu : int = None, v : bool = False):
 
     process = prog__load_and_attach(prog_path, ifname, cpu)
@@ -279,6 +304,37 @@ def do_reps(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu
     res=(total_avg, mean_dev, throughput_avg)
     return res
 
+def do_reps_sr(prog_path : str, ifname : str, t : int, event : str, reps : int,cpu : int = None, v : bool = False) -> tuple[int, int]:
+ 
+    sr = [2,3,4,5,6,7,8,9]
+    for sample in sr:
+        res = []
+        output = []
+        avgs = []
+        throughput = []
+        print(f"Sample: {sample}") 
+        for i in range(reps):
+            print(f"{i+1}/{reps}" ,end='\r')
+            output.append(prog_test_sr(prog_path, ifname, t, event, sample, cpu))
+            avgs.append(output[-1][0] / output[-1][1])
+            throughput.append(output[-1][-1] / t)
+            sleep(1)
+
+        total_avg = sum(avgs) / len(avgs)
+        throughput_avg = sum(throughput) // len(throughput)
+    
+    # do error
+        dev_sum = sum([abs((x - total_avg)) for x in avgs])
+        mean_dev = dev_sum / len(avgs)
+        print(f"INXP SR avg_avg: {round(total_avg, 2)} ; ERR: {round(mean_dev, 4)} ; Throughput: {throughput_avg}")
+        
+
+
+    sys.stdout.flush()
+    res=(total_avg, mean_dev, throughput_avg)
+    return res
+
+
 def do_reps_kfunc(prog_path : str, ifname : str, t : int, event : str, reps : int, cpu : int = None, v : bool = False) -> tuple[int, int]:
 
     res = []
@@ -317,7 +373,7 @@ def main():
     parser.add_argument("-e", "--event", help = "Name of the event (default:L1-dcache-load-misses)",  metavar="L1-dcache-load-misses",required = False, default = "L1-dcache-load-misses")
     parser.add_argument("-i", "--interface", help = "Interface name (default:ens2f0np0)",metavar="ens2f0np0", required = False, default = "ens2f0np0")
     parser.add_argument("--csv", help = "Output in CSV format", action="store_true")
-    parser.add_argument("-r", "--reps", help = "Number of repetitions", metavar="1", type=int, required = False, default = 1)
+    parser.add_argument("-r", "--reps", help = "Number of repetitions", metavar="1", type=int, required = False, default = 10)
     parser.add_argument("-v", "--verbose", help = "Verbose output", action="store_true", required = False, default = False)
     args = parser.parse_args()
 
@@ -326,6 +382,7 @@ def main():
         # init()
         cpu=sp.check_output(f'sudo /opt/ebpf-experiments/script_interrupts.sh {args.interface}',shell=True)
         cpu=int(cpu.decode().strip())
+        cpu=0
         print(f" > CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
         
 
@@ -349,8 +406,7 @@ def main():
         # print("\nRunning routing baseline benchmark\n")
         # output = do_reps_baseline('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         # print("\nRunning routing benchmark\n")
-        # output = do_reps('./exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning routing KFUNC benchmark\n")
+        # output = do_reps('./exp_rdo_reps_baselineKFUNC benchmark\n")
         # output = do_reps_kfunc('./exp_routing/lpmtrie_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
         # print("\nRunning tunnel baseline benchmark\n")
@@ -367,16 +423,19 @@ def main():
         # print("\nRunning nat KFUNC benchmark\n")
         # output = do_reps_kfunc('./exp_nat/xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         
-        sleep(1)
+        # sleep(1)
         
-        print("\nRunning fw baseline benchmark\n")
-        output = do_reps_baseline('./exp_fw/fw', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning fw baseline benchmark\n")
+        # output = do_reps_baseline('./exp_fw/fw', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         
-        print("\nRunning fw benchmark\n")
-        output = do_reps('./exp_fw/fw', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning fw benchmark\n")
+        # output = do_reps('./exp_fw/fw', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
         
-        print("\nRunning fw KFUNC benchmark\n")
-        output = do_reps_kfunc('./exp_fw/fw_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning fw KFUNC benchmark\n")
+        # output = do_reps_kfunc('./exp_fw/fw_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+                
+        # print("\nRunning fw SR benchmark\n")
+        # output = do_reps_sr('./exp_fw/fw_sr', args.interface, args.time, args.event, args.reps, cpu, bool(args.verbose))
                 
     except Exception as e:
         print(f"An error occurred: {e}")

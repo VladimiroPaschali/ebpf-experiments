@@ -7,7 +7,7 @@ FENTRY := fentry/fentry
 KHEADER := ../inxpect/kperf_
 
 .PHONY: all clean fentry
-.SILENT: drop kfunc macro fentry_perf_read fentry_update_map fentry
+#.SILENT: drop kfunc macro fentry_perf_read fentry_update_map fentry
 
 all: drop kfunc fentry fentry_perf_read fentry_update_map macro 
 
