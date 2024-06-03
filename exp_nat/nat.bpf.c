@@ -26,17 +26,18 @@ int free_port_p = 10000;
 
 #define NAT_IP            0x0b000001
 
+#define NAT_SIZE 16384
 
 struct flow {
-    __be32 src;
-    __be32 dst;
-    __be16 port16[2];
+    __u32 src;
+    __u32 dst;
+    __u16 port16[2];
     __u8 proto;
 };
 
 struct binding_definition {
-    __be32 addr;
-    __be16 port;
+    __u32 addr;
+    __u16 port;
 };
 
 
@@ -46,7 +47,7 @@ struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, struct flow);
 	__type(value, struct binding_definition);
-	__uint(max_entries, 1024);
+	__uint(max_entries, NAT_SIZE);
 } internal_external_mapping SEC(".maps"); 
 
 /* key: flow with external ip and port and nat ip and port
@@ -55,7 +56,7 @@ struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, struct flow);
 	__type(value, struct binding_definition);
-	__uint(max_entries, 1024);
+	__uint(max_entries, NAT_SIZE);
 } external_nat_mapping SEC(".maps");
 
 static __always_inline __u16 csum_fold_helper(__u32 csum)
@@ -79,49 +80,55 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
     __be32 new_addr;
     __u8 protocol;
     int ret;
-    struct iphdr *ip = data + sizeof(struct ethhdr);
+    struct iphdr *ip = data + off;
     struct tcphdr *tcp = (struct tcphdr *)(ip + 1);
     if (ip + 1 > data_end)
     {
         return XDP_DROP;
     }
 
+    // print src and dst ip
+    //bpf_trace_printk("dst addr %pi4 \n", bpf_ntohl(ip->daddr));
+
     protocol = ip->protocol;
     pckt.proto = protocol;
-    pckt.src = ip->saddr;
-    pckt.dst = ip->daddr;
+    pckt.src = bpf_ntohl(ip->saddr);
+    pckt.dst = bpf_ntohl(ip->daddr);
+    //bpf_printk("__________________\n");
+    //bpf_printk("rx packet\n");
+    //bpf_printk("src addr %u.%u.%u.%u \n", pckt.src >> 24, (pckt.src & 0x00FF0000) >> 16, (pckt.src & 0x0000FF00) >> 8, pckt.src & 0x000000FF);
+    //bpf_printk("dst addr %u.%u.%u.%u \n", pckt.dst >> 24, (pckt.dst & 0x00FF0000) >> 16, (pckt.dst & 0x0000FF00) >> 8, pckt.dst & 0x000000FF);
 
 
     // bpf_printk("l3\n");
     if (protocol == IPPROTO_TCP)
     {
+	    //bpf_printk("tcp packet\n");
 	    if (tcp + 1 > data_end)
 	    {
 	        return XDP_DROP;
 	    }
-	    pckt.port16[0] = tcp->source;
-	    pckt.port16[1] = tcp->dest;
+	    pckt.port16[0] = bpf_ntohs(tcp->source);
+	    pckt.port16[1] = bpf_ntohs(tcp->dest);
     }
     else 
     {
-	return XDP_PASS;
+	return XDP_DROP;
     }
 
+    //bpf_printk("src addr %pi4 port %u\n", pckt.src, pckt.port16[0]);
+    //bpf_printk("dst addr %pi4 port %u\n", pckt.dst, pckt.port16[1]);
     /* check if packet is internal or external */
     // packet coming from internal network
-    if (pckt.dst >= EXTERNAL_IP_START && pckt.dst <= EXTERNAL_IP_END)
+    if (pckt.src >= INTERNAL_IP_START && pckt.src <= INTERNAL_IP_END)
     {
-	// bpf_printk("external packet\n");
+	//bpf_printk("internal packet\n");
 	nat_binding_entry = bpf_map_lookup_elem(&internal_external_mapping, &pckt);
 	if (!nat_binding_entry) {
-		// bpf_printk("binding entry not found\n");
-		// bpf_printk("nat addr %d port %d\n", nat_binding_entry->addr, nat_binding_entry->port);
-		// bpf_printk("internal addr %d port %d\n", pckt.src, pckt.port16[0]);
-		// bpf_printk("external addr %d port %d\n", pckt.dst, pckt.port16[1]);
-		// bpf_printk("nat addr %d port %d\n", nat_binding_entry->addr, nat_binding_entry->port);
+		//bpf_printk("binding entry not found\n");
 		// create new entry
 		struct binding_definition new_binding_value = {};
-		new_binding_value.addr = bpf_ntohl(NAT_IP);
+		new_binding_value.addr = NAT_IP;
 		new_binding_value.port = free_port_p;
 		if (bpf_map_update_elem(&internal_external_mapping, &pckt, &new_binding_value, 0))
 		{
@@ -132,7 +139,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 		// insert entry for external_nat_mapping
 		struct flow new_flow = {};
 		new_flow.src = pckt.dst;
-		new_flow.dst = bpf_ntohl(NAT_IP);
+		new_flow.dst = NAT_IP;
 		new_flow.port16[0] = pckt.port16[1];
 		new_flow.port16[1] = free_port_p;
 		new_flow.proto = pckt.proto;
@@ -148,15 +155,25 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 		// increase port number
 		free_port_p++;
 		nat_binding_entry = &new_binding_value;
+		// modify packet
+		ip->saddr = bpf_htonl(nat_binding_entry->addr);
+		tcp->source = bpf_htons(nat_binding_entry->port);
 
-	} 
-	// modify packet
-	ip->saddr = bpf_htonl(nat_binding_entry->addr);
-	tcp->source = bpf_htons(nat_binding_entry->port);
+	} else {
+		//bpf_printk("binding entry found\n");
+		// modify packet
+		ip->saddr = bpf_htonl(nat_binding_entry->addr);
+		tcp->source = bpf_htons(nat_binding_entry->port);
+	}	
     }
-    else if (pckt.dst == bpf_ntohl(NAT_IP))
+    else if (pckt.dst == NAT_IP)
     {
-	// bpf_printk("external packet\n");
+	    //return XDP_DROP;
+	//bpf_printk("external packet\n");
+	//bpf_printk("internal addr %pI4 port %d\n", pckt.src, pckt.port16[0]);
+	//bpf_printk("external addr %pI4 port %d\n", pckt.dst, pckt.port16[1]);
+	// bpf_printk("nat addr %d port %d\n", nat_binding_entry->addr, nat_binding_entry->port);
+	// packet coming from external network
 	nat_binding_entry = bpf_map_lookup_elem(&external_nat_mapping, &pckt);
 	if (!nat_binding_entry) {
 		// bpf_printk("binding entry not found\n");
@@ -176,25 +193,31 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 
 
     // recompute ip csum
-    ip->check =
-        csum_fold_helper(bpf_csum_diff(new_addr_pck_pointer, sizeof(__be32), &new_addr, sizeof(__be32), ~(ip->check)));
+    //ip->check =
+    //    csum_fold_helper(bpf_csum_diff(new_addr_pck_pointer, sizeof(__be32), &new_addr, sizeof(__be32), ~(ip->check)));
 
-    csum_off = 50;
-    l4_hdr_end = 4;
+    //csum_off = 50;
+    //l4_hdr_end = 4;
 
-    csum_p = (__sum16 *)((__u8 *)data + csum_off);
+    //csum_p = (__sum16 *)((__u8 *)data + csum_off);
 
-    if (data + csum_off + l4_hdr_end > data_end)
-    {
-        return XDP_DROP;
-    }
+    //if (data + csum_off + l4_hdr_end > data_end)
+    //{
+    //    return XDP_DROP;
+    //}
 
-    *csum_p = csum_fold_helper(
-        bpf_csum_diff((__be32 *)tcp, sizeof(__be32), (__be32 *)new_ports, sizeof(__be32), ~(*(__u16 *)csum_p)));
+    //*csum_p = csum_fold_helper(
+    //    bpf_csum_diff((__be32 *)tcp, sizeof(__be32), (__be32 *)new_ports, sizeof(__be32), ~(*(__u16 *)csum_p)));
 
-    *csum_p = csum_fold_helper(
-        bpf_csum_diff(new_addr_pck_pointer, sizeof(__be32), &new_addr, sizeof(__be32), ~(*(__u16 *)csum_p)));
+    //*csum_p = csum_fold_helper(
+    //    bpf_csum_diff(new_addr_pck_pointer, sizeof(__be32), &new_addr, sizeof(__be32), ~(*(__u16 *)csum_p)));
 
+    //bpf_printk("TX modified packet\n");
+    //bpf_printk("src addr %pi4h port %u\n", pckt.src, pckt.port16[0]);
+    //bpf_printk("dst addr %pi4h port %u\n", pckt.dst, pckt.port16[1]);
+    // print src and dst ip
+    //bpf_printk("src addr %u.%u.%u.%u \n", bpf_ntohl(ip->saddr) >> 24, (bpf_ntohl(ip->saddr) & 0x00FF0000) >> 16, (bpf_ntohl(ip->saddr) & 0x0000FF00) >> 8, bpf_ntohl(ip->saddr) & 0x000000FF);
+    //bpf_printk("dst addr %u.%u.%u.%u \n", bpf_ntohl(ip->daddr) >> 24, (bpf_ntohl(ip->daddr) & 0x00FF0000) >> 16, (bpf_ntohl(ip->daddr) & 0x0000FF00) >> 8, bpf_ntohl(ip->daddr) & 0x000000FF);
     return XDP_TX;
 }
 
@@ -222,7 +245,7 @@ int xdp_nat(struct xdp_md *ctx)
     }
     else
     {
-        return XDP_PASS;
+        return XDP_DROP;
     }
 }
 
