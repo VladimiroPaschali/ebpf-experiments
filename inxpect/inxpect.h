@@ -19,6 +19,7 @@
 #define MAX_PSECTIONS 8
 #define PINNED_PATH "/sys/fs/bpf/"
 #define RECORD_MAP_NAME "percpu_output"
+#define RECORD_MAP_NAME_MAPPED "mappable_output"
 
 #define MAX_PROG_FULL_NAME 16
 

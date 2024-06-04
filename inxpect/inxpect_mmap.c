@@ -205,7 +205,7 @@ static int run_count__reset()
 static int percpu_output__get_fd()
 {
     char filename_map[256];
-    int err = snprintf(filename_map, sizeof(filename_map), "%s%s", PINNED_PATH, RECORD_MAP_NAME);
+    int err = snprintf(filename_map, sizeof(filename_map), "%s%s", PINNED_PATH, RECORD_MAP_NAME_MAPPED);
     if (err < 0)
     {
         fprintf(stderr, "[%s]: creating filename for pinned path: %s\n", ERR, strerror(errno));
@@ -217,7 +217,7 @@ static int percpu_output__get_fd()
     if (map_fd < 0)
     {
         fprintf(stderr, "[%s]: getting map fd from pinned path: %s\nbe sure %s program own '%s' map", ERR, filename_map,
-                prog_name, RECORD_MAP_NAME);
+                prog_name, RECORD_MAP_NAME_MAPPED);
         return -1;
     }
 
