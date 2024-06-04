@@ -150,7 +150,7 @@ def kfunc():
     # evento = "instructions"
 
 
-    time.sleep(1.0)
+    time.sleep(3.0)
 
     if not (os.path.exists(LOADER_STATS)):
             print("Compiling Kfunc loader")
