@@ -37,6 +37,9 @@ int timeout_s = 3;
 int prog_fd = -1;
 int duration = 0;
 struct record_array* mmap_map = NULL;
+long unsigned int user_speed = 0;
+long unsigned int user_speed_counter = 0;
+
 
 // threads
 pthread_t thread_printer;                    // poll_print_stats
@@ -318,11 +321,11 @@ static void poll_print_stats()
 
             if (prev_run_count != psections[i_sec].record->run_cnt)
             {
-                fprintf(stdout, "%sdiff: value: %llu   %.2f/pkt    run_count: %llu\n", ERR,
-                        (psections[i_sec].record->value - prev_value),
-                        (float)(psections[i_sec].record->value - prev_value) /
-                            (psections[i_sec].record->run_cnt - prev_run_count),
-                        psections[i_sec].record->run_cnt - prev_run_count);
+                //fprintf(stdout, "%sdiff: value: %llu   %.2f/pkt    run_count: %llu\n", ERR,
+                //        (psections[i_sec].record->value - prev_value),
+                //        (float)(psections[i_sec].record->value - prev_value) /
+                //            (psections[i_sec].record->run_cnt - prev_run_count),
+                //        psections[i_sec].record->run_cnt - prev_run_count);
 
                 prev_run_count = psections[i_sec].record->run_cnt;
                 prev_value = psections[i_sec].record->value;
@@ -360,6 +363,8 @@ static void poll_stats(int key) // key is the id thread
                 continue;
 
             // TODO: not work with more than 1 cpu
+	    user_speed_counter += 1;
+	    user_speed += thread_stats.run_cnt - psections[key].record->run_cnt;
             psections[key].record->value = thread_stats.value;
             psections[key].record->run_cnt = thread_stats.run_cnt;
         //}
@@ -435,6 +440,7 @@ static void exit_cleanup(int signo)
     if (arg__event)
         free(arg__event);
 
+    fprintf(stdout, "[%s: ] packet diff: %u run_cnt: %u\n", DEBUG, user_speed, user_speed_counter);
     fprintf(stdout, "[%s]: exiting\n", DEBUG);
     exit(EXIT_SUCCESS);
 }
