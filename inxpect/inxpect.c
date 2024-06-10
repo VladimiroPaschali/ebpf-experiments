@@ -104,6 +104,7 @@ static int psections__get_list(char psections_name_list[MAX_PSECTIONS][MAX_PROG_
 {
     int fd = -1;
     int zero = 0;
+    //printf("prog fd %d\n", prog_fd);
     fd = get_rodata_map_fd(prog_fd);
     if (fd < 0)
     {
@@ -167,6 +168,7 @@ static int run_count__reset()
     fd = get_bss_map_fd(prog_fd);
     if (fd < 0)
     {
+	printf("error\n");
         fprintf(stderr, "[%s]: during finding data map\n", ERR);
         return -1;
     }

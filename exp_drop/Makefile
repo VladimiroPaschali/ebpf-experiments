@@ -25,7 +25,7 @@ $(BPF_OBJS): %.o: %.c
 	clang \
 		-target bpf \
 		-g -w \
-		-O2 -I ../inxpect/kperf_ -c $< -o $@
+		-O2 -I ../inxpect/kperf_ -c $< -o $@ -l:libbpf.1.4.0.so
 	@echo "Compiled $<"
 
 $(BPF_SKEL): %.skel.h: %.bpf.o
