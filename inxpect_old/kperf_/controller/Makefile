@@ -1,5 +1,5 @@
 obj-m += mychardev.o
-CPU := $(shell sudo ../../script_interrupts.sh ens2f0np0)
+CPU := $(shell sudo ../../script_interrupts.sh enp81s0f0np0)
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

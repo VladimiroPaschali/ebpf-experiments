@@ -3,25 +3,25 @@
 #include <bpf/bpf_helpers.h>
 #include "mykperf_module.h"
 
-BPF_MYKPERF_INIT_TRACE_MAPPABLE();
+BPF_MYKPERF_INIT_TRACE();
 DEFINE_SECTIONS("main");
 
 SEC("xdp")
 int drop_kfunc(struct xdp_md *ctx)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY_MAPPED(main);
-/* 
-    // parse packt
-    void *data_end = (void *)(long)ctx->data_end;
-    void *data = (void *)(long)ctx->data;
+    BPF_MYPERF_START_TRACE_MULTIPLEXED(main);
+    /*
+        // parse packt
+        void *data_end = (void *)(long)ctx->data_end;
+        void *data = (void *)(long)ctx->data;
 
-    struct ethhdr *eth = data;
-    if ((void *)eth + sizeof(*eth) > data_end)
-    {
-        return XDP_DROP;
-    } */
+        struct ethhdr *eth = data;
+        if ((void *)eth + sizeof(*eth) > data_end)
+        {
+            return XDP_DROP;
+        } */
 
-    BPF_MYKPERF_END_TRACE_ARRAY_MAPPED(main);
+    BPF_MYPERF_END_TRACE_MULTIPLEXED(main);
     return XDP_DROP;
 }
 

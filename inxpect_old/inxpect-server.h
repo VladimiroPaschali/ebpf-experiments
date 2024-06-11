@@ -1,8 +1,6 @@
 #ifndef __INXPECT_SERVER_H__
 #define __INXPECT_SERVER_H__
 
-#include "includes/cJSON.h"
-
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
@@ -12,9 +10,7 @@ enum inxpect_server__message_code_t
     INXPECT_SERVER__MESSAGE_CODE__EVENT_SET = 1,
     INXPECT_SERVER__MESSAGE_CODE__EVENT_GET = 2,
     INXPECT_SERVER__MESSAGE_CODE__SAMPLE_RATE_SET = 3,
-    INXPECT_SERVER__MESSAGE_CODE__PSECTIONS_GET = 4,
-    INXPECT_SERVER__MESSAGE_CODE__RECORDS_GET = 5,
-    INXPECT_SERVER__MESSAGE_CODE__MULTIPLEX_RATE_SET = 6
+    INXPECT_SERVER__MESSAGE_CODE__PSECTIONS_GET = 4
 };
 
 enum inxpect_server__message_error_t
@@ -41,7 +37,6 @@ struct inxpect_server__message_t
  * }
  */
 
-void __array_to_number_json(cJSON *array_json, void *array, int size, int type_size);
 void inxpect_server__message_to_json(struct inxpect_server__message_t *message, char *json);
 void inxpect_server__json_to_message(char *json, struct inxpect_server__message_t *message);
 void inxpect_server__psection_to_json(struct psection_t *psection, char *json);
@@ -59,7 +54,6 @@ int inxpect_response__event_get(int sock, struct inxpect_server__message_t *msg)
 int inxpect_response__sample_rate_set(int sock, struct inxpect_server__message_t *msg);
 int inxpect_response__psections_get(int sock, struct inxpect_server__message_t *msg);
 int inxpect_response__stats_get_by_psection_name(int sock, struct inxpect_server__message_t *msg);
-int inxpect_respose__records_get(int sock, struct inxpect_server__message_t *msg);
 // ----------------------------
 
 #endif // __INXPECT_SERVER_H__

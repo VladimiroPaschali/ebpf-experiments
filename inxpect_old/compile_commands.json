@@ -1,0 +1,47 @@
+[
+ {
+  "directory": "/opt/ebpf-experiments/inxpect",
+  "arguments": [
+   "gcc",
+   "-g",
+   "-Wall",
+   "-O2",
+   "-Iincludes/cJSON",
+   "-c",
+   "-o",
+   "includes/cJSON.o",
+   "includes/cJSON.c"
+  ],
+  "file": "includes/cJSON.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/inxpect",
+  "arguments": [
+   "gcc",
+   "-g",
+   "-Wall",
+   "-O2",
+   "-Ikperf_",
+   "-c",
+   "-o",
+   "inxpect-server.o",
+   "inxpect-server.c"
+  ],
+  "file": "inxpect-server.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/inxpect",
+  "arguments": [
+   "gcc",
+   "-g",
+   "-Wall",
+   "-O2",
+   "-Ikperf_",
+   "-c",
+   "-o",
+   "inxpect.o",
+   "inxpect.c"
+  ],
+  "file": "inxpect.c"
+ }
+]

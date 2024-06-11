@@ -7,11 +7,11 @@
 #include <linux/device.h>
 #include <linux/uaccess.h>
 
-#include <linux/cpumask.h>
+
 #include "mykperf_module.h"
 #include "mykperf_ioctl.h"
 
-static __u64 mykperf_rdpmc(__u8 counter, __u32 low, __u32 high);
+//static __u64 mykperf_rdpmc(__u8 counter, __u32 low, __u32 high);
 static __u64 __enable_event(__u64 event, int cpus);
 static int __disable_event(__u64 reg, __u64 event, int cpu);
 static void __add_event(__u64 reg, __u64 event, int cpu);
@@ -30,15 +30,17 @@ MODULE_DESCRIPTION("A Dummy Kernel Module");
 #define MAX_MSR_PROG_REG 7
 #define FIRST_MSR_PROG_REG 0xC1
 
+int curr_cpu;
+
 dev_t dev_num;
 static struct cdev mykperf_cdev;
 static struct class *mykperf_class = NULL;
 
-static __u64 mykperf_read_rdpmc(__u8 counter, __u32 low, __u32 high)
+/* static __u64 mykperf_read_rdpmc(__u8 counter, __u32 low, __u32 high)
 {
     mykperf_rdpmc(counter, low, high);
     return ((__u64)high << 32) | low;
-}
+} */
 
 __bpf_kfunc void bpf_mykperf__fence(void)
 {
@@ -50,12 +52,21 @@ __bpf_kfunc __u64 bpf_mykperf__rdpmc(__u8 counter)
     __u64 ret = 0;
     asm volatile("lfence" : : : "memory");
     rdpmcl(counter, ret);
+    //cpuid_eax(0);
     asm volatile("lfence" : : : "memory");
+    return ret;
+}
+
+__bpf_kfunc __u64 bpf_mykperf__rdtsc(void)
+{
+    __u64 ret = 0;
+    ret = rdtsc();
     return ret;
 }
 
 BTF_SET8_START(bpf_task_set)
 BTF_ID_FLAGS(func, bpf_mykperf__rdpmc)
+BTF_ID_FLAGS(func, bpf_mykperf__rdtsc)
 BTF_ID_FLAGS(func, bpf_mykperf__fence)
 BTF_SET8_END(bpf_task_set)
 
@@ -115,7 +126,15 @@ static long mykperf_ioctl(struct file *file, unsigned int cmd, unsigned long arg
             return -1;
         }
         break;
+    case SET_CPU:
+        if (copy_from_user(&curr_cpu, (int *)arg, sizeof(curr_cpu)))
+        {
+            printk("Error copying data from user\n");
+            return -EFAULT;
+        }
+        break;
     }
+
     return err;
 }
 
@@ -152,8 +171,10 @@ static int __init mykperf_module_init(void)
         return ret;
     }
 
-    device_create(mykperf_class, NULL, dev_num, NULL, "kinxpect", MINOR(dev_num));
+    device_create(mykperf_class, NULL, dev_num, NULL, "kinxpect");
     // --------------------------------------------------
+
+    curr_cpu = 0; // safe init
 
     pr_info("kfunc registerd with success\n");
     return 0;
@@ -184,81 +205,41 @@ static void __add_event(__u64 reg, __u64 event, int cpu)
 // return zero mean error
 static __u64 __enable_event(__u64 event, int cpu)
 {
-    __u32 r;
+    __u64 r;
     uint32_t l, h;
     int err;
-    int _cpu = 0;
 
-    // TODO : do this check on our event, and overwrite other events. This permit us to find the right register and having the same register for all cpus.
-    //  find a free register
+    // find a free register
     for (r = FIRST_MSR_EV_SELECT_REG; r < (FIRST_MSR_EV_SELECT_REG + MAX_MSR_PROG_REG); r++)
     {
-        if (cpu == -1)
+        // currently work with just one cpu
+        err = rdmsr_safe_on_cpu(curr_cpu, r, &l, &h);
+        if (err)
         {
-            for_each_online_cpu(_cpu)
-            {
-                err = rdmsr_safe_on_cpu(_cpu, r, &l, &h);
-                if (err)
-                {
-                    printk("Error reading MSR %x register on cpu %d: \n", r, _cpu, err);
-                    return -1;
-                }
-
-                // check if l and h are zero
-                if ((l | h) == 0)
-                {
-                    break;
-                }
-            }
-            // check if l and h are zero
-            if ((l | h) == 0)
-            {
-                break;
-            }
+            printk("Error reading MSR: %d\n", err);
+            return -1;
         }
-        else
-        {
-            err = rdmsr_safe_on_cpu(cpu, r, &l, &h);
-            if (err)
-            {
-                printk("Error reading MSR: %d\n", err);
-                return -1;
-            }
 
-            // check if l and h are zero
-            if ((l | h) == 0)
-            {
-                break;
-            }
+        
+
+        // check if l and h are zero
+        if ((l | h) == 0)
+        {
+            break;
         }
     }
 
     event = CAP_EVENT | event; // add CAP_EVENT to event
     l = event & 0xFFFFFFFF;
     h = event >> 32;
-    if (cpu == -1)
+    err = wrmsr_on_cpu(cpu, r, l, h);
+    if (err)
     {
-        for_each_online_cpu(_cpu)
-        {
-            err = wrmsr_safe_on_cpu(_cpu, r, l, h);
-            if (err)
-            {
-                printk("Error writing MSR: %d on cpu: %d\n", err, _cpu);
-                return -1;
-            }
-        }
-    }
-    else
-    {
-        err = wrmsr_safe_on_cpu(cpu, r, l, h);
-        if (err)
-        {
-            printk("Error writing MSR: %d\n", err);
-            return -1;
-        }
+        printk("Error writing MSR: %d\n", err);
+        return -1;
     }
 
-    __add_event(r, event, cpu);
+    __add_event(r, event, curr_cpu);
 
     // index register used to store PMC value
     __u64 output_reg = r - FIRST_MSR_EV_SELECT_REG;
@@ -272,28 +253,13 @@ static int __disable_event(__u64 reg, __u64 event, int cpu)
     struct enabled_events_list *temp;
     list_for_each_entry(temp, &head, list)
     {
-        if (temp->event == event && temp->reg == reg + FIRST_MSR_EV_SELECT_REG && temp->cpu == cpu)
+        if (temp->event == event && temp->reg == reg + FIRST_MSR_EV_SELECT_REG && temp->cpu == curr_cpu)
         {
-            if (cpu == -1)
+            err = wrmsr_on_cpu(curr_cpu, temp->reg, 0, 0);
+            if (err)
             {
-                for_each_online_cpu(cpu)
-                {
-                    err = wrmsr_safe_on_cpu(cpu, temp->reg, 0, 0);
-                    if (err)
-                    {
-                        printk("Error writing MSR: %d\n", err);
-                        return -1;
-                    }
-                }
-            }
-            else
-            {
-                err = wrmsr_safe_on_cpu(cpu, temp->reg, 0, 0);
-                if (err)
-                {
-                    printk("Error writing MSR: %d\n", err);
-                    return -1;
-                }
+                printk("Error writing MSR: %d\n", err);
+                return -1;
             }
             list_del(&temp->list);
             kfree(temp);

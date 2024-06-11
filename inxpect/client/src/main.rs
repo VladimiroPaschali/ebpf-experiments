@@ -3,6 +3,9 @@ use serde_json::{self, Map, Value};
 use std::io::{self, Read, Write};
 use std::net::TcpStream;
 
+mod errors;
+use errors::InxpectServerErr;
+
 #[derive(Serialize, Deserialize)]
 struct InxpectServerMessage {
     code: i32,
@@ -25,9 +28,11 @@ struct InxpectClient {
 }
 
 impl InxpectClient {
-    fn new(addr: String, port: i32) -> Self {
-        Self {
-            stream: TcpStream::connect(format!("{}:{}", addr, port)).unwrap(),
+    fn new(addr: String, port: i32) -> Result<Self,String> {
+        // check if the connection is successful otherwise return None
+        match TcpStream::connect(format!("{}:{}", addr, port)) {
+            Ok(stream) => Ok(Self { stream }),
+            Err(_) => Err(String::from("Error during connection")),
         }
     }
 
@@ -56,14 +61,39 @@ impl InxpectClient {
     }
 
     fn request_get_psections(&mut self) -> io::Result<Value> {
-        let mut message = InxpectServerMessage::new(4, 0, Value::Null);
+        let message = InxpectServerMessage::new(4, 0, Value::Null);
 
-        // Send the message to the server
-        self.send_message(message)?;
+        match self.send_message(message) {
+            Ok(()) => match self.receive_message() {
+                Ok(message) => match message.value {
+                    0 => Ok(message.buffer),
+                    _ => Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        InxpectServerErr::get_err(message.value).to_string(),
+                    )),
+                },
+                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Error during receive")),
+            },
+            Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Error during sending")),
+        }
+    }
 
-        message = self.receive_message()?;
+    fn request_records_get_all(&mut self) -> io::Result<Value> {
+        let message = InxpectServerMessage::new(5, 0, Value::Null);
 
-        Ok(message.buffer)
+        match self.send_message(message) {
+            Ok(()) => match self.receive_message() {
+                Ok(message) => match message.value {
+                    0 => Ok(message.buffer),
+                    _ => Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        InxpectServerErr::get_err(message.value).to_string(),
+                    )),
+                },
+                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Error during receive")),
+            },
+            Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Error during sending")),
+        }
     }
 
     fn request_psection_change_event(
@@ -78,14 +108,21 @@ impl InxpectClient {
         // Convert the map to a JSON value
         let buffer_value = Value::Object(buffer_map);
 
-        let mut message = InxpectServerMessage::new(1, 0, buffer_value);
+        let message = InxpectServerMessage::new(1, 0, buffer_value);
 
-        // Send the message to the server
-        self.send_message(message)?;
-
-        message = self.receive_message()?;
-
-        Ok(message.buffer)
+        match self.send_message(message) {
+            Ok(()) => match self.receive_message() {
+                Ok(message) => match message.value {
+                    0 => Ok(message.buffer),
+                    _ => Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        message.value.to_string(),
+                    )),
+                },
+                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Error during receive")),
+            },
+            Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Error during sending")),
+        }
     }
 }
 
@@ -104,6 +141,7 @@ impl Console {
             let readline = rl.readline(">> ");
             match readline {
                 Ok(line) => {
+                    rl.add_history_entry(line.as_str());
                     let command: Vec<&str> = line.trim().split_whitespace().collect();
                     if command[0] == "quit" {
                         break;
@@ -135,7 +173,14 @@ impl Console {
                     println!("{0} command not need arguments!", get_command[0]);
                     // this could be a macro
                 }
-                self.pretty_print_get_psections().unwrap();
+                self.pretty_print_get_psections();
+            }
+            "records" => {
+                if get_command.len() > 1 {
+                    println!("{0} command not need arguments!", get_command[0]);
+                    // this could be a macro
+                }
+                self.pretty_print_get_records();
             }
             _ => println!("Unkwon {0} command using get!", get_command[0]),
         }
@@ -158,31 +203,67 @@ impl Console {
         }
     }
     // MISSING ERROR CHECKING
-    fn pretty_print_get_psections(&mut self) -> io::Result<()> {
-        let psections = self.client.request_get_psections()?;
-
-        println!("Psections:");
-        for psection in psections.as_array().unwrap() {
-            println!("\t{}", psection);
+    fn pretty_print_get_psections(&mut self) {
+        match self.client.request_get_psections() {
+            Ok(psections) => {
+                println!("Psections:");
+                for psection in psections.as_array().unwrap() {
+                    println!("\t{}", psection);
+                }
+            }
+            Err(e) => println!("{}", e),
         }
+    }
 
-        Ok(())
+    fn pretty_print_get_records(&mut self) {
+        match self.client.request_records_get_all() {
+            Ok(records) => {
+                println!("Records:");
+                for record in records.as_array().unwrap() {
+                    println!("\t{}", record);
+                }
+            }
+            Err(e) => println!("{}", e),
+        }
     }
 
     fn pretty_print_psection_change_event(&mut self, psection_name: &str, event_name: &str) {
-        _ = self
+        match self
             .client
-            .request_psection_change_event(&psection_name, &event_name);
-        println!(
-            "Psection {} changed event to {}!",
-            psection_name, event_name
-        )
+            .request_psection_change_event(&psection_name, &event_name)
+        {
+            Ok(_) => {
+                println!(
+                    "Psection {} changed event to {}!",
+                    psection_name, event_name
+                );
+            }
+            Err(e) => println!("{}", e),
+        }
     }
 }
 
+struct Plot {
+    client: InxpectClient,
+}
+
+impl Plot {
+    fn new(client: InxpectClient ) -> Self {
+        Self { client }
+    }
+
+    fn poll_stats()
+}
 fn main() -> io::Result<()> {
-    let ix = InxpectClient::new("0.0.0.0".to_string(), 8080);
-    let mut console = Console::new(ix);
-    console.run()?;
-    Ok(())
+    match InxpectClient::new("0.0.0.0".to_string(), 8080) {
+        Ok(ix) => {
+            let mut console = Console::new(ix);
+            console.run()?;
+            Ok(())
+        }
+        Err(e) => {
+            Err(io::Error::new(io::ErrorKind::Other, e))
+        }
+
+    }
 }

@@ -1,28 +1,31 @@
 TARGET := inxpect
 SRCS := $(wildcard *.c)
-#SRCS :=  $(filter-out inxpect-server.c, $(SRCS)) debug
 OBJS := $(SRCS:.c=.o)
 
 cJSON := includes/cJSON
-KHEADER:= kperf_/
+KHEADER:= kperf_
 HELPERS_OBJ := $(KHEADER)/mykperf_helpers.o
 
 .PHONY: all clean
 .SILENT: all clean %.o
 
-all: build-cjson $(TARGET) $(TARGET)_tr
+all: build-cjson $(TARGET) $(TARGET)_tr $(TARGET)_mmap
 
 $(TARGET): $(OBJS)
 	@echo "Compiling $(TARGET)"
-	gcc -g -Wall -O2 -o $@ $(TARGET)-server.o $(TARGET)_tr.o $(HELPERS_OBJ) $(cJSON).o -lbpf
+	gcc -g -Wall -O2 -o $@ $(TARGET)-server.o $(TARGET).o $(HELPERS_OBJ) $(cJSON).o -lbpf
 
 $(TARGET)_tr: $(OBJS)
-	@echo "Compiling $(TARGET)_tr"
+	@echo "Compiling $(TARGET)"
 	gcc -g -Wall -O2 -o $@ $(TARGET)-server.o $(TARGET)_tr.o $(HELPERS_OBJ) $(cJSON).o -lbpf
+
+$(TARGET)_mmap: $(OBJS)
+	@echo "Compiling $(TARGET)_mmap"
+	gcc -g -Wall -o $@ $(TARGET)-server.o $(TARGET)_mmap.o $(HELPERS_OBJ) $(cJSON).o -lbpf
 
 %.o: %.c
 	@echo "Compiling $<"
-	gcc -g -Wno-unused-function -O2 -I$(KHEADER) -c -o $@ $<
+	gcc -g -Wall -O2 -I$(KHEADER) -c -o $@ $<
 
 build-cjson:
 	@echo "Building cJSON"
