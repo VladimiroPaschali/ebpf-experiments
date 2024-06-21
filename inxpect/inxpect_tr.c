@@ -413,19 +413,18 @@ static void poll_stats(const int key) // key is the id thread
         {
             values[i] += thread_stats.values[i];
             run_cnts[i] += thread_stats.run_cnts[i];
-        }
-
-        if (thread_stats.run_cnts[0] >= psections[key].record->run_cnts[0])
-        {
-            diff = thread_stats.run_cnts[0] - psections[key].record->run_cnts[0];
-            // make hist
-            if (diff > 254)
+            if (thread_stats.run_cnts[0] >= psections[key].record->run_cnts[0])
             {
-                hist[254]++;
-            }
-            else
-            {
-                hist[diff]++;
+                diff = thread_stats.run_cnts[0] - psections[key].record->run_cnts[0];
+                // make hist
+                if (diff > 254)
+                {
+                    hist[254]++;
+                }
+                else
+                {
+                    hist[diff]++;
+                }
             }
         }
 
@@ -499,18 +498,18 @@ static void exit_cleanup(int signo)
 
     // mean value
     __u64 sum = 0;
-    int count = 0;
+    __u64 count = 0;
     for (int i = 0; i < 256; i++)
     {
-        printf("%d,", hist[i]);
+        printf("%llu,", hist[i]);
         sum += (__u64)hist[i] * (__u64)i;
         count += hist[i];
     }
 
     printf("\n");
 
-    printf("sum: %u\n", sum);
-    printf("count: %d\n", count);
+    printf("sum: %llu\n", sum);
+    printf("count: %llu\n", count);
 
     printf("mean: %.2f\n", (double)sum / count);
 
@@ -585,8 +584,9 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < 256; i++)
     {
-        hist[i] = 0;
+        hist[i] = (__u64)0;
     }
+
     // ---------- ARGS CHECKS ----------
     // TODO: check any error
     if (strlen(prog_name) == 0)
