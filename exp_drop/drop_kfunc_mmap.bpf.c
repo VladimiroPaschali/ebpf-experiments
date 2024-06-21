@@ -21,7 +21,7 @@ int drop_kfunc(struct xdp_md *ctx)
             return XDP_DROP;
         } */
 
-    BPF_MYPERF_END_TRACE_MULTIPLEXED(main);
+    BPF_MYPERF_END_TRACE_MULTIPLEXED_SPIN(main);
     return XDP_DROP;
 }
 

@@ -53,7 +53,7 @@ struct record
                                                                                                                        \
     struct                                                                                                             \
     {                                                                                                                  \
-        __uint(type, BPF_MAP_TYPE_ARRAY);                                                                       \
+        __uint(type, BPF_MAP_TYPE_ARRAY);                                                                              \
         __type(key, __u32);                                                                                            \
         __type(value, struct record);                                                                                  \
         __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                                                                 \
@@ -88,6 +88,19 @@ struct record
             {                                                                                                          \
                 sec_name->values[index_##sec_name] += (temp_value - value_##sec_name);                                 \
                 sec_name->run_cnts[index_##sec_name]++;                                                                \
+            }                                                                                                          \
+        }                                                                                                              \
+    }
+
+#define BPF_MYPERF_END_TRACE_MULTIPLEXED_SPIN(sec_name)                                                                \
+    {                                                                                                                  \
+        if (LIKELY(sec_name) && sec_name->name[0] != '\0')                                                             \
+        {                                                                                                              \
+            __u64 temp_value = bpf_mykperf__rdpmc(sec_name->counters[index_##sec_name]);                               \
+            if (temp_value >= value_##sec_name)                                                                        \
+            {                                                                                                          \
+                __sync_fetch_and_add(&sec_name->values[index_##sec_name], temp_value - value_##sec_name);              \
+                __sync_fetch_and_add(&sec_name->run_cnts[index_##sec_name], 1);                                        \
             }                                                                                                          \
         }                                                                                                              \
     }

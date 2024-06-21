@@ -185,11 +185,16 @@ static void __add_event(__u64 reg, __u64 event, int cpu)
 static __u64 __enable_event(__u64 event, int cpu)
 {
     __u32 r;
-    uint32_t l, h;
+    uint32_t l, h, wl, wh;
     int err;
     int _cpu = 0;
 
-    // TODO : do this check on our event, and overwrite other events. This permit us to find the right register and having the same register for all cpus.
+    event = CAP_EVENT | event; // add CAP_EVENT to event
+    wl = event & 0xFFFFFFFF;
+    wh = event >> 32;
+
+    // TODO : do this check on our event, and overwrite other events. This permit us to find the right register and
+    // having the same register for all cpus.
     //  find a free register
     for (r = FIRST_MSR_EV_SELECT_REG; r < (FIRST_MSR_EV_SELECT_REG + MAX_MSR_PROG_REG); r++)
     {
@@ -207,7 +212,12 @@ static __u64 __enable_event(__u64 event, int cpu)
                 // check if l and h are zero
                 if ((l | h) == 0)
                 {
-                    break;
+                    err = wrmsr_safe_on_cpu(_cpu, r, wl, wh);
+                    if (err)
+                    {
+                        printk("Error writing MSR: %d on cpu: %d\n", err, _cpu);
+                        return -1;
+                    }
                 }
             }
             // check if l and h are zero
@@ -228,33 +238,13 @@ static __u64 __enable_event(__u64 event, int cpu)
             // check if l and h are zero
             if ((l | h) == 0)
             {
-                break;
+                err = wrmsr_safe_on_cpu(_cpu, r, wl, wh);
+                if (err)
+                {
+                    printk("Error writing MSR: %d on cpu: %d\n", err, _cpu);
+                    return -1;
+                }
             }
-        }
-    }
-
-    event = CAP_EVENT | event; // add CAP_EVENT to event
-    l = event & 0xFFFFFFFF;
-    h = event >> 32;
-    if (cpu == -1)
-    {
-        for_each_online_cpu(_cpu)
-        {
-            err = wrmsr_safe_on_cpu(_cpu, r, l, h);
-            if (err)
-            {
-                printk("Error writing MSR: %d on cpu: %d\n", err, _cpu);
-                return -1;
-            }
-        }
-    }
-    else
-    {
-        err = wrmsr_safe_on_cpu(cpu, r, l, h);
-        if (err)
-        {
-            printk("Error writing MSR: %d\n", err);
-            return -1;
         }
     }
 
