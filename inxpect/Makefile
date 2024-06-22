@@ -10,11 +10,11 @@ HELPERS_OBJ := $(KHEADER)/mykperf_helpers.o
 .PHONY: all clean
 .SILENT: all clean %.o
 
-all: build-cjson $(TARGET) $(TARGET)_tr
+all: build-cjson $(TARGET) #$(TARGET)_tr
 
 $(TARGET): $(OBJS)
 	@echo "Compiling $(TARGET)"
-	gcc -g -Wall -O2 -o $@ $(TARGET)-server.o $(TARGET)_tr.o $(HELPERS_OBJ) $(cJSON).o -lbpf
+	gcc -g -Wall -O2 -o $@ $(TARGET)-server.o $(TARGET).o $(HELPERS_OBJ) $(cJSON).o -lbpf
 
 $(TARGET)_tr: $(OBJS)
 	@echo "Compiling $(TARGET)_tr"

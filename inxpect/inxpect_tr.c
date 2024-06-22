@@ -738,7 +738,7 @@ int main(int argc, char **argv)
     if (err)
         exit_cleanup(0);
 
-    err = percput_output__clean_and_init(map_output_fd, running_cpu);
+    err = percput_output__clean_and_init(map_output_fd);
     if (err)
         exit_cleanup(0);
 

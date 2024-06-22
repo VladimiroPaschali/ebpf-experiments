@@ -220,11 +220,6 @@ static __u64 __enable_event(__u64 event, int cpu)
                     }
                 }
             }
-            // check if l and h are zero
-            if ((l | h) == 0)
-            {
-                break;
-            }
         }
         else
         {
@@ -246,6 +241,9 @@ static __u64 __enable_event(__u64 event, int cpu)
                 }
             }
         }
+        // check if l and h are zero
+        if ((l | h) == 0)
+            break;
     }
 
     __add_event(r, event, cpu);

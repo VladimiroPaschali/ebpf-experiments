@@ -74,7 +74,52 @@ int get_bss_map_fd(int prog_fd)
             break;
         }
         close(fd);
+        fd = -1;
     }
+
+    if (fd < 0)
+    {
+        int id = 0;
+        char prog_name[MAX_PROG_FULL_NAME];
+        if (strlen(info.name) >= 8)
+        {
+            strncpy(prog_name, info.name, 8);
+        }
+        else
+        {
+            strcpy(prog_name, info.name);
+        }
+
+        char *map_name = strcat(prog_name, DATA_MAP);
+        while (1)
+        {
+            err = bpf_map_get_next_id(id, &id);
+            if (err)
+            {
+                return err;
+            }
+
+            fd = bpf_map_get_fd_by_id(id);
+            if (fd < 0)
+            {
+                return err;
+            }
+
+            err = bpf_map_get_info_by_fd(fd, &info_map, &len);
+            if (err)
+            {
+                return err;
+            }
+
+            if (strcmp(map_name, info_map.name) == 0)
+            {
+                break;
+            }
+            close(fd);
+            fd = -1;
+        }
+    }
+
     fprintf(stdout, "Map name: %s\n", info_map.name);
     return fd;
 }
@@ -131,7 +176,52 @@ int get_rodata_map_fd(int prog_fd)
             break;
         }
         close(fd);
+        fd = -1;
     }
+
+    if (fd < 0)
+    {
+        int id = 0;
+        char prog_name[MAX_PROG_FULL_NAME];
+        if (strlen(info.name) >= 8)
+        {
+            strncpy(prog_name, info.name, 8);
+        }
+        else
+        {
+            strcpy(prog_name, info.name);
+        }
+
+        char *map_name = strcat(prog_name, DATA_MAP);
+        while (1)
+        {
+            err = bpf_map_get_next_id(id, &id);
+            if (err)
+            {
+                return err;
+            }
+
+            fd = bpf_map_get_fd_by_id(id);
+            if (fd < 0)
+            {
+                return err;
+            }
+
+            err = bpf_map_get_info_by_fd(fd, &info_map, &len);
+            if (err)
+            {
+                return err;
+            }
+
+            if (strcmp(map_name, info_map.name) == 0)
+            {
+                break;
+            }
+            close(fd);
+            fd = -1;
+        }
+    }
+
     fprintf(stdout, "Map name: %s\n", info_map.name);
     return fd;
 }
@@ -146,9 +236,7 @@ int get_data_map_fd(int prog_fd)
     __u32 len = sizeof(info);
     // needed to know the number of maps
     if (bpf_prog_get_info_by_fd(prog_fd, &info, &len))
-    {
         return err;
-    }
 
     // TODO : IMPROVE THIS
 
@@ -188,7 +276,52 @@ int get_data_map_fd(int prog_fd)
             break;
         }
         close(fd);
+        fd = -1;
     }
+
+    if (fd < 0)
+    {
+        int id = 0;
+        char prog_name[MAX_PROG_FULL_NAME];
+        if (strlen(info.name) >= 8)
+        {
+            strncpy(prog_name, info.name, 8);
+        }
+        else
+        {
+            strcpy(prog_name, info.name);
+        }
+
+        char *map_name = strcat(prog_name, DATA_MAP);
+        while (1)
+        {
+            err = bpf_map_get_next_id(id, &id);
+            if (err)
+            {
+                return err;
+            }
+
+            fd = bpf_map_get_fd_by_id(id);
+            if (fd < 0)
+            {
+                return err;
+            }
+
+            err = bpf_map_get_info_by_fd(fd, &info_map, &len);
+            if (err)
+            {
+                return err;
+            }
+
+            if (strcmp(map_name, info_map.name) == 0)
+            {
+                break;
+            }
+            close(fd);
+            fd = -1;
+        }
+    }
+
     fprintf(stdout, "Map name: %s\n", info_map.name);
     return fd;
 }

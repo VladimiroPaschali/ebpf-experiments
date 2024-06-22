@@ -316,7 +316,7 @@ static int run_count__reset(int prog_fd)
     return 0;
 }
 
-static int percput_output__clean_and_init(int map_output_fd, int running_cpu)
+static int percput_output__clean_and_init(int map_output_fd)
 {
     int err;
     /*    unsigned int count = MAX_PSECTIONS;
@@ -332,11 +332,11 @@ static int percput_output__clean_and_init(int map_output_fd, int running_cpu)
        }
        free(keys);
     */
+    struct record *values = calloc(1, sizeof(struct record));
+    memset(values->run_cnts, 0, sizeof(values->run_cnts));
+    memset(values->values, 0, sizeof(values->values));
 
     // init the map
-    int nr_cpus = libbpf_num_possible_cpus();
-    struct record *percpu_values = calloc(nr_cpus, sizeof(struct record));
-
     for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
     {
         if (!psections[i_sec].record)
@@ -345,27 +345,19 @@ static int percput_output__clean_and_init(int map_output_fd, int running_cpu)
         }
 
         // init the first cpu
-        memcpy(percpu_values[0].counters, psections[i_sec].record->counters, sizeof(psections[i_sec].record->counters));
-        memcpy(percpu_values[0].name, psections[i_sec].record->name, 16);
-        memset(percpu_values[0].run_cnts, 0, sizeof(percpu_values[0].run_cnts));
-        memset(percpu_values[0].values, 0, sizeof(percpu_values[0].values));
+        memcpy(values->name, psections[i_sec].record->name, 16);
+        memcpy(values->counters, psections[i_sec].record->counters, sizeof(psections[i_sec].record->counters));
 
-        // copy the first cpu to the others
-        for (int cpu = 0; cpu < nr_cpus; cpu++)
-        {
-            memcpy(&percpu_values[cpu], &percpu_values[0], sizeof(struct record));
-        }
-
-        err = bpf_map_update_elem(map_output_fd, &i_sec, percpu_values, BPF_ANY);
+        err = bpf_map_update_elem(map_output_fd, &i_sec, values, BPF_ANY);
         if (err)
         {
             fprintf(stderr, "[%s]: during updating map\n", ERR);
-            free(percpu_values);
+            free(values);
             return -1;
         }
     }
 
-    free(percpu_values);
+    free(values);
 
     return 0;
 }

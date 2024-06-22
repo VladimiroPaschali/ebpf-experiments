@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
+#include <sys/mman.h>
 
 // if_nametoindex
 #include <net/if.h>
@@ -40,13 +41,10 @@ int map_output_fd = -1;
 pthread_t thread_printer = {0};              // poll_print_stats
 pthread_t threads_poll_stats[MAX_PSECTIONS]; // poll_stats
 int duration;
-
-// percpu map
-struct record_array *percpu_data;
 int do_accumulate = 0;
 
 // multiplexed map
-struct record *multiplexed_data;
+struct record *mmap_map = NULL;
 int multiplexed_mode = 0;
 int multiplex_rate = 0;
 
@@ -59,6 +57,12 @@ int sample_rate = 0;
 
 // server
 int interactive_mode = 0;
+
+static size_t roundup_page(size_t sz)
+{
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return (sz + page_size - 1) / page_size * page_size;
+}
 
 // from bpftool
 static int prog_fd_by_nametag(char nametag[MAX_PROG_FULL_NAME])
@@ -146,7 +150,6 @@ static int psections__get_list(char psections_name_list[MAX_PSECTIONS][MAX_PROG_
     {
         if (rodata->sections[i][0] == '\0')
         {
-            printf("\nrodata: %d\n", i);
             break;
         }
         strncpy(psections_name_list[i], rodata->sections[i], sizeof(rodata->sections[i]));
@@ -319,6 +322,15 @@ static int multiplexed_output__get_fd()
         return -1;
     }
 
+    // mmap the map
+    mmap_map = mmap(NULL, roundup_page(sizeof(struct record_array) * MAX_ENTRIES_PERCPU_ARRAY), PROT_READ | PROT_WRITE,
+                    MAP_SHARED, map_fd, 0);
+    if (mmap_map == MAP_FAILED)
+    {
+        fprintf(stderr, "[%s]: during mmap the map\n", ERR);
+        return -1;
+    }
+
     return map_fd;
 }
 
@@ -380,35 +392,27 @@ static void poll_stats(const int key) // key is the id thread
     __u64 values[MAX_METRICS];
     __u64 run_cnts[MAX_METRICS];
 
-    struct record thread_stats[nr_cpus];
+    struct record thread_stats;
     while (1)
     {
-        err = bpf_map_lookup_elem(map_output_fd, &key, thread_stats);
-        if (err)
-        {
-            continue;
-        }
+        thread_stats = mmap_map[key];
 
         // reset values and run_cnts
         memset(values, 0, sizeof(values));
         memset(run_cnts, 0, sizeof(run_cnts));
 
-        for (int cpu = 0; cpu < nr_cpus; cpu++)
-        {
-            // I don't know if check run_cnts[0] is the right thing to do
-            if (thread_stats[cpu].name[0] == '\0' || thread_stats[cpu].run_cnts[0] == 0)
-                continue;
+        // I don't know if check run_cnts[0] is the right thing to do
+        if (thread_stats.name[0] == '\0' || thread_stats.run_cnts[0] == 0)
+            continue;
 
-            for (int i = 0; i < MAX_METRICS; i++)
-            {
-                values[i] += thread_stats[cpu].values[i];
-                run_cnts[i] += thread_stats[cpu].run_cnts[i];
-            }
+        for (int i = 0; i < MAX_METRICS; i++)
+        {
+            values[i] += thread_stats.values[i];
+            run_cnts[i] += thread_stats.run_cnts[i];
         }
+
         memcpy(psections[key].record->values, values, sizeof(values));
         memcpy(psections[key].record->run_cnts, run_cnts, sizeof(run_cnts));
-
-        // usleep(10000);
     }
 }
 
@@ -479,7 +483,7 @@ int main(int argc, char **argv)
 {
     int err, opt;
     // retrieve opt
-    while ((opt = getopt(argc, argv, "n:e:C:s:t:r:aic")) != -1)
+    while ((opt = getopt(argc, argv, "n:e:C:s:t:r:d:aic")) != -1)
     {
         switch (opt)
         {
@@ -535,8 +539,6 @@ int main(int argc, char **argv)
             break;
         }
     }
-
-    percpu_data = malloc(libbpf_num_possible_cpus() * sizeof(struct record));
 
     // ---------- ARGS CHECKS ----------
     // TODO: check any error
@@ -689,7 +691,7 @@ int main(int argc, char **argv)
     if (err)
         exit_cleanup(0);
 
-    err = percput_output__clean_and_init(map_output_fd, running_cpu);
+    err = percput_output__clean_and_init(map_output_fd);
     if (err)
         exit_cleanup(0);
 

@@ -32,19 +32,32 @@ struct
 // 	__type(value, __u32);
 // } pkt_counter SEC(".maps");
 
-static inline int hash(char str[15])
+static __always_inline uint32_t djb2_hash(char str[15])
 {
-    int hash = 5381;
+    uint32_t hash = 5381;
     int c;
-    int i = 0;
+    int len = 15;
+    int i;
 
-    while (i < 14)
+    for (i = 0; i < 15; i++)
     {
-        i++;
-        c = str[i];
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+        hash = ((hash << 5) + hash) + c; // hash * 33 + c
     }
+    return hash;
+}
 
+static __always_inline uint32_t jenkins_hash(char key[15])
+{
+    uint32_t hash, i;
+    for (hash = i = 0; i < 15; ++i)
+    {
+        hash += key[i];
+        hash += (hash << 10);
+        hash ^= (hash >> 6);
+    }
+    hash += (hash << 3);
+    hash ^= (hash >> 11);
+    hash += (hash << 15);
     return hash;
 }
 
@@ -52,7 +65,7 @@ SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx)
 {
 
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
+    // BPF_MYKPERF_START_TRACE_ARRAY(main);
 
     char key[15];
     void *data = (void *)(long)(ctx->data);
@@ -126,22 +139,27 @@ int cms_kfunc(struct xdp_md *ctx)
         struct cms *cms = bpf_map_lookup_elem(&cms_map, &addr);
         if (cms == NULL)
             goto end;
+        BPF_MYPERF_START_TRACE_MULTIPLEXED(main);
         for (int i = 0; i < CMS_ROWS; i++)
         {
             // update key
             key[13] = i;
             // get inner map
-            row_index = hash(key);
+            // BPF_MYKPERF_START_TRACE_ARRAY(main);
+            // row_index = djb2_hash(key);
+            // BPF_MYKPERF_END_TRACE_ARRAY(main);
+            row_index = jenkins_hash(key);
             row_index = (uint)row_index % (uint)CMS_SIZE;
             // bpf_printk("old val: %u", cms->count[i][row_index]);
             cms->count[i][row_index]++;
             // bpf_printk("new val %u", cms->count[i][row_index]);
         }
+        BPF_MYPERF_END_TRACE_MULTIPLEXED(main);
     }
     // volatile __u64 x = bpf_mykperf_read_rdpmc(0);
 
 end:
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    // BPF_MYKPERF_END_TRACE_ARRAY(main);
     return XDP_DROP;
 }
 
