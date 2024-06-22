@@ -1,8 +1,12 @@
+#include <linux/bpf.h>
+#include <bpf/bpf.h>
 #include <bpf/libbpf.h>
 #include <net/if.h>
 #include <signal.h>
+#include <stdint.h>
 #include <sys/resource.h>
 #include "cms_kfunc.skel.h"
+#include "cms.h"
 
 
 int if_index;
@@ -12,6 +16,34 @@ int handler(void *ctx, void *data, size_t len) {
 	return 0;
 }
 void sig_handler(int sig) {
+	// compute the CMS load factor
+	//int key = 0;
+	//struct cms cms_struct;
+	//bpf_map__lookup_elem(cms_kfunc->maps.cms_map, &key, sizeof(key), &cms_struct, sizeof(cms_struct), 0);
+	//cms_kfunc->maps.cms_map;
+	
+	struct cms cms_map;
+	__u32 key = 0;
+	__u32 usage = 0;
+	__u32 count = 0;
+
+	int map_fd = bpf_map__fd(cms_kfunc->maps.cms_map);
+	if (map_fd < 0) {
+		printf("Failed to get map fd: %s\n", strerror(errno));
+		exit(1);
+	}
+
+	if(bpf_map_lookup_elem(map_fd, &key, &cms_map)){
+		printf("Failed to lookup element: %s\n", strerror(errno));
+		exit(1);
+	}
+	for (uint32_t j = 0; j < CMS_ROWS; j++) 
+		for (uint32_t i = 0; i < CMS_SIZE; i++)
+			if (cms_map.count[j][i] != 0) 
+				count++;
+
+	printf("load factor: %lf\n", ((double)count)/(CMS_ROWS*CMS_SIZE));
+
 	bpf_xdp_detach(if_index, 0, NULL);
 	cms_kfunc_bpf__destroy(cms_kfunc);
 	exit(0);

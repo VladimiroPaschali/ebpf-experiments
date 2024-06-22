@@ -1,0 +1,152 @@
+[
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-I",
+   "../inxpect/kperf_",
+   "-c",
+   "drop.bpf.c",
+   "-o",
+   "drop.bpf.o",
+   "-l:libbpf.1.4.0.so"
+  ],
+  "file": "drop.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-I",
+   "../inxpect/kperf_",
+   "-c",
+   "drop_kfunc.bpf.c",
+   "-o",
+   "drop_kfunc.bpf.o",
+   "-l:libbpf.1.4.0.so"
+  ],
+  "file": "drop_kfunc.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-I",
+   "../inxpect/kperf_",
+   "-c",
+   "drop_kfunc_mmap.bpf.c",
+   "-o",
+   "drop_kfunc_mmap.bpf.o",
+   "-l:libbpf.1.4.0.so"
+  ],
+  "file": "drop_kfunc_mmap.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-I",
+   "../inxpect/kperf_",
+   "-c",
+   "drop_map.bpf.c",
+   "-o",
+   "drop_map.bpf.o",
+   "-l:libbpf.1.4.0.so"
+  ],
+  "file": "drop_map.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "-target",
+   "bpf",
+   "-g",
+   "-w",
+   "-O2",
+   "-I",
+   "../inxpect/kperf_",
+   "-c",
+   "drop_sr.bpf.c",
+   "-o",
+   "drop_sr.bpf.o",
+   "-l:libbpf.1.4.0.so"
+  ],
+  "file": "drop_sr.bpf.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "drop.c",
+   "-o",
+   "drop",
+   "-lbpf"
+  ],
+  "file": "drop.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "drop_kfunc.c",
+   "-o",
+   "drop_kfunc",
+   "-lbpf"
+  ],
+  "file": "drop_kfunc.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "drop_kfunc_mmap.c",
+   "-o",
+   "drop_kfunc_mmap",
+   "-lbpf"
+  ],
+  "file": "drop_kfunc_mmap.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "drop_map.c",
+   "-o",
+   "drop_map",
+   "-lbpf"
+  ],
+  "file": "drop_map.c"
+ },
+ {
+  "directory": "/opt/ebpf-experiments/exp_drop",
+  "arguments": [
+   "clang",
+   "drop_sr.c",
+   "-o",
+   "drop_sr",
+   "-lbpf"
+  ],
+  "file": "drop_sr.c"
+ }
+]
