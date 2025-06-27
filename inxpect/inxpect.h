@@ -63,7 +63,7 @@ static int event__enable(struct event *event, int cpu)
     {
         return -1;
     }
-    fprintf(stdout, "[%s]:   %s: %x\n", DEBUG, event->name, event->reg_h);
+    // fprintf(stdout, "[%s]:   %s: %x\n", DEBUG, event->name, event->reg_h);
     event->cpu = cpu;
     event->enabled = 1;
     return 0;
@@ -182,7 +182,7 @@ static int psection__change_event(struct psection_t *psection, const char *event
     // if all goes well, I update in userspace
     psection->metrics[i_counter] = event;
 
-    fprintf(stdout, "[%s]:  %s: %x\n", DEBUG, event->name, event->reg_h);
+    // fprintf(stdout, "[%s]:  %s: %x\n", DEBUG, event->name, event->reg_h);
     memcpy(psection->record, &tmp_record, sizeof(struct record));
     return 0;
 }
@@ -267,7 +267,7 @@ static int sample_rate__set(int prog_fd, int sample_rate)
         return -1;
     }
 
-    bss_data.__sample_rate = sample_rate;
+    bss_data.sample_rate = sample_rate;
 
     err = bpf_map_update_elem(fd, &zero, &bss_data, BPF_ANY);
     if (err)
@@ -349,6 +349,8 @@ static int percput_output__clean_and_init(int map_output_fd, int running_cpu)
         memcpy(percpu_values[0].name, psections[i_sec].record->name, 16);
         memset(percpu_values[0].run_cnts, 0, sizeof(percpu_values[0].run_cnts));
         memset(percpu_values[0].values, 0, sizeof(percpu_values[0].values));
+
+        // printf("[%s]: init psection %s\n", DEBUG, psections[i_sec].record->name);
 
         // copy the first cpu to the others
         for (int cpu = 0; cpu < nr_cpus; cpu++)

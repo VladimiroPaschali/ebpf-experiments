@@ -57,8 +57,8 @@ int nr_selected_events = 0;
 int running_cpu = -1;
 int sample_rate = 0;
 
-// server
-int interactive_mode = 0;
+// // server
+// int interactive_mode = 0;
 
 static void usage(){
     fprintf(stderr, "Usage: inxpect [options] <program_name>\n");
@@ -250,7 +250,7 @@ static int multiplex__set_num_counters(const __u8 num_counters)
     fd = get_data_map_fd(prog_fd);
     if (fd < 0)
     {
-        fprintf(stderr, "[%s]: during finding data map\n", ERR);
+        fprintf(stderr, "[%s | %d]: during finding data map\n", ERR, __LINE__);
         return -1;
     }
 
@@ -463,7 +463,7 @@ static void exit_cleanup(int signo)
 
             if (psections[i_sec].metrics[j]->enabled)
             {
-                fprintf(stdout, "[%s]: disabling event %s\n", DEBUG, psections[i_sec].metrics[j]->name);
+                // fprintf(stdout, "[%s]: disabling event %s\n", DEBUG, psections[i_sec].metrics[j]->name);
                 err = event__disable(psections[i_sec].metrics[j], running_cpu);
                 if (err < 0)
                 {
@@ -485,7 +485,7 @@ static void exit_cleanup(int signo)
                 free(selected_events[i]);
         }
 
-    fprintf(stdout, "[%s]: exiting\n", DEBUG);
+    // fprintf(stdout, "[%s]: exiting\n", DEBUG);
     exit(EXIT_SUCCESS);
 }
 
@@ -540,9 +540,6 @@ int main(int argc, char **argv)
         case 'a':
             do_accumulate = 1;
             break;
-        case 'i':
-            interactive_mode = 1;
-            break;
         case 'h':
             usage();
             exit_cleanup(0);
@@ -585,10 +582,6 @@ int main(int argc, char **argv)
                 WARN);
     }
 
-    if (duration && interactive_mode)
-    {
-        fprintf(stdout, "[%s]: duration and interactive mode are mutually exclusive\n   Duration will have priority", WARN);
-    }
 
     // ------------------------------------------------
 
@@ -686,17 +679,17 @@ int main(int argc, char **argv)
             exit_cleanup(0);
     }
 
-    /*     // retrieve percpu_output fd
-        map_output_fd = percpu_output__get_fd();
-        if (map_output_fd < 0)
-        {
-            exit_cleanup(0);
-        } */
+    //  retrieve percpu_output fd
+    //    map_output_fd = percpu_output__get_fd();
+    //     if (map_output_fd < 0)
+    //    {
+    //        exit_cleanup(0);
+    //    } 
 
-    map_output_fd = multiplexed_output__get_fd();
-    if (map_output_fd < 0)
-    {
-        exit_cleanup(0);
+     map_output_fd = multiplexed_output__get_fd();
+     if (map_output_fd < 0)
+     {
+         exit_cleanup(0);
     }
 
     // set signal handler
@@ -707,11 +700,11 @@ int main(int argc, char **argv)
 
     err = multiplex__set_num_counters(nr_selected_events*nr_psections);
     if (err)
-        exit_cleanup(0);
+    	exit_cleanup(0);
 
     err = percput_output__clean_and_init(map_output_fd, running_cpu);
-    if (err)
-        exit_cleanup(0);
+   if (err)
+       exit_cleanup(0);
 
     err = run_count__reset(prog_fd);
     if (err)

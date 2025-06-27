@@ -119,7 +119,7 @@ int get_rodata_map_fd(int prog_fd) {
     }
     close(fd);
   }
-  // fprintf(stdout, "Map name: %s\n", info_map.name);
+  // fprintf(stdout, "Map name rodata: %s\n", info_map.name);
   return fd;
 }
 

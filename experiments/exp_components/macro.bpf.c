@@ -12,8 +12,8 @@ DEFINE_SECTIONS("main");
 SEC("xdp")
 int macro(struct xdp_md *ctx)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
-   // BPF_MYKPERF_END_TRACE_ARRAY(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED(main);
+   // BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
 
     return XDP_DROP;
 }

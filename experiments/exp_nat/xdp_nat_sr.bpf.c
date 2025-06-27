@@ -261,7 +261,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 SEC("xdp")
 int xdp_nat_sr(struct xdp_md *ctx)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED_SAMPLED(main);
 
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
@@ -280,12 +280,12 @@ int xdp_nat_sr(struct xdp_md *ctx)
     if (eth_proto == BE_ETH_P_IP)
     {
         int ret = process_packet(data, nh_off, data_end, ctx); // moved here to allow profiling
-        BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
+        BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
         return ret;
     }
     else
     {
-        // BPF_MYKPERF_END_TRACE_ARRAY(main);
+        BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
         return XDP_PASS;
     }
 }

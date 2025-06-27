@@ -9,8 +9,10 @@ DEFINE_SECTIONS("main");
 SEC("xdp")
 int drop_kfunc(struct xdp_md *ctx)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
-/* 
+    // BPF_MYKPERF_START_TRACE_MULTIPLEXED(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED(main);
+
+    /* 
     // parse packt
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
@@ -20,8 +22,9 @@ int drop_kfunc(struct xdp_md *ctx)
     {
         return XDP_DROP;
     } */
+    BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
 
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    // BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
     return XDP_DROP;
 }
 

@@ -36,7 +36,7 @@ struct record {
 #define BPF_MYKPERF_INIT_TRACE()                                               \
   __u64 bpf_mykperf__rdpmc(__u64 counter) __ksym;                              \
   void bpf_mykperf__fence(void) __ksym;                                        \
-  __u64 __sample_rate = 0;                                                     \
+  __u64 sample_rate = 0;                                                     \
   __u64 run_cnt = 0;                                                           \
   __u32 multiplex_rate = 8;                                                    \
   __u8 num_counters = 4;                                                       \
@@ -46,9 +46,14 @@ struct record {
     __type(value, struct record);                                              \
     __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                             \
     __uint(pinning, LIBBPF_PIN_BY_NAME);                                       \
-  } multiplexed_output SEC(".maps"); \
-  extern void bpf_preempt_disable() __ksym;                                    \
-  extern void bpf_preempt_enable() __ksym;                                     \
+  } multiplexed_output SEC(".maps");                                           \
+  struct{                                                                     \
+      __uint(type, BPF_MAP_TYPE_ARRAY);                                       \
+    __type(key, __u32);                                                        \
+    __type(value, struct record_array);                                        \
+    __uint(max_entries, MAX_ENTRIES_PERCPU_ARRAY);                             \
+    __uint(pinning, LIBBPF_PIN_BY_NAME);                                       \
+    } percpu_output SEC(".maps"); \
 
 #define DEFINE_SECTIONS(...)                                                   \
   const char __sections[MAX_ENTRIES_PERCPU_ARRAY][16] = {__VA_ARGS__};
@@ -58,7 +63,6 @@ struct record {
 // ------------------------ MULTIPLEXED COUNTERS -------------------------
 #define BPF_MYKPERF_START_TRACE_MULTIPLEXED(sec_name)                           \
   COUNT_RUN;                                                                   \
-  bpf_preempt_disable();                                                       \
   bpf_mykperf__fence();                                                        \
   __u64 value_##sec_name = 0;                                                  \
   struct record *sec_name = {0};                                               \
@@ -70,25 +74,39 @@ struct record {
     value_##sec_name =                                                         \
         bpf_mykperf__rdpmc(sec_name->counters[index_##sec_name]);              \
   } \
-  bpf_preempt_enable();
+
+#define BPF_MYKPERF_START_TRACE_MULTIPLEXED_SAMPLED(sec_name)                           \
+  COUNT_RUN;                                                                   \
+  bpf_mykperf__fence();                                                        \
+  __u64 value_##sec_name = 0;                                                  \
+  struct record *sec_name = {0};                                               \
+  __u32 key_##sec_name = __COUNTER__; \              
+  __u64 index_##sec_name =                                                     \
+      ((run_cnt / multiplex_rate) % num_counters) % MAX_REGISTER;              \
+  if (UNLIKELY(run_cnt % (1 << sample_rate) == 0)) {                            \
+    sec_name = bpf_map_lookup_elem(&multiplexed_output, &key_##sec_name);        \
+    if (LIKELY(sec_name) && sec_name->name[0] != '\0') {                         \
+      value_##sec_name =                                                         \
+          bpf_mykperf__rdpmc(sec_name->counters[index_##sec_name]);              \
+     }                                                                           \
+  }
 
 #define BPF_MYKPERF_END_TRACE_MULTIPLEXED(sec_name)                             \
   {                                                                            \
     if (LIKELY(sec_name) && sec_name->name[0] != '\0') {                       \
-      bpf_preempt_disable();                                                   \
       __u64 temp_value =                                                       \
           bpf_mykperf__rdpmc(sec_name->counters[index_##sec_name]);            \
       if (temp_value >= value_##sec_name) {                                    \
         sec_name->values[index_##sec_name] += (temp_value - value_##sec_name); \
         sec_name->run_cnts[index_##sec_name]++;                                \
       }                                                                        \
-      bpf_preempt_enable();                                                    \
     }                                                                          \
   }
 
 // ------------------------- ARRAY MAP -------------------------------
 #define BPF_MYKPERF_START_TRACE_ARRAY(sec_name)                                \
-  bpf_mykperf__fence();                                                        \
+COUNT_RUN;                                                                   \  
+bpf_mykperf__fence();                                                        \
   __u64 value_##sec_name = 0;                                                  \
   struct record_array *sec_name = {0};                                         \
   __u32 key_##sec_name = __COUNTER__;                                          \

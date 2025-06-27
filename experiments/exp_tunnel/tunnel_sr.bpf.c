@@ -91,8 +91,6 @@ static __always_inline void set_ethhdr(struct ethhdr *new_eth, const struct ethh
 
 static __always_inline int handle_ipv4(struct xdp_md *xdp)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(main);
-
     void *data_end = (void *)(long)xdp->data_end;
     void *data = (void *)(long)xdp->data;
     struct iptnl_info *tnl;
@@ -170,9 +168,6 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
     iph->check = ~((csum & 0xffff) + (csum >> 16));
 
     // count_tx(vip.protocol);
-    BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
-    //COUNT_RUN;
-
     return XDP_TX;
 }
 
@@ -242,6 +237,8 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 SEC("xdp")
 int tunnel_sr(struct xdp_md *xdp)
 {
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED_SAMPLED(main);
+
     void *data_end = (void *)(long)xdp->data_end;
     void *data = (void *)(long)xdp->data;
     struct ethhdr *eth = data;
@@ -254,13 +251,13 @@ int tunnel_sr(struct xdp_md *xdp)
 
     h_proto = eth->h_proto;
 
-    if (h_proto == htons(ETH_P_IP))
+    if (h_proto == htons(ETH_P_IP)){
+        BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
         return handle_ipv4(xdp);
-    // else if (h_proto == htons(ETH_P_IPV6))
-
-    // 	return handle_ipv6(xdp);
+    }
     else
     {
+        BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
         return XDP_PASS;
     }
 }

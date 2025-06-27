@@ -8,7 +8,7 @@ import signal
 
 BASH='sudo -E bash -c "export LD_LIBRARY_PATH=/lib64;'
 STATS_PATH='./inxpect/inxpect'
-KPERF_PATH = '/opt/ebpf-experiment/inxpect/kperf_'
+KPERF_PATH = '/opt/eBPF-InXpect/inxpect/kperf_'
 
 def pretty_output(output):
     # Extract the two integers from the tuple
@@ -118,10 +118,10 @@ def perf__get_event_value(prog_id : int, event_name : str, time : int) -> int:
 def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : int, sample : int = None) -> tuple[int, int]:
     try:
         
-        command = f"{BASH} {STATS_PATH} -n {prog_name} -C {cpu} -e {event_name} -d {time} -a\""
-        # print(command)
+        command = f"{BASH} {STATS_PATH} -n {prog_name} -e {event_name} -d {time} -a\""
+        print(command)
         if (sample):
-            command = f"{BASH} {STATS_PATH} -n {prog_name} -C {cpu} -e {event_name} -d {time} -s {sample} -a\""
+            command = f"{BASH} {STATS_PATH} -n {prog_name} -e {event_name} -d {time} -s {sample} -a\""
 
         result = sp.run(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
 
@@ -131,15 +131,16 @@ def inx__get_event_value(prog_name : str, event_name : str, cpu : int, time : in
             return 0,0
         
         output = result.stdout  # inx output is typically in stdout
-        value = re.findall(r".*main: (\d+.*\d).*", output)[0].split(" ")
-
-        if len(value) > 0:
-            event_value = value[0]
-            run_cnt_value = value[-1]
-            return int(event_value), int(run_cnt_value)
+        # print(output)
+        match = re.search(r"\s+(\d+)\s+[\d.]+/pkt\s+-\s+(\d+)\s+run_cnt", output)
+        # print(match)
+        if match:
+            event_value = int(match.group(1))    # es. 378
+            run_cnt_value = int(match.group(2))  # es. 9
+            return event_value, run_cnt_value
         else:
-            print(f"No value found for event '{event_name}'")
-            return 0,0
+            print("Valori non trovati nell'output")
+            return 0, 0
     
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -178,6 +179,7 @@ def prog__get_id_by_name(prog_name : str) -> int:
 
 def prog__load_and_attach(prog_path : str, ifname : str, cpu : int = None) -> int:
     command = f"{BASH} {prog_path}.o {ifname} {cpu if cpu != None else ''}\""
+    print(f"Loading and attaching program: {command}")
     process = sp.Popen(command, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
 
     
@@ -380,49 +382,58 @@ def main():
     
     try:
         # init()
-        cpu=sp.check_output(f'sudo /opt/ebpf-experiments/script_interrupts.sh {args.interface}',shell=True)
+        cpu=sp.check_output(f'sudo /opt/eBPF-InXpect/script_interrupts.sh {args.interface}',shell=True)
         cpu=int(cpu.decode().strip())
         #cpu=0
         print(f" > CPU: {cpu}\n > Interface: {args.interface}\n > Event: {args.event}\n > Time: {args.time}s\n > Reps: {args.reps}\n > Verbose: {bool(args.verbose)}\n > CSV: {args.csv}\n")
         
 
-        # print("\nRunning drop baseline benchmark\n")
-        # output = do_reps_baseline('./experiments/exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning drop benchmark\n")
-        # output = do_reps('./experiments/exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning drop KFUNC benchmark\n")
-        # output = do_reps_kfunc('./experiments/exp_drop/drop_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning drop baseline benchmark\n")
+        output = do_reps_baseline('./experiments/exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning drop benchmark\n")
+        output = do_reps('./experiments/exp_drop/drop', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print(output)
+        print("\nRunning drop KFUNC benchmark\n")
+        output = do_reps_kfunc('./experiments/exp_drop/drop_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning drop SR benchmark\n")
+        # output = do_reps_sr('./experiments/exp_drop/drop_sr', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        # print("\nRunning cms miano baseline benchmark\n")
-        # output = do_reps_baseline('./experiments/exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning cms miano benchmark\n")
-        # output = do_reps('./experiments/exp_cms_miano/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning cms miano KFUNC benchmark\n")
-        # output = do_reps_kfunc('./experiments/exp_cms_miano/cms_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning cms baseline benchmark\n")
+        output = do_reps_baseline('./experiments/exp_cms/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning cms benchmark\n")
+        output = do_reps('./experiments/exp_cms/cms', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning cms KFUNC benchmark\n")
+        output = do_reps_kfunc('./experiments/exp_cms/cms_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning cms SR benchmark\n")
+        # output = do_reps_sr('./experiments/exp_cms/cms_sr', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        # print("\nRunning cms miano meglio baseline benchmark\n")
-        # output = do_reps_baseline('./experiments/exp_cms_miano/cms_optimized', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning routing baseline benchmark\n")
+        output = do_reps_baseline('./experiments/exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning routing benchmark\n")
+        output = do_reps('./experiments/exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning routing KFUNC benchmark\n")
+        output = do_reps_kfunc('./experiments/exp_routing/lpmtrie_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning routing SR benchmark\n")
+        # output = do_reps_sr('./experiments/exp_routing/lpmtrie_sr', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        # print("\nRunning routing baseline benchmark\n")
-        # output = do_reps_baseline('./experiments/exp_routing/lpmtrie', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning routing benchmark\n")
-        # output = do_reps('./experiments/exp_rdo_reps_baselineKFUNC benchmark\n")
-        # output = do_reps_kfunc('./experiments/exp_routing/lpmtrie_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning tunnel baseline benchmark\n")
+        output = do_reps_baseline('./experiments/exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning tunnel benchmark\n")
+        output = do_reps('./experiments/exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning tunnel KFUNC benchmark\n")
+        output = do_reps_kfunc('./experiments/exp_tunnel/tunnel_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning tunnel SR benchmark\n")
+        # output = do_reps_sr('./experiments/exp_tunnel/tunnel_sr', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        # print("\nRunning tunnel baseline benchmark\n")
-        # output = do_reps_baseline('./experiments/exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning tunnel benchmark\n")
-        # output = do_reps('./experiments/exp_tunnel/tunnel', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning tunnel KFUNC benchmark\n")
-        # output = do_reps_kfunc('./experiments/exp_tunnel/tunnel_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning nat baseline benchmark\n")
+        output = do_reps_baseline('./experiments/exp_nat/xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning nat benchmark\n")
+        output = do_reps('./experiments/exp_nat/xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        print("\nRunning nat KFUNC benchmark\n")
+        output = do_reps_kfunc('./experiments/exp_nat/xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
+        # print("\nRunning nat SR benchmark\n")
+        # output = do_reps_sr('./experiments/exp_nat/xdp_nat_sr', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
 
-        # print("\nRunning nat baseline benchmark\n")
-        # output = do_reps_baseline('./experiments/exp_nat/xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning nat benchmark\n")
-        # output = do_reps('./experiments/exp_nat/xdp_nat', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        # print("\nRunning nat KFUNC benchmark\n")
-        # output = do_reps_kfunc('./experiments/exp_nat/xdp_nat_kfunc', args.interface, args.time, args.event, args.reps,cpu, bool(args.verbose))
-        
     except Exception as e:
         print(f"An error occurred: {e}")
         

@@ -156,7 +156,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
         return XDP_DROP;
     }
 
-    // BPF_MYKPERF_START_TRACE_ARRAY(main);
+    // BPF_MYKPERF_START_TRACE_MULTIPLEXED(main);
 
     /*if ((protocol == IPPROTO_UDP) || !(pckt.flags & F_SYN_SET)) {*/
     connection_table_lookup(&nat_binding_entry, &pckt, &nat_binding_table);
@@ -262,7 +262,7 @@ __attribute__((__always_inline__)) static inline int process_packet(void *data, 
 SEC("xdp")
 int xdp_nat_kfunc(struct xdp_md *ctx)
 {
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED(main);
 
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
@@ -281,12 +281,12 @@ int xdp_nat_kfunc(struct xdp_md *ctx)
     if (eth_proto == BE_ETH_P_IP)
     {
         int ret = process_packet(data, nh_off, data_end, ctx); // moved here to allow profiling
-        BPF_MYKPERF_END_TRACE_ARRAY(main);
+        BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
         return ret;
     }
     else
     {
-        // BPF_MYKPERF_END_TRACE_ARRAY(main);
+        BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
         return XDP_PASS;
     }
 }

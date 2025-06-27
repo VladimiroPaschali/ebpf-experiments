@@ -4,7 +4,7 @@ KFUNC := kfunc
 FENTRY_READ := fentry/fentry_read
 FENTRY_UPDATE_MAP := fentry/fentry_update
 FENTRY := fentry/fentry
-KHEADER := ../inxpect/kperf_
+KHEADER := ../../inxpect/kperf_
 
 .PHONY: all clean fentry
 #.SILENT: drop kfunc macro fentry_perf_read fentry_update_map fentry

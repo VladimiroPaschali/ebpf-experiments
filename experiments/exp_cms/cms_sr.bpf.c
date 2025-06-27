@@ -146,7 +146,7 @@ SEC("xdp")
 int cms_sr(struct xdp_md *ctx)
 {
 
-    BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED_SAMPLED(main);
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
 
@@ -258,8 +258,7 @@ DROP:
     //        *event = end - start;
     //        bpf_ringbuf_submit(event, BPF_RB_NO_WAKEUP);
     //}
-    BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
-    //COUNT_RUN;
+    BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
 
     return XDP_DROP;
 }

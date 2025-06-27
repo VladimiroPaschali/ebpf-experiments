@@ -146,7 +146,7 @@ SEC("xdp")
 int cms_kfunc(struct xdp_md *ctx)
 {
 
-    BPF_MYKPERF_START_TRACE_ARRAY(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED(main);
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
 
@@ -258,7 +258,7 @@ DROP:
     //        *event = end - start;
     //        bpf_ringbuf_submit(event, BPF_RB_NO_WAKEUP);
     //}
-    BPF_MYKPERF_END_TRACE_ARRAY(main);
+    BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
     return XDP_DROP;
 }
 

@@ -10,7 +10,7 @@ SEC("xdp")
 int drop_sr(struct xdp_md *ctx)
 {
 
-    BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED_SAMPLED(main);
 
 /*     // parse packt
     void *data_end = (void *)(long)ctx->data_end;
@@ -22,9 +22,8 @@ int drop_sr(struct xdp_md *ctx)
         return XDP_DROP;
     } */
 
-    BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
+    BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
 
-    //COUNT_RUN;
     return XDP_DROP;
 }
 

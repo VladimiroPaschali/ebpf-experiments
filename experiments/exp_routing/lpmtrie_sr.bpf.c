@@ -33,7 +33,7 @@ struct {
 SEC("xdp")
 int lpmtrie_sr(struct xdp_md *ctx) {
 
-    BPF_MYKPERF_START_TRACE_ARRAY_SAMPLED(main);
+    BPF_MYKPERF_START_TRACE_MULTIPLEXED_SAMPLED(main);
 
 
     void* data = (void*)(long)(ctx->data);
@@ -72,8 +72,7 @@ int lpmtrie_sr(struct xdp_md *ctx) {
     // return XDP_PASS;
 
 end:
-    BPF_MYKPERF_END_TRACE_ARRAY_SAMPLED(main);
-    //COUNT_RUN;
+    BPF_MYKPERF_END_TRACE_MULTIPLEXED(main);
 
     return XDP_DROP;
 };
