@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
-#include <sys/mman.h>
 
 // if_nametoindex
 #include <net/if.h>
@@ -19,7 +18,7 @@
 
 // my modules
 #include "inxpect.h"
-#include "inxpect-server.h"
+// #include "inxpect-server.h"
 #include "mykperf_helpers.h"
 
 struct event metrics[METRICS_NR] = {
@@ -41,10 +40,13 @@ int map_output_fd = -1;
 pthread_t thread_printer = {0};              // poll_print_stats
 pthread_t threads_poll_stats[MAX_PSECTIONS]; // poll_stats
 int duration;
+
+// percpu map
+struct record_array *percpu_data;
 int do_accumulate = 0;
 
 // multiplexed map
-struct record *mmap_map = NULL;
+struct record *multiplexed_data;
 int multiplexed_mode = 0;
 int multiplex_rate = 0;
 
@@ -58,10 +60,18 @@ int sample_rate = 0;
 // server
 int interactive_mode = 0;
 
-static size_t roundup_page(size_t sz)
-{
-    long page_size = sysconf(_SC_PAGE_SIZE);
-    return (sz + page_size - 1) / page_size * page_size;
+static void usage(){
+    fprintf(stderr, "Usage: inxpect [options] <program_name>\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "  -h,  Print this help message\n");
+    fprintf(stderr, "  -n,  Name of the program\n");
+    fprintf(stderr, "  -e,  Event to monitor\n");
+    fprintf(stderr, "  -s,  Sample rate\n");
+    fprintf(stderr, "  -d,  Duration of the monitoring\n");
+    fprintf(stderr, "  -a,  Accumulate values\n");
+    fprintf(stderr, "  -r,  Multiplex rate\n");
+    fprintf(stderr, "  -o,  Output file\n");
+    exit(1);
 }
 
 // from bpftool
@@ -150,6 +160,7 @@ static int psections__get_list(char psections_name_list[MAX_PSECTIONS][MAX_PROG_
     {
         if (rodata->sections[i][0] == '\0')
         {
+            // printf("\nrodata: %d\n", i); DEBUG
             break;
         }
         strncpy(psections_name_list[i], rodata->sections[i], sizeof(rodata->sections[i]));
@@ -196,7 +207,7 @@ static int multiplex__set_rate(int multiplex_rate)
     }
 
     struct bpf_map_info info = {0};
-    int info_len = sizeof(info);
+    __u32 info_len = sizeof(info);
 
     int err = bpf_map_get_info_by_fd(fd, &info, &info_len);
     if (err)
@@ -322,15 +333,6 @@ static int multiplexed_output__get_fd()
         return -1;
     }
 
-    // mmap the map
-    mmap_map = mmap(NULL, roundup_page(sizeof(struct record_array) * MAX_ENTRIES_PERCPU_ARRAY), PROT_READ | PROT_WRITE,
-                    MAP_SHARED, map_fd, 0);
-    if (mmap_map == MAP_FAILED)
-    {
-        fprintf(stderr, "[%s]: during mmap the map\n", ERR);
-        return -1;
-    }
-
     return map_fd;
 }
 
@@ -392,34 +394,41 @@ static void poll_stats(const int key) // key is the id thread
     __u64 values[MAX_METRICS];
     __u64 run_cnts[MAX_METRICS];
 
-    struct record thread_stats;
+    struct record thread_stats[nr_cpus];
     while (1)
     {
-        thread_stats = mmap_map[key];
+        err = bpf_map_lookup_elem(map_output_fd, &key, thread_stats);
+        if (err)
+        {
+            continue;
+        }
 
         // reset values and run_cnts
         memset(values, 0, sizeof(values));
         memset(run_cnts, 0, sizeof(run_cnts));
 
-        // I don't know if check run_cnts[0] is the right thing to do
-        if (thread_stats.name[0] == '\0' || thread_stats.run_cnts[0] == 0)
-            continue;
-
-        for (int i = 0; i < MAX_METRICS; i++)
+        for (int cpu = 0; cpu < nr_cpus; cpu++)
         {
-            values[i] += thread_stats.values[i];
-            run_cnts[i] += thread_stats.run_cnts[i];
-        }
+            // I don't know if check run_cnts[0] is the right thing to do
+            if (thread_stats[cpu].name[0] == '\0' || thread_stats[cpu].run_cnts[0] == 0)
+                continue;
 
+            for (int i = 0; i < MAX_METRICS; i++)
+            {
+                values[i] += thread_stats[cpu].values[i];
+                run_cnts[i] += thread_stats[cpu].run_cnts[i];
+            }
+        }
         memcpy(psections[key].record->values, values, sizeof(values));
         memcpy(psections[key].record->run_cnts, run_cnts, sizeof(run_cnts));
+        // usleep(10000);
     }
 }
 
 static void exit_cleanup(int signo)
 {
-    if (interactive_mode)
-        inxpect_server__close();
+    // if (interactive_mode)
+    //     inxpect_server__close();
 
     if (!do_accumulate && thread_printer)
         pthread_cancel(thread_printer);
@@ -454,8 +463,9 @@ static void exit_cleanup(int signo)
 
             if (psections[i_sec].metrics[j]->enabled)
             {
+                fprintf(stdout, "[%s]: disabling event %s\n", DEBUG, psections[i_sec].metrics[j]->name);
                 err = event__disable(psections[i_sec].metrics[j], running_cpu);
-                if (err)
+                if (err < 0)
                 {
                     fprintf(stderr, "[%s]: during disabling event %s\n", ERR, psections[i_sec].metrics[j]->name);
                 }
@@ -483,7 +493,7 @@ int main(int argc, char **argv)
 {
     int err, opt;
     // retrieve opt
-    while ((opt = getopt(argc, argv, "n:e:C:s:t:r:d:aic")) != -1)
+    while ((opt = getopt(argc, argv, "hn:e:s:t:r:ad:")) != -1)
     {
         switch (opt)
         {
@@ -533,12 +543,19 @@ int main(int argc, char **argv)
         case 'i':
             interactive_mode = 1;
             break;
+        case 'h':
+            usage();
+            exit_cleanup(0);
+            break;
         case '?':
             fprintf(stderr, "%s: invalid option\n", ERR);
+            usage();
             exit_cleanup(0);
             break;
         }
     }
+
+    percpu_data = malloc(libbpf_num_possible_cpus() * sizeof(struct record));
 
     // ---------- ARGS CHECKS ----------
     // TODO: check any error
@@ -570,8 +587,7 @@ int main(int argc, char **argv)
 
     if (duration && interactive_mode)
     {
-        fprintf(stdout, "[%s]: duration and interactive mode are mutually exclusive\n   Duration will have priority",
-                WARN);
+        fprintf(stdout, "[%s]: duration and interactive mode are mutually exclusive\n   Duration will have priority", WARN);
     }
 
     // ------------------------------------------------
@@ -603,6 +619,7 @@ int main(int argc, char **argv)
     }
 
     // setting psections
+    int nr_psections = 0;
     for (int i_sec = 0; i_sec < MAX_PSECTIONS; i_sec++)
     {
         if (psections_name_list[i_sec][0] == '\0')
@@ -659,6 +676,7 @@ int main(int argc, char **argv)
 
             psections[i_sec].record->counters[(i % 4)] = psections[i_sec].metrics[i]->reg_h;
         }
+        nr_psections++;
     }
 
     if (sample_rate)
@@ -687,11 +705,11 @@ int main(int argc, char **argv)
     if (duration)
         signal(SIGALRM, exit_cleanup);
 
-    err = multiplex__set_num_counters(nr_selected_events);
+    err = multiplex__set_num_counters(nr_selected_events*nr_psections);
     if (err)
         exit_cleanup(0);
 
-    err = percput_output__clean_and_init(map_output_fd);
+    err = percput_output__clean_and_init(map_output_fd, running_cpu);
     if (err)
         exit_cleanup(0);
 
@@ -714,25 +732,25 @@ int main(int argc, char **argv)
 
     alarm(duration);
 
-    if (interactive_mode) // SERVER
-    {
-        err = inxpect_server__init_server(0); // port = 0 -> default 8080 port
-        if (err)
-        {
-            exit_cleanup(0);
-        }
+    // if (interactive_mode) // SERVER
+    // {
+    //     err = inxpect_server__init_server(0); // port = 0 -> default 8080 port
+    //     if (err)
+    //     {
+    //         exit_cleanup(0);
+    //     }
 
-        err = inxpect_server__start_and_polling();
-        if (err)
-        {
-            exit_cleanup(0);
-        }
-    }
-    else
-    {
-        pause(); // wait for signal
-    }
-
+    //     err = inxpect_server__start_and_polling();
+    //     if (err)
+    //     {
+    //         exit_cleanup(0);
+    //     }
+    // }
+    // else
+    // {
+    //     pause(); // wait for signal
+    // }
+    pause();
     exit_cleanup(0);
     return 0;
 }

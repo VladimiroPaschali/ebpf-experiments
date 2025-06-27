@@ -11,7 +11,6 @@
 #include "mykperf_module.h"
 #include "mykperf_ioctl.h"
 
-static __u64 mykperf_rdpmc(__u8 counter, __u32 low, __u32 high);
 static __u64 __enable_event(__u64 event, int cpus);
 static int __disable_event(__u64 reg, __u64 event, int cpu);
 static void __add_event(__u64 reg, __u64 event, int cpu);
@@ -33,12 +32,6 @@ MODULE_DESCRIPTION("A Dummy Kernel Module");
 dev_t dev_num;
 static struct cdev mykperf_cdev;
 static struct class *mykperf_class = NULL;
-
-static __u64 mykperf_read_rdpmc(__u8 counter, __u32 low, __u32 high)
-{
-    mykperf_rdpmc(counter, low, high);
-    return ((__u64)high << 32) | low;
-}
 
 __bpf_kfunc void bpf_mykperf__fence(void)
 {
@@ -185,16 +178,11 @@ static void __add_event(__u64 reg, __u64 event, int cpu)
 static __u64 __enable_event(__u64 event, int cpu)
 {
     __u32 r;
-    uint32_t l, h, wl, wh;
+    uint32_t l, h;
     int err;
     int _cpu = 0;
 
-    event = CAP_EVENT | event; // add CAP_EVENT to event
-    wl = event & 0xFFFFFFFF;
-    wh = event >> 32;
-
-    // TODO : do this check on our event, and overwrite other events. This permit us to find the right register and
-    // having the same register for all cpus.
+    // TODO : do this check on our event, and overwrite other events. This permit us to find the right register and having the same register for all cpus.
     //  find a free register
     for (r = FIRST_MSR_EV_SELECT_REG; r < (FIRST_MSR_EV_SELECT_REG + MAX_MSR_PROG_REG); r++)
     {
@@ -205,20 +193,20 @@ static __u64 __enable_event(__u64 event, int cpu)
                 err = rdmsr_safe_on_cpu(_cpu, r, &l, &h);
                 if (err)
                 {
-                    printk("Error reading MSR %x register on cpu %d: \n", r, _cpu, err);
+                    pr_err("Error reading MSR %x register on cpu %d: \n", r, _cpu, err);
                     return -1;
                 }
 
                 // check if l and h are zero
                 if ((l | h) == 0)
                 {
-                    err = wrmsr_safe_on_cpu(_cpu, r, wl, wh);
-                    if (err)
-                    {
-                        printk("Error writing MSR: %d on cpu: %d\n", err, _cpu);
-                        return -1;
-                    }
+                    break;
                 }
+            }
+            // check if l and h are zero
+            if ((l | h) == 0)
+            {
+                break;
             }
         }
         else
@@ -233,17 +221,34 @@ static __u64 __enable_event(__u64 event, int cpu)
             // check if l and h are zero
             if ((l | h) == 0)
             {
-                err = wrmsr_safe_on_cpu(_cpu, r, wl, wh);
-                if (err)
-                {
-                    printk("Error writing MSR: %d on cpu: %d\n", err, _cpu);
-                    return -1;
-                }
+                break;
             }
         }
-        // check if l and h are zero
-        if ((l | h) == 0)
-            break;
+    }
+
+    event = CAP_EVENT | event; // add CAP_EVENT to event
+    l = event & 0xFFFFFFFF;
+    h = event >> 32;
+    if (cpu == -1)
+    {
+        for_each_online_cpu(_cpu)
+        {
+            err = wrmsr_safe_on_cpu(_cpu, r, l, h);
+            if (err)
+            {
+                printk("Error writing MSR: %d on cpu: %d\n", err, _cpu);
+                return -1;
+            }
+        }
+    }
+    else
+    {
+        err = wrmsr_safe_on_cpu(cpu, r, l, h);
+        if (err)
+        {
+            printk("Error writing MSR: %d\n", err);
+            return -1;
+        }
     }
 
     __add_event(r, event, cpu);

@@ -1,4 +1,4 @@
-SUBDIRS := $(wildcard exp_*/.)
+SUBDIRS := $(wildcard experiments/exp_*/.)
 
 
 .SILENT: all
